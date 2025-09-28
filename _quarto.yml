@@ -6,8 +6,8 @@ project:
 
 website:
   title: "Stat 515"
-  site-url: https://jonathanwilsonami.github.io/stat-515/   # <-- fill this in
-  repo-url: https://github.com/jonathanwilsonami/stat-515    # optional
+  site-url: https://jonathanwilsonami.github.io/stat-515/
+  repo-url: https://github.com/jonathanwilsonami/stat-515
   navbar:
     left:
       - href: index.qmd

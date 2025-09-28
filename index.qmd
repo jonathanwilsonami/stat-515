@@ -20,6 +20,7 @@ about:
 ---
 
 :::{#hero-heading .center}
-# Mid-term Project Website  
+# Mid-term Project Website 
+Welcome! 
 :::
 
