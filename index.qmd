@@ -1,0 +1,25 @@
+---
+title: "Welcome!"
+description-meta: "Mid-Term Project"
+# image: images/about/profile.jpg
+page-navigation: false
+toc: false
+page-layout: full
+
+about:
+  id: hero-heading
+  template: trestles
+  image-width: 70%
+  links:
+    - icon: folder
+      text: "Projects"
+      href: projects/index.qmd
+    - icon: person
+      text: "About"
+      href: about.qmd
+---
+
+:::{#hero-heading .center}
+# Mid-term Project Website  
+:::
+

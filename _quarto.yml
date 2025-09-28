@@ -1,0 +1,38 @@
+project:
+  type: website
+  output-dir: docs
+  resources:
+    - images/**
+
+website:
+  title: "Stat 515"
+  site-url: https://jonathanwilsonami.github.io/stat-515/   # <-- fill this in
+  repo-url: https://github.com/jonathanwilsonami/stat-515    # optional
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - text: Projects
+        menu:
+          - text: All Projects
+            href: projects/index.qmd
+          - text: Data Viz
+            href: projects/data-viz/index.qmd
+  page-footer:
+    center:
+      - text: "© 2025 Jonathan Wilson"
+      - icon: github
+        aria-label: GitHub
+        href: https://github.com/jonathanwilsonami/
+
+format:
+  html:
+    theme: cyborg
+    css: styles.css
+    toc: true
+    include-in-header:
+      - text: |
+          <link rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

@@ -1,0 +1,16 @@
+---
+title: "About Me"
+# image: images/about/profile.jpg
+page-navigation: false
+toc: false
+page-layout: full
+
+about:
+  id: hero-heading
+  template: trestles
+  image-width: 70%
+---
+
+:::{#hero-heading}
+
+

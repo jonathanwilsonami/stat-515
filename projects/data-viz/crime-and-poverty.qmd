@@ -1,0 +1,30 @@
+---
+title: "Crime And Poverty"
+date: 2025-09-25
+categories: [Data Viz]
+repo-url: https://github.com/jonathanwilsonami/crime-and-poverty-data-viz-design
+format: html
+---
+
+**Summary:** Data Visualization Redesign Project. 
+
+::: {.badges}
+**Stack:** R, Python, Polars
+:::
+
+## Overview
+
+Big Idea
+
+3 Min Story
+
+## Original Graphic
+
+::: {layout="[1,1,1]"}
+![](/images/projects/data-viz/crime-and-poverty/old-chart-bubble-chart-crime.png){fig-alt="original-chart"}
+:::
+
+## Sample Chart
+
+```{r}
+```
