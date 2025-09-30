@@ -4,49 +4,49 @@
     "href": "index.html",
     "title": "Welcome!",
     "section": "",
-    "text": "Projects\n  \n  \n    \n     About\n  \n\n  \n  \n\nMid-term Project Website\nWelcome!"
-  },
-  {
-    "objectID": "projects/data-viz/index.html",
-    "href": "projects/data-viz/index.html",
-    "title": "Data Viz Projects",
-    "section": "",
-    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
+    "text": "Projects\n  \n  \n    \n     About\n  \n\n  \n  \n\nStat 515 Projects Website\nWelcome!"
   },
   {
     "objectID": "projects/index.html",
     "href": "projects/index.html",
     "title": "Projects",
     "section": "",
-    "text": "Welcome! Explore featured work across Data Viz, AI/ML, IoT & Electronics, and Construction.\n\n\n\n\n\n\n\n\n\n\n\n\nData Viz Projects\n\n\n\n\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "projects/data-viz/crime-and-poverty.html",
-    "href": "projects/data-viz/crime-and-poverty.html",
-    "title": "Crime And Poverty",
+    "objectID": "projects/crime-and-poverty.html",
+    "href": "projects/crime-and-poverty.html",
+    "title": "Crime And Poverty Redesign Project",
     "section": "",
     "text": "Summary: Data Visualization Redesign Project."
   },
   {
-    "objectID": "projects/data-viz/crime-and-poverty.html#overview",
-    "href": "projects/data-viz/crime-and-poverty.html#overview",
-    "title": "Crime And Poverty",
+    "objectID": "projects/crime-and-poverty.html#overview",
+    "href": "projects/crime-and-poverty.html#overview",
+    "title": "Crime And Poverty Redesign Project",
     "section": "Overview",
     "text": "Overview\nBig Idea\n3 Min Story"
   },
   {
-    "objectID": "projects/data-viz/crime-and-poverty.html#original-graphic",
-    "href": "projects/data-viz/crime-and-poverty.html#original-graphic",
-    "title": "Crime And Poverty",
+    "objectID": "projects/crime-and-poverty.html#original-graphic",
+    "href": "projects/crime-and-poverty.html#original-graphic",
+    "title": "Crime And Poverty Redesign Project",
     "section": "Original Graphic",
-    "text": "Original Graphic"
+    "text": "Original Graphic\n\n\n\n\n\n\nFigure 1: The original chart1.\n\n\n\nSee Figure 1."
   },
   {
-    "objectID": "projects/data-viz/crime-and-poverty.html#sample-chart",
-    "href": "projects/data-viz/crime-and-poverty.html#sample-chart",
-    "title": "Crime And Poverty",
-    "section": "Sample Chart",
-    "text": "Sample Chart"
+    "objectID": "projects/crime-and-poverty.html#choropleth-mapping-by-state",
+    "href": "projects/crime-and-poverty.html#choropleth-mapping-by-state",
+    "title": "Crime And Poverty Redesign Project",
+    "section": "Choropleth Mapping by State",
+    "text": "Choropleth Mapping by State\n\ndata &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")"
+  },
+  {
+    "objectID": "projects/crime-and-poverty.html#footnotes",
+    "href": "projects/crime-and-poverty.html#footnotes",
+    "title": "Crime And Poverty Redesign Project",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nGupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization↩︎"
   },
   {
     "objectID": "projects.html",
