@@ -20,7 +20,7 @@ website:
         menu:
           - text: All Projects
             href: projects/index.qmd
-          - text: Mid Term Redesign 
+          - text: Mid Term Redesign
             href: projects/crime-and-poverty.qmd
   page-footer:
     center:
@@ -28,8 +28,6 @@ website:
       - icon: github
         aria-label: GitHub
         href: https://github.com/jonathanwilsonami/
-
-
 
 format:
   html:
