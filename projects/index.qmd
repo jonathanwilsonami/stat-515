@@ -1,12 +1,11 @@
 ---
 title: "Projects"
-page-layout: full
-
 listing:
-  contents:
-    - data-viz/index.qmd
+  contents: 
+  - "*.qmd"
   type: grid
   sort: "date desc"
+  image-placeholder: /images/placeholder.png
 ---
 
-Welcome! Explore featured work across **Data Viz**, **AI/ML**, **IoT & Electronics**, and **Construction**.
+A collection of visualization projects—dashboards, interactive charts, and storytelling with data.

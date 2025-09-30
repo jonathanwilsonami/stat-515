@@ -1,8 +1,10 @@
 project:
   type: website
   output-dir: docs
+  execute-dir: project
   resources:
     - images/**
+    - data/**
 
 website:
   title: "Stat 515"
@@ -18,14 +20,16 @@ website:
         menu:
           - text: All Projects
             href: projects/index.qmd
-          - text: Data Viz
-            href: projects/data-viz/index.qmd
+          - text: Mid Term Redesign 
+            href: projects/crime-and-poverty.qmd
   page-footer:
     center:
       - text: "© 2025 Jonathan Wilson"
       - icon: github
         aria-label: GitHub
         href: https://github.com/jonathanwilsonami/
+
+
 
 format:
   html:

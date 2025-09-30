@@ -1,0 +1,37 @@
+---
+title: "Crime And Poverty Redesign Project"
+date: 2025-09-25
+categories: [Data Viz]
+repo-url: https://github.com/jonathanwilsonami/stat-515
+format: html
+---
+
+**Summary:** Data Visualization Redesign Project. 
+
+::: {.badges}
+**Stack:** R, Python, Polars
+:::
+
+## Overview
+
+Big Idea
+
+3 Min Story
+
+## Original Graphic
+
+![The original chart[^refnote].](/images/old-chart-bubble-chart-crime.png){#fig-original fig-align="center" width="70%"}
+
+[^refnote]: Gupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization
+
+
+See @fig-original.
+
+
+## Choropleth Mapping by State
+
+```{r}
+data <- read.csv("data/crime_plus_poverty_2023.csv")
+
+
+```

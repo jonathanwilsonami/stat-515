@@ -20,7 +20,7 @@ about:
 ---
 
 :::{#hero-heading .center}
-# Mid-term Project Website 
+# Stat 515 Projects Website 
 Welcome! 
 :::
 
