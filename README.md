@@ -19,3 +19,9 @@ In an R console started from the project root:
 install.packages("renv", repos = "https://cloud.r-project.org")  # To install renv for first time only
 renv::restore()  # installs packages listed in renv.lock into a project-local library
 ```
+
+## Publish To Github Pages
+
+```bash
+quarto publish gh-pages
+```
