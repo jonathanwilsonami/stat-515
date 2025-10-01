@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Welcome!",
-    "section": "",
-    "text": "Projects\n  \n  \n    \n     About\n  \n\n  \n  \n\nStat 515 Projects Website\nWelcome!"
-  },
-  {
     "objectID": "projects/index.html",
     "href": "projects/index.html",
     "title": "Projects",
@@ -39,7 +32,7 @@
     "href": "projects/crime-and-poverty.html#choropleth-mapping-by-state",
     "title": "Crime And Poverty Redesign Project",
     "section": "Choropleth Mapping by State",
-    "text": "Choropleth Mapping by State\n\ndata &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")"
+    "text": "Choropleth Mapping by State\n\n# library(ggplot2)\n# library(dplyr)\n# library(sf)\n# library(maps)      # for built-in US state polygons\n# library(stringr)\ndata &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")"
   },
   {
     "objectID": "projects/crime-and-poverty.html#footnotes",

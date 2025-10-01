@@ -1,7 +1,7 @@
 project:
   type: website
   output-dir: docs
-  execute-dir: project
+  execute-dir: project # Sets your root directory 
   resources:
     - images/**
     - data/**
