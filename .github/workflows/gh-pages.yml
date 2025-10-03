@@ -1,6 +1,6 @@
 name: Quarto to gh-pages
 on:
-  push: { branches: [ main ] }
+  push: { branches: [ master ] }
   workflow_dispatch:
 
 permissions:
