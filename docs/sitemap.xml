@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://jonathanwilsonami.github.io/stat-515/index.html</loc>
+    <lastmod>2025-09-29T23:12:26.248Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jonathanwilsonami.github.io/stat-515/about.html</loc>
+    <lastmod>2025-10-03T00:30:28.742Z</lastmod>
+  </url>
+  <url>
     <loc>https://jonathanwilsonami.github.io/stat-515/projects/index.html</loc>
     <lastmod>2025-09-29T23:54:06.734Z</lastmod>
   </url>
   <url>
     <loc>https://jonathanwilsonami.github.io/stat-515/projects/crime-and-poverty.html</loc>
-    <lastmod>2025-10-01T23:30:32.758Z</lastmod>
+    <lastmod>2025-10-03T00:38:53.078Z</lastmod>
   </url>
   <url>
     <loc>https://jonathanwilsonami.github.io/stat-515/projects.html</loc>
     <lastmod>2025-09-28T23:42:29.659Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jonathanwilsonami.github.io/stat-515/about.html</loc>
-    <lastmod>2025-09-28T23:42:29.643Z</lastmod>
   </url>
 </urlset>

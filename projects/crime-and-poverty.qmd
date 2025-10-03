@@ -33,11 +33,11 @@ See @fig-original.
 
 ```{r}
 
-# library(ggplot2)
-# library(dplyr)
-# library(sf)
-# library(maps)      # for built-in US state polygons
-# library(stringr)
+library(ggplot2)
+library(dplyr)
+library(sf)
+library(maps)      # for built-in US state polygons
+library(stringr)
 data <- read.csv("data/crime_plus_poverty_2023.csv")
 
 
