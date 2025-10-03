@@ -12,4 +12,6 @@ about:
 ---
 
 :::{#hero-heading}
+Jonathan 
 
+Sean
