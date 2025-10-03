@@ -26,6 +26,11 @@ install.packages("renv", repos = "https://cloud.r-project.org")  # To install re
 renv::restore()  # installs packages listed in renv.lock into a project-local library
 ```
 
+Sometimes you don't have to do this if your .Rprofile has:
+```bash
+source("renv/activate.R")
+```
+
 ## Adding new R packages 
 If you need to add new packages make sure to add them to the renv.lock. Make sure you are in the project 
 directory and that the renv is activate. This should have been done already above. 
