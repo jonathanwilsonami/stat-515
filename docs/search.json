@@ -7,6 +7,13 @@
     "text": "Projects\n  \n  \n    \n     About\n  \n\n  \n  \n\nStat 515 Projects Website\nWelcome!"
   },
   {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About Us",
+    "section": "",
+    "text": "Jonathan\nSean"
+  },
+  {
     "objectID": "projects/index.html",
     "href": "projects/index.html",
     "title": "Projects",
@@ -39,7 +46,7 @@
     "href": "projects/crime-and-poverty.html#choropleth-mapping-by-state",
     "title": "Crime And Poverty Redesign Project",
     "section": "Choropleth Mapping by State",
-    "text": "Choropleth Mapping by State\n\ndata &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")"
+    "text": "Choropleth Mapping by State\n\nlibrary(ggplot2)\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(sf)\n\nLinking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE\n\nlibrary(maps)      # for built-in US state polygons\nlibrary(stringr)\ndata &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")"
   },
   {
     "objectID": "projects/crime-and-poverty.html#footnotes",

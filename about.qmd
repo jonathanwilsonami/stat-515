@@ -1,5 +1,5 @@
 ---
-title: "About Me"
+title: "About Us"
 # image: images/about/profile.jpg
 page-navigation: false
 toc: false
@@ -12,5 +12,6 @@ about:
 ---
 
 :::{#hero-heading}
+Jonathan 
 
-
+Sean
