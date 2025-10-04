@@ -11,14 +11,91 @@
     "href": "about.html",
     "title": "About Us",
     "section": "",
-    "text": "Jonathan\nSean"
+    "text": "Jonathan Wilson\n\n\nI’m simply an engineer. I started in construction growing up, earned an undergraduate BYU degree in Applied Statistics & Computer Science, spent over a decade building software in areas such as DoD satellites (image processing, optimization), cybersecurity (petabyte-scale analytics, ML), network engineering & monitoring and data platforms. Today I design data architectures and pipelines for modeling and analyzing large scale systems. At GMU I’m pursuing a degree in Data Analytics Engineering."
+  },
+  {
+    "objectID": "about.html#jonathan",
+    "href": "about.html#jonathan",
+    "title": "About Us",
+    "section": "",
+    "text": "Jonathan Wilson\n\n\nI’m simply an engineer. I started in construction growing up, earned an undergraduate BYU degree in Applied Statistics & Computer Science, spent over a decade building software in areas such as DoD satellites (image processing, optimization), cybersecurity (petabyte-scale analytics, ML), network engineering & monitoring and data platforms. Today I design data architectures and pipelines for modeling and analyzing large scale systems. At GMU I’m pursuing a degree in Data Analytics Engineering."
   },
   {
     "objectID": "projects/index.html",
     "href": "projects/index.html",
     "title": "Projects",
     "section": "",
-    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
+    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html",
+    "href": "projects/crime-and-poverty-CODE.html",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "",
+    "text": "# See renv.lock \nlibrary(ggplot2)\nlibrary(dplyr)\n# library(sf)\nlibrary(maps)\n# library(stringr)\nlibrary(tidyr)\nlibrary(tidyverse) \nlibrary(mapproj)\nlibrary(patchwork)\nlibrary(scales)\nlibrary(plotly)\n\n##################################\n# Data Sources \n##################################\nstate &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")\ncounty &lt;- read.csv(\"data/crime_poverty_by_county_2023.csv\", check.names = FALSE)\n\n##################################\n# Data Cleaning \n##################################\n# Droping rows where census data was not available for 2023 source county data \nif (\"no_population\" %in% names(county)) {\n  county &lt;- county %&gt;% dplyr::filter(no_population != \"true\")\n}\n\ncounty &lt;- county %&gt;%\n  mutate(\n    poverty_rate = as.numeric(poverty_rate),\n    property_crime_per_100k = as.numeric(property_crime_per_100k),\n    violent_crime_per_100k = as.numeric(violent_crime_per_100k)\n  )\n\n##################################\n# Useful functions & Vars\n##################################\ncounty_metric_cols &lt;- c(\"poverty_rate\",\n            \"property_crime_per_100k\",\n            \"violent_crime_per_100k\")\n\n# Create geometries for mapping \nus_counties &lt;- ggplot2::map_data(\"county\")  # long/lat + region (state), subregion (county)\ncounty_key  &lt;- maps::county.fips %&gt;% mutate(polyname = str_to_lower(polyname))\n\ncounties_poly &lt;- us_counties %&gt;%\n  mutate(polyname = paste(region, subregion, sep = \",\")) %&gt;%\n  left_join(county_key, by = \"polyname\") %&gt;%\n  rename(fips = fips) %&gt;%\n  filter(!is.na(fips))\n\n# Function for creating maps\nbuild_county_map &lt;- function(data) {\n  ggplot(data, aes(long, lat, group = group)) +\n    geom_polygon(color = \"gray85\", linewidth = 0.1, na.rm = TRUE) +\n    coord_quickmap() +\n    theme_void(base_size = 12) +\n    theme(\n      legend.position = \"bottom\",\n      plot.title = element_text(face = \"bold\", size = 16),\n      plot.margin = margin(4, 8, 4, 8)\n    )\n}\n\n# Helper to compute sensible upper limits (95th percentile) for crime and poverty rates \np95 &lt;- function(x) {\n  x &lt;- x[is.finite(x)]\n  if (!length(x)) return(NA_real_)\n  as.numeric(quantile(x, 0.95, na.rm = TRUE))\n}\n\n# Derive county FIPS given a data frame\n# Uses: fips OR state+county codes OR state_abbr+county name\nderive_fips &lt;- function(df, county_key = NULL, keep_unmatched = FALSE) {\n  stopifnot(is.data.frame(df))\n\n  finish &lt;- function(out) invisible(if (keep_unmatched) out else dplyr::filter(out, !is.na(.data$fips)))\n\n  # county crosswalk (polyname = \"state,county\" lowercase)\n  if (is.null(county_key)) {\n    county_key &lt;- maps::county.fips |&gt;\n      dplyr::mutate(polyname = stringr::str_to_lower(polyname))\n  }\n\n  # Already has FIPS\n  if (\"fips\" %in% names(df)) {\n    out &lt;- dplyr::mutate(df, fips = stringr::str_pad(as.character(.data$fips), 5, \"0\"))\n    return(finish(out))\n  }\n\n  # state + county numeric/string codes\n  if (all(c(\"state\", \"county\") %in% names(df))) {\n    out &lt;- dplyr::mutate(\n      df,\n      fips = paste0(\n        stringr::str_pad(as.character(.data$state),  2, \"0\"),\n        stringr::str_pad(as.character(.data$county), 3, \"0\")\n      )\n    )\n    return(finish(out))\n  }\n\n  # state_abbr + county name (match via polyname)\n  county_col &lt;- c(\"county_name\", \"county\")[c(\"county_name\", \"county\") %in% names(df)][1]\n  if (!is.na(county_col) && \"state_abbr\" %in% names(df)) {\n    states_lookup &lt;- tibble::tibble(\n      state_abbr = c(state.abb, \"DC\"),\n      state_name = c(state.name, \"District of Columbia\")\n    ) |&gt;\n      dplyr::mutate(state_name_lower = stringr::str_to_lower(state_name))\n\n    norm_county &lt;- function(x) {\n      x |&gt;\n        stringr::str_to_lower() |&gt;\n        stringr::str_replace_all(\"\\\\s+(county|parish|borough|census area|municipality|city)$\", \"\") |&gt; # Regex to extract county name\n        stringr::str_replace_all(\"^st\\\\.?\\\\s\", \"saint \")\n    }\n\n    out &lt;- df |&gt;\n      dplyr::left_join(states_lookup, by = \"state_abbr\") |&gt;\n      dplyr::mutate(polyname = paste(.data$state_name_lower, norm_county(.data[[county_col]]), sep = \",\")) |&gt;\n      dplyr::left_join(county_key, by = \"polyname\")  # adds fips\n    return(finish(out))\n  }\n\n  stop(\"derive_fips(): need one of: 'fips'; 'state'+'county'; or 'state_abbr'+county name.\")\n}\n\n# Horizontal colorbar that sits nicely under the main title\nnice_colorbar &lt;- function() {\n  guide_colorbar(\n    title.position = \"top\",\n    label.position = \"bottom\",\n    barwidth = unit(90, \"mm\"),\n    barheight = unit(5, \"mm\"),\n    ticks = FALSE\n  )\n}\n\n# Poverty ticks every 5 percentage points, capped to avoid clutter\npoverty_breaks &lt;- function(upper) {\n  upper &lt;- min(upper, 0.40)\n  seq(0, upper, by = 0.05)\n}\n\n# Pretty numeric ticks up to the computed cap\npretty_breaks_to &lt;- function(upper, n = 6) {\n  scales::pretty_breaks(n)(c(0, upper))\n}\n\n# A cooler palette without the bright yellow; trim extremes\npalette_args &lt;- list(option = \"mako\", begin = 0.15, end = 0.90)"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#loading-libs-and-data",
+    "href": "projects/crime-and-poverty-CODE.html#loading-libs-and-data",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "",
+    "text": "# See renv.lock \nlibrary(ggplot2)\nlibrary(dplyr)\n# library(sf)\nlibrary(maps)\n# library(stringr)\nlibrary(tidyr)\nlibrary(tidyverse) \nlibrary(mapproj)\nlibrary(patchwork)\nlibrary(scales)\nlibrary(plotly)\n\n##################################\n# Data Sources \n##################################\nstate &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")\ncounty &lt;- read.csv(\"data/crime_poverty_by_county_2023.csv\", check.names = FALSE)\n\n##################################\n# Data Cleaning \n##################################\n# Droping rows where census data was not available for 2023 source county data \nif (\"no_population\" %in% names(county)) {\n  county &lt;- county %&gt;% dplyr::filter(no_population != \"true\")\n}\n\ncounty &lt;- county %&gt;%\n  mutate(\n    poverty_rate = as.numeric(poverty_rate),\n    property_crime_per_100k = as.numeric(property_crime_per_100k),\n    violent_crime_per_100k = as.numeric(violent_crime_per_100k)\n  )\n\n##################################\n# Useful functions & Vars\n##################################\ncounty_metric_cols &lt;- c(\"poverty_rate\",\n            \"property_crime_per_100k\",\n            \"violent_crime_per_100k\")\n\n# Create geometries for mapping \nus_counties &lt;- ggplot2::map_data(\"county\")  # long/lat + region (state), subregion (county)\ncounty_key  &lt;- maps::county.fips %&gt;% mutate(polyname = str_to_lower(polyname))\n\ncounties_poly &lt;- us_counties %&gt;%\n  mutate(polyname = paste(region, subregion, sep = \",\")) %&gt;%\n  left_join(county_key, by = \"polyname\") %&gt;%\n  rename(fips = fips) %&gt;%\n  filter(!is.na(fips))\n\n# Function for creating maps\nbuild_county_map &lt;- function(data) {\n  ggplot(data, aes(long, lat, group = group)) +\n    geom_polygon(color = \"gray85\", linewidth = 0.1, na.rm = TRUE) +\n    coord_quickmap() +\n    theme_void(base_size = 12) +\n    theme(\n      legend.position = \"bottom\",\n      plot.title = element_text(face = \"bold\", size = 16),\n      plot.margin = margin(4, 8, 4, 8)\n    )\n}\n\n# Helper to compute sensible upper limits (95th percentile) for crime and poverty rates \np95 &lt;- function(x) {\n  x &lt;- x[is.finite(x)]\n  if (!length(x)) return(NA_real_)\n  as.numeric(quantile(x, 0.95, na.rm = TRUE))\n}\n\n# Derive county FIPS given a data frame\n# Uses: fips OR state+county codes OR state_abbr+county name\nderive_fips &lt;- function(df, county_key = NULL, keep_unmatched = FALSE) {\n  stopifnot(is.data.frame(df))\n\n  finish &lt;- function(out) invisible(if (keep_unmatched) out else dplyr::filter(out, !is.na(.data$fips)))\n\n  # county crosswalk (polyname = \"state,county\" lowercase)\n  if (is.null(county_key)) {\n    county_key &lt;- maps::county.fips |&gt;\n      dplyr::mutate(polyname = stringr::str_to_lower(polyname))\n  }\n\n  # Already has FIPS\n  if (\"fips\" %in% names(df)) {\n    out &lt;- dplyr::mutate(df, fips = stringr::str_pad(as.character(.data$fips), 5, \"0\"))\n    return(finish(out))\n  }\n\n  # state + county numeric/string codes\n  if (all(c(\"state\", \"county\") %in% names(df))) {\n    out &lt;- dplyr::mutate(\n      df,\n      fips = paste0(\n        stringr::str_pad(as.character(.data$state),  2, \"0\"),\n        stringr::str_pad(as.character(.data$county), 3, \"0\")\n      )\n    )\n    return(finish(out))\n  }\n\n  # state_abbr + county name (match via polyname)\n  county_col &lt;- c(\"county_name\", \"county\")[c(\"county_name\", \"county\") %in% names(df)][1]\n  if (!is.na(county_col) && \"state_abbr\" %in% names(df)) {\n    states_lookup &lt;- tibble::tibble(\n      state_abbr = c(state.abb, \"DC\"),\n      state_name = c(state.name, \"District of Columbia\")\n    ) |&gt;\n      dplyr::mutate(state_name_lower = stringr::str_to_lower(state_name))\n\n    norm_county &lt;- function(x) {\n      x |&gt;\n        stringr::str_to_lower() |&gt;\n        stringr::str_replace_all(\"\\\\s+(county|parish|borough|census area|municipality|city)$\", \"\") |&gt; # Regex to extract county name\n        stringr::str_replace_all(\"^st\\\\.?\\\\s\", \"saint \")\n    }\n\n    out &lt;- df |&gt;\n      dplyr::left_join(states_lookup, by = \"state_abbr\") |&gt;\n      dplyr::mutate(polyname = paste(.data$state_name_lower, norm_county(.data[[county_col]]), sep = \",\")) |&gt;\n      dplyr::left_join(county_key, by = \"polyname\")  # adds fips\n    return(finish(out))\n  }\n\n  stop(\"derive_fips(): need one of: 'fips'; 'state'+'county'; or 'state_abbr'+county name.\")\n}\n\n# Horizontal colorbar that sits nicely under the main title\nnice_colorbar &lt;- function() {\n  guide_colorbar(\n    title.position = \"top\",\n    label.position = \"bottom\",\n    barwidth = unit(90, \"mm\"),\n    barheight = unit(5, \"mm\"),\n    ticks = FALSE\n  )\n}\n\n# Poverty ticks every 5 percentage points, capped to avoid clutter\npoverty_breaks &lt;- function(upper) {\n  upper &lt;- min(upper, 0.40)\n  seq(0, upper, by = 0.05)\n}\n\n# Pretty numeric ticks up to the computed cap\npretty_breaks_to &lt;- function(upper, n = 6) {\n  scales::pretty_breaks(n)(c(0, upper))\n}\n\n# A cooler palette without the bright yellow; trim extremes\npalette_args &lt;- list(option = \"mako\", begin = 0.15, end = 0.90)"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code\n\ndf &lt;- county\n\ndf &lt;- derive_fips(df)\n\n# Join metrics to polygons\nmap_df &lt;- counties_poly %&gt;%\n  left_join(\n    df %&gt;% select(fips, all_of(county_metric_cols)),\n    by = \"fips\"\n  )\n\n# Limits for each metric - 95th percentile as the upper scale limit\nlim_pov  &lt;- c(0, max(0.3, min(0.6, ceiling(p95(map_df$poverty_rate) * 10) / 10))) \nlim_prop &lt;- c(0, p95(map_df$property_crime_per_100k)) \nlim_viol &lt;- c(0, p95(map_df$violent_crime_per_100k)) \n\n# poverty &lt;- build_county_map(map_df) +\n#   geom_polygon(aes(fill = poverty_rate)) +\n#   scale_fill_viridis_c(\n#     labels = percent_format(accuracy = 1),\n#     limits = lim_pov, oob = scales::squish, na.value = \"gray95\"\n#   ) +\n#   labs(title = \"Poverty Rate by County (share of population)\", fill = \"Poverty\")\n\npoverty &lt;- build_county_map(map_df) +\n  geom_polygon(aes(fill = poverty_rate)) +\n  do.call(scale_fill_viridis_c, c(\n    palette_args,\n    list(\n      limits = lim_pov,\n      breaks = poverty_breaks(lim_pov[2]),\n      labels = scales::percent_format(accuracy = 1),\n      oob = scales::squish, na.value = \"gray95\",\n      name = \"Poverty rate (% of residents)\",\n      guide = nice_colorbar()\n    )\n  )) +\n  labs(title = \"Poverty Rate by County\") +\n  theme(\n    legend.position = \"top\",\n    plot.title.position = \"plot\",\n    legend.justification = \"left\",\n    legend.box.just = \"left\",\n    plot.title = element_text(size = 22, face = \"bold\")\n  )\n\nproperty &lt;- build_county_map(map_df) +\n  geom_polygon(aes(fill = property_crime_per_100k)) +\n  do.call(scale_fill_viridis_c, c(\n    palette_args,\n    list(\n      limits = lim_prop,\n      breaks = pretty_breaks_to(lim_prop[2], n = 6),\n      labels = scales::comma_format(accuracy = 1),\n      oob = scales::squish, na.value = \"gray95\",\n      name = \"Property crime (per 100k residents)\",\n      guide = nice_colorbar()\n    )\n  )) +\n  labs(title = \"Property Crime per 100,000\") +\n  theme(\n    legend.position = \"top\",\n    plot.title.position = \"plot\",\n    legend.justification = \"left\",\n    legend.box.just = \"left\",\n    plot.title = element_text(size = 22, face = \"bold\")\n  )\n\nviolent &lt;- build_county_map(map_df) +\n  geom_polygon(aes(fill = violent_crime_per_100k)) +\n  do.call(scale_fill_viridis_c, c(\n    palette_args,\n    list(\n      limits = lim_viol,\n      breaks = pretty_breaks_to(lim_viol[2], n = 6),\n      labels = scales::comma_format(accuracy = 1),\n      oob = scales::squish, na.value = \"gray95\",\n      name = \"Violent crime (per 100k residents)\",\n      guide = nice_colorbar()\n    )\n  )) +\n  labs(title = \"Violent Crime per 100,000\") +\n  theme(\n    legend.position = \"top\",\n    plot.title.position = \"plot\",\n    legend.justification = \"left\",\n    legend.box.just = \"left\",\n    plot.title = element_text(size = 22, face = \"bold\")\n  )\n\n# Stack each plot vertically\nstack_us &lt;-\n  (poverty / property / violent) &\n  theme(\n    plot.margin = margin(6, 10, 6, 10)\n  )\n\nstack_us +\n  plot_annotation(\n    title   = \"Crime & Poverty by U.S. County\",\n    caption = \"Note: Some county data are missing from the Census data\\nSource: FBI Crime Data API and data.census.gov for 2023\",\n    theme = theme(\n      plot.title.position = \"plot\",\n      plot.title   = element_text(size = 28, face = \"bold\", hjust = 0), \n      plot.caption.position = \"plot\", \n      plot.caption = element_text(size = 16, hjust = 0, colour = \"grey30\",\n                                  lineheight = 1.15, margin = margin(t = 10)),\n      plot.margin  = margin(8, 12, 18, 12)\n    )\n  )"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-1",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-1",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code\n\ndf &lt;- county\n\ndf &lt;- derive_fips(df)\n\n# Build South Carolina map data only\nsc_poly &lt;- counties_poly %&gt;% filter(region == \"south carolina\")\n\nsc_map &lt;- sc_poly %&gt;%\n  left_join(df %&gt;% select(fips, all_of(county_metric_cols)), by = \"fips\")\n\nlim_pov  &lt;- c(0, max(0.3, min(0.6, ceiling(p95(sc_map$poverty_rate) * 10) / 10)))\nlim_prop &lt;- c(0, {x &lt;- p95(sc_map$property_crime_per_100k); if (!is.finite(x)) max(sc_map$property_crime_per_100k, na.rm = TRUE) else x})\nlim_viol &lt;- c(0, {x &lt;- p95(sc_map$violent_crime_per_100k);  if (!is.finite(x)) max(sc_map$violent_crime_per_100k,  na.rm = TRUE) else x})\n\npoverty_sc &lt;- build_county_map(sc_map) +\n  geom_polygon(aes(fill = poverty_rate)) +\n  do.call(scale_fill_viridis_c, c(\n    palette_args,\n    list(\n      limits = lim_pov,\n      breaks = poverty_breaks(lim_pov[2]),\n      labels = scales::percent_format(accuracy = 1),\n      oob = scales::squish, na.value = \"gray95\",\n      name = \"Poverty rate (% of residents)\",\n      guide = nice_colorbar()\n    )\n  )) +\n  labs(title = \"Poverty Rate by County\") +\n  theme(\n    legend.position = \"top\",\n    plot.title.position = \"plot\",\n    legend.justification = \"left\",\n    legend.box.just = \"left\",\n    plot.title = element_text(size = 22, face = \"bold\")\n  )\n\nproperty_sc &lt;- build_county_map(sc_map) +\n  geom_polygon(aes(fill = property_crime_per_100k)) +\n  do.call(scale_fill_viridis_c, c(\n    palette_args,\n    list(\n      limits = lim_prop,\n      breaks = pretty_breaks_to(lim_prop[2], n = 6),\n      labels = scales::comma_format(accuracy = 1),\n      oob = scales::squish, na.value = \"gray95\",\n      name = \"Property crime (per 100k residents)\",\n      guide = nice_colorbar()\n    )\n  )) +\n  labs(title = \"Property Crime per 100,000\") +\n  theme(\n    legend.position = \"top\",\n    plot.title.position = \"plot\",\n    legend.justification = \"left\",\n    legend.box.just = \"left\",\n    plot.title = element_text(size = 22, face = \"bold\")\n  )\n\nviolent_sc &lt;- build_county_map(sc_map) +\n  geom_polygon(aes(fill = violent_crime_per_100k)) +\n  do.call(scale_fill_viridis_c, c(\n    palette_args,\n    list(\n      limits = lim_viol,\n      breaks = pretty_breaks_to(lim_viol[2], n = 6),\n      labels = scales::comma_format(accuracy = 1),\n      oob = scales::squish, na.value = \"gray95\",\n      name = \"Violent crime (per 100k residents)\",\n      guide = nice_colorbar()\n    )\n  )) +\n  labs(title = \"Violent Crime per 100,000\") +\n  theme(\n    legend.position = \"top\",\n    plot.title.position = \"plot\",\n    legend.justification = \"left\",\n    legend.box.just = \"left\",\n    plot.title = element_text(size = 22, face = \"bold\")\n  )\n\n# Stack the three maps\nstack_sc &lt;-\n  (poverty_sc / property_sc / violent_sc) &\n  theme(plot.margin = margin(6, 10, 6, 10))\n\nstack_sc +\n  plot_annotation(\n    title   = \"South Carolina by County\",\n    caption = \"Note: Some county data are missing from the Census data\\nSource: FBI Crime Data API and data.census.gov for 2023\",\n    theme = theme(\n      plot.title.position = \"plot\",\n      plot.title   = element_text(size = 28, face = \"bold\", hjust = 0),\n      plot.caption.position = \"plot\",\n      plot.caption = element_text(size = 16, hjust = 0, colour = \"grey30\",\n                                  lineheight = 1.15, margin = margin(t = 10)),\n      plot.margin  = margin(8, 12, 18, 12)\n    )\n  )"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-2",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-2",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-3",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-3",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-4",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-4",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-5",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-5",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-6",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-6",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code"
+  },
+  {
+    "objectID": "projects/crime-and-poverty-CODE.html#title-to-explain-code-7",
+    "href": "projects/crime-and-poverty-CODE.html#title-to-explain-code-7",
+    "title": "Crime And Poverty Redesign Project CODE",
+    "section": "Title To Explain Code",
+    "text": "Title To Explain Code\nCode Resources:\n\nChloropleth Map"
   },
   {
     "objectID": "projects/crime-and-poverty.html",
@@ -28,25 +105,39 @@
     "text": "Summary: Data Visualization Redesign Project."
   },
   {
-    "objectID": "projects/crime-and-poverty.html#overview",
-    "href": "projects/crime-and-poverty.html#overview",
+    "objectID": "projects/crime-and-poverty.html#overview-background",
+    "href": "projects/crime-and-poverty.html#overview-background",
     "title": "Crime And Poverty Redesign Project",
-    "section": "Overview",
-    "text": "Overview\nBig Idea\n3 Min Story"
+    "section": "Overview & Background",
+    "text": "Overview & Background\nBig Idea\n3 Min Story - Background - Original chart - Data used - Overview of data fetching process"
   },
   {
     "objectID": "projects/crime-and-poverty.html#original-graphic",
     "href": "projects/crime-and-poverty.html#original-graphic",
     "title": "Crime And Poverty Redesign Project",
     "section": "Original Graphic",
-    "text": "Original Graphic\n\n\n\n\n\n\nFigure 1: The original chart1.\n\n\n\nSee Figure 1."
+    "text": "Original Graphic\n\n\n\n\n\n\nFigure 1: The original chart1.\n\n\n\nThe visualization shown above (see Figure 1) is the original graph that we chose for this redesign project. This visualization was taken from a website that identified multiple examples of data visualizations that do not follow best practices. Just at first glance, we can very quickly determine that there is a lot going on in this graph. In fact, there is too much going on to the point that it is hard for the audience to understand the intended story behind the graph. This graph attempts to showcase three separate variables in property crime, violent crime, and poverty, but did not do a great job in portraying the data in such a way that the audience can easily interpret. For example, the bubble radius for the poverty variable has no numeric reference, so even though they are comparable between states, any single radius has no meaning on its own. Additionally, there is no title of the graph so it is unclear what timeframe this data is coming from, the state labels are messy and hard to read, the units could be more explicit, and the color choice is not the best. Overall, there are several changes that can be made to this original graph to better illustrate the data and the message.\nIn our redesigns, the primary goal is to make the visualizations easier to understand than the original graph. This entails reducing the level of effort needed to interpret the visualizations. There are some elements of the original graph that had good intentions behind them though, that are worth incorporating in our redesigns. For example, the concept of tracking three variables in the same visualization can be insightful to examine their intertwined relationships. However, we can implement this concept more effectively by simplifying variable visuals and reducing overall visual clutter within the graph. Additionally, we can create multiple graphs side by side for comparison between these variables, with each graph focusing on only one or two variables. For another example, the concept of comparing variables between states is important in telling a story about the data. However, we can implement this concept more effectively by cleaning up the state labels and even utilizing a different element, such as a color gradient, to differentiate between the multiple poverty levels. Additionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US. These are just some of the various solutions that we implemented in our redesigns."
   },
   {
-    "objectID": "projects/crime-and-poverty.html#choropleth-mapping-by-state",
-    "href": "projects/crime-and-poverty.html#choropleth-mapping-by-state",
+    "objectID": "projects/crime-and-poverty.html#comparing-crime-and-poverty-by-u.s.-county",
+    "href": "projects/crime-and-poverty.html#comparing-crime-and-poverty-by-u.s.-county",
     "title": "Crime And Poverty Redesign Project",
-    "section": "Choropleth Mapping by State",
-    "text": "Choropleth Mapping by State\n\nlibrary(ggplot2)\nlibrary(dplyr)\n\n\nAttaching package: 'dplyr'\n\n\nThe following objects are masked from 'package:stats':\n\n    filter, lag\n\n\nThe following objects are masked from 'package:base':\n\n    intersect, setdiff, setequal, union\n\nlibrary(sf)\n\nLinking to GEOS 3.12.1, GDAL 3.8.4, PROJ 9.4.0; sf_use_s2() is TRUE\n\nlibrary(maps)      # for built-in US state polygons\nlibrary(stringr)\ndata &lt;- read.csv(\"data/crime_plus_poverty_2023.csv\")"
+    "section": "Comparing Crime and Poverty by U.S. County",
+    "text": "Comparing Crime and Poverty by U.S. County"
+  },
+  {
+    "objectID": "projects/crime-and-poverty.html#zooming-in-on-south-carolina",
+    "href": "projects/crime-and-poverty.html#zooming-in-on-south-carolina",
+    "title": "Crime And Poverty Redesign Project",
+    "section": "Zooming in on South Carolina",
+    "text": "Zooming in on South Carolina"
+  },
+  {
+    "objectID": "projects/crime-and-poverty.html#interactive-plot-of-south-carolina-to-look-at-individual-counties",
+    "href": "projects/crime-and-poverty.html#interactive-plot-of-south-carolina-to-look-at-individual-counties",
+    "title": "Crime And Poverty Redesign Project",
+    "section": "Interactive Plot of South Carolina to Look at Individual Counties",
+    "text": "Interactive Plot of South Carolina to Look at Individual Counties"
   },
   {
     "objectID": "projects/crime-and-poverty.html#footnotes",
