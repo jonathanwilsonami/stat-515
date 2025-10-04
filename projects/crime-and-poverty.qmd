@@ -188,7 +188,7 @@ pretty_breaks_to <- function(upper, n = 6) {
 }
 
 # A cooler palette without the bright yellow; trim extremes
-palette_args <- list(option = "mako", begin = 0.15, end = 0.90)
+palette_args <- list(option = "mako", begin = 0.15, end = 0.90, direction = -1)
 ```
 
 ## Comparing Crime and Poverty by U.S. County 
@@ -215,14 +215,6 @@ map_df <- counties_poly %>%
 lim_pov  <- c(0, max(0.3, min(0.6, ceiling(p95(map_df$poverty_rate) * 10) / 10))) 
 lim_prop <- c(0, p95(map_df$property_crime_per_100k)) 
 lim_viol <- c(0, p95(map_df$violent_crime_per_100k)) 
-
-# poverty <- build_county_map(map_df) +
-#   geom_polygon(aes(fill = poverty_rate)) +
-#   scale_fill_viridis_c(
-#     labels = percent_format(accuracy = 1),
-#     limits = lim_pov, oob = scales::squish, na.value = "gray95"
-#   ) +
-#   labs(title = "Poverty Rate by County (share of population)", fill = "Poverty")
 
 poverty <- build_county_map(map_df) +
   geom_polygon(aes(fill = poverty_rate)) +
@@ -522,6 +514,7 @@ p_sc <- ggplot(sc, aes(long, lat, group = group)) +
     limits = c(0, lim_hi),
     oob = scales::squish,
     na.value = "gray95",
+    direction = -1,
     name = legend_name
   ) +
   labs(title = title_txt) +
