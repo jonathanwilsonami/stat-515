@@ -1,4 +1,4 @@
-state_abbr,county,latitude,longitude,total_population,poverty_universe,poverty_below,poverty_rate,no_population,total_reported_crime_Violent Crime,total_reported_crime_Property Crime,property_crime_per_100k_Property Crime,violent_crime_per_100k_Violent Crime
+state_abbr,county,latitude,longitude,total_population,poverty_universe,poverty_below,poverty_rate,no_population,total_reported_violent_crime,total_reported_property_crime,property_crime_per_100k,violent_crime_per_100k
 NY,WYOMING,42.535408,-78.42481,39980,37280,3968,0.106437768240343,false,54.5,195,487.743871935968,136.31815907954
 NY,OTSEGO,42.69997,-74.92187,59738,54799,7741,0.141261701855873,false,58,483,808.53058354816,97.0906290803174
 KS,DONIPHAN,39.788502,-95.147225,7492,6755,662,0.0980014803849001,false,18,63,840.896956753871,240.256273358249

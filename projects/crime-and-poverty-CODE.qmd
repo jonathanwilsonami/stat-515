@@ -1,42 +1,11 @@
 ---
-title: "Crime And Poverty Redesign Project"
-date: 2025-09-25
-categories: [Data Viz]
-repo-url: https://github.com/jonathanwilsonami/stat-515
+title: "Crime And Poverty Redesign Project CODE"
 format: html
-authors: 
-  - "Jonathan M Wilson"
-  - "Sean"
 ---
 
-**Summary:** Data Visualization Redesign Project. 
+## Loading Libs and data 
 
-::: {.badges}
-**Tech Stack:** R, Python, Polars
-:::
-
-## Overview & Background 
-
-Big Idea
-
-3 Min Story
-- Background 
-- Original chart 
-- Data used 
-- Overview of data fetching process 
-
-## Original Graphic
-
-![The original chart[^refnote].](/images/old-chart-bubble-chart-crime.png){#fig-original fig-align="center" width="100%"}
-
-[^refnote]: Gupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization
-
-  The visualization shown above (see @fig-original) is the original graph that we chose for this redesign project. This visualization was taken from a website that identified multiple examples of data visualizations that do not follow best practices. Just at first glance, we can very quickly determine that there is a lot going on in this graph. In fact, there is too much going on to the point that it is hard for the audience to understand the intended story behind the graph. This graph attempts to showcase three separate variables in property crime, violent crime, and poverty, but did not do a great job in portraying the data in such a way that the audience can easily interpret. For example, the bubble radius for the poverty variable has no numeric reference, so even though they are comparable between states, any single radius has no meaning on its own. Additionally, there is no title of the graph so it is unclear what timeframe this data is coming from, the state labels are messy and hard to read, the units could be more explicit, and the color choice is not the best. Overall, there are several changes that can be made to this original graph to better illustrate the data and the message. 
-
-  In our redesigns, the primary goal is to make the visualizations easier to understand than the original graph. This entails reducing the level of effort needed to interpret the visualizations. There are some elements of the original graph that had good intentions behind them though, that are worth incorporating in our redesigns. For example, the concept of tracking three variables in the same visualization can be insightful to examine their intertwined relationships. However, we can implement this concept more effectively by simplifying variable visuals and reducing overall visual clutter within the graph. Additionally, we can create multiple graphs side by side for comparison between these variables, with each graph focusing on only one or two variables. For another example, the concept of comparing variables between states is important in telling a story about the data. However, we can implement this concept more effectively by cleaning up the state labels and even utilizing a different element, such as a color gradient, to differentiate between the multiple poverty levels. Additionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US. These are just some of the various solutions that we implemented in our redesigns. 
-
-
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+```{r message=FALSE, warning=FALSE, error=FALSE}
 # See renv.lock 
 library(ggplot2)
 library(dplyr)
@@ -191,9 +160,10 @@ pretty_breaks_to <- function(upper, n = 6) {
 palette_args <- list(option = "mako", begin = 0.15, end = 0.90)
 ```
 
-## Comparing Crime and Poverty by U.S. County 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+## Title To Explain Code
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
 #| fig-width: 18
 #| fig-height: 24
 #| fig-align: center
@@ -312,9 +282,9 @@ stack_us +
   )
 ```
 
-## Zooming in on South Carolina
+## Title To Explain Code
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+```{r message=FALSE, warning=FALSE, error=FALSE}
 #| fig-width: 14
 #| fig-height: 20
 #| fig-align: center
@@ -419,117 +389,54 @@ stack_sc +
       plot.margin  = margin(8, 12, 18, 12)
     )
   )
+```
+
+
+## Title To Explain Code
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
 
 ```
 
-## Interactive Plot of South Carolina to Look at Individual Counties
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
-# --- Load your data ---
-df <- read.csv("data/crime_poverty_by_county_2023.csv", check.names = FALSE)
+## Title To Explain Code
 
-# optional flag -> logical
-to_bool <- function(x) {
-  if (is.logical(x)) return(ifelse(is.na(x), FALSE, x))
-  if (is.numeric(x)) return(ifelse(is.na(x), FALSE, x != 0))
-  if (is.character(x)) { y <- tolower(trimws(x)); return(y %in% c("true","t","1","yes","y")) }
-  rep(FALSE, length(x))
-}
-if ("no_population" %in% names(df)) df <- df %>% filter(!to_bool(no_population))
-
-df <- df %>%
-  mutate(
-    poverty_rate = as.numeric(poverty_rate),
-    property_crime_per_100k = as.numeric(property_crime_per_100k),
-    violent_crime_per_100k  = as.numeric(violent_crime_per_100k)
-  )
-
-# --- County polygons and FIPS via maps::county.fips ---
-us_counties <- ggplot2::map_data("county")
-county_key  <- maps::county.fips %>% mutate(polyname = str_to_lower(polyname))
-
-counties_poly <- us_counties %>%
-  mutate(polyname = paste(region, subregion, sep = ",")) %>%
-  left_join(county_key, by = "polyname") %>%
-  rename(fips = fips) %>%
-  filter(!is.na(fips))
-
-# If your CSV doesn’t have fips, try to derive from names (state_abbr + county name)
-if (!"fips" %in% names(df)) {
-  county_col <- if ("county_name" %in% names(df)) "county_name"
-                else if ("county" %in% names(df)) "county" else NA_character_
-  if (!is.na(county_col) && "state_abbr" %in% names(df)) {
-    states_lookup <- tibble(
-      state_abbr = c(state.abb, "DC"),
-      state_name = c(state.name, "District of Columbia")
-    ) %>% mutate(state_name_lower = str_to_lower(state_name))
-    df <- df %>%
-      left_join(states_lookup, by = "state_abbr") %>%
-      mutate(
-        state_name_norm  = state_name_lower,
-        county_name_norm = str_to_lower(.data[[county_col]]) %>%
-          str_replace_all("\\s+(county|parish|borough|census area|municipality|city)$", "") %>%
-          str_replace_all("^st\\.?\\s", "saint "),
-        polyname = paste(state_name_norm, county_name_norm, sep = ",")
-      ) %>%
-      left_join(county_key, by = "polyname") %>%
-      rename(fips = fips)
-  }
-}
-df <- df %>% filter(!is.na(fips))
-
-# --- Build SC-only map data ---
-sc <- counties_poly %>% filter(region == "south carolina") %>%
-  left_join(df %>% select(fips, all_of(county_metric_cols)), by = "fips") %>%
-  mutate(
-    hover_text = paste0(
-      "County: ", str_to_title(subregion), "<br>",
-      "Poverty rate: ", percent(poverty_rate, accuracy = 0.1), "<br>",
-      "Property /100k: ", comma(property_crime_per_100k, accuracy = 1), "<br>",
-      "Violent /100k: ",  comma(violent_crime_per_100k,  accuracy = 1)
-    )
-  )
-
-# Pick which metric to color by
-fill_var <- "violent_crime_per_100k"  # or "poverty_rate" or "property_crime_per_100k"
-
-# sensible upper limit (95th pct) + labels
-p95 <- function(x) { x <- x[is.finite(x)]; if (!length(x)) return(NA_real_); as.numeric(quantile(x, 0.95, na.rm = TRUE)) }
-if (fill_var == "poverty_rate") {
-  lim_hi <- max(0.3, min(0.6, ceiling(p95(sc$poverty_rate) * 10) / 10))
-  label_fun <- scales::percent_format(accuracy = 1)
-  legend_name <- "Poverty"
-  title_txt <- "South Carolina — Poverty Rate"
-} else if (fill_var == "property_crime_per_100k") {
-  lim_hi <- p95(sc$property_crime_per_100k); if (!is.finite(lim_hi)) lim_hi <- max(sc$property_crime_per_100k, na.rm = TRUE)
-  label_fun <- scales::comma_format(accuracy = 1)
-  legend_name <- "Per 100k"
-  title_txt <- "South Carolina — Property Crime per 100k"
-} else {
-  lim_hi <- p95(sc$violent_crime_per_100k); if (!is.finite(lim_hi)) lim_hi <- max(sc$violent_crime_per_100k, na.rm = TRUE)
-  label_fun <- scales::comma_format(accuracy = 1)
-  legend_name <- "Per 100k"
-  title_txt <- "South Carolina — Violent Crime per 100k"
-}
-
-# --- Plot (ggplot -> plotly) ---
-p_sc <- ggplot(sc, aes(long, lat, group = group)) +
-  geom_polygon(aes(fill = .data[[fill_var]], text = hover_text), color = "gray85", linewidth = 0.1, na.rm = TRUE) +
-  coord_quickmap() +
-  scale_fill_viridis_c(
-    labels = label_fun,
-    limits = c(0, lim_hi),
-    oob = scales::squish,
-    na.value = "gray95",
-    name = legend_name
-  ) +
-  labs(title = title_txt) +
-  theme_void(base_size = 12) +
-  theme(legend.position = "bottom", plot.title = element_text(face = "bold", size = 18))
-
-plotly::ggplotly(p_sc, tooltip = "text") %>%
-  plotly::layout(hovermode = "closest")
+```{r message=FALSE, warning=FALSE, error=FALSE}
 
 ```
 
+
+
+## Title To Explain Code
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
+
+```
+
+
+## Title To Explain Code
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
+
+```
+
+
+
+## Title To Explain Code
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
+
+```
+
+
+
+## Title To Explain Code
+
+```{r message=FALSE, warning=FALSE, error=FALSE}
+
+```
+
+**Code Resources:**
+
+* [Chloropleth Map](https://r-graph-gallery.com/choropleth-map.html)

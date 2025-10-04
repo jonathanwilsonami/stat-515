@@ -12,6 +12,16 @@ about:
 ---
 
 :::{#hero-heading}
-Jonathan 
 
-Sean
+## Jonathan {.fw-bold .text-center .mb-2 .fs-2}
+
+![Jonathan Wilson](/images/about/jon.png){fig-alt="Jon" width="70%" fig-align="center"}
+
+I’m simply an engineer. I started in construction growing up, earned an undergraduate BYU degree in Applied Statistics & Computer Science, spent over a decade building software in areas such as DoD satellites (image processing, optimization), cybersecurity (petabyte-scale analytics, ML), network engineering & monitoring and data platforms. Today I design data architectures and pipelines for modeling and analyzing large scale systems. At GMU I'm pursuing a degree in Data Analytics Engineering. 
+
+## Sean {.fw-bold .text-center .mt-5 .mb-2 .fs-2}
+
+<!-- Sean image + bio here -->
+
+:::
+
