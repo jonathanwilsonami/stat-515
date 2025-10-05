@@ -31,9 +31,34 @@ Big Idea
 
 [^refnote]: Gupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization
 
-  The visualization shown above (see @fig-original) is the original graph that we chose for this redesign project. This visualization was taken from a website that identified multiple examples of data visualizations that do not follow best practices. Just at first glance, we can very quickly determine that there is a lot going on in this graph. In fact, there is too much going on to the point that it is hard for the audience to understand the intended story behind the graph. This graph attempts to showcase three separate variables in property crime, violent crime, and poverty, but did not do a great job in portraying the data in such a way that the audience can easily interpret. For example, the bubble radius for the poverty variable has no numeric reference, so even though they are comparable between states, any single radius has no meaning on its own. Additionally, there is no title of the graph so it is unclear what timeframe this data is coming from, the state labels are messy and hard to read, the units could be more explicit, and the color choice is not the best. Overall, there are several changes that can be made to this original graph to better illustrate the data and the message. 
+  The visualization shown above (see @fig-original) is the original graph that we chose for this redesign project. This visualization was taken from a website that identified multiple examples of data visualizations that do not follow best practices. Just at first glance, we can very quickly determine that there is a lot going on in this graph. In fact, there is too much going on to the point that it is hard for the audience to understand the intended story behind the graph. 
 
-  In our redesigns, the primary goal is to make the visualizations easier to understand than the original graph. This entails reducing the level of effort needed to interpret the visualizations. There are some elements of the original graph that had good intentions behind them though, that are worth incorporating in our redesigns. For example, the concept of tracking three variables in the same visualization can be insightful to examine their intertwined relationships. However, we can implement this concept more effectively by simplifying variable visuals and reducing overall visual clutter within the graph. Additionally, we can create multiple graphs side by side for comparison between these variables, with each graph focusing on only one or two variables. For another example, the concept of comparing variables between states is important in telling a story about the data. However, we can implement this concept more effectively by cleaning up the state labels and even utilizing a different element, such as a color gradient, to differentiate between the multiple poverty levels. Additionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US. These are just some of the various solutions that we implemented in our redesigns. 
+### The Good  
+
+- The chart attempts to track three variables (property crime, violent crime, and poverty rate) in the same visualization which can be insightful to examine their intertwined relationships.
+- Using bubble charts is actually not a bad idea here and when used well it can actually be insightful allowing for proportions to be distinguished. 
+
+### The Bad
+On the other hand the chart did not do a great job in portraying the data in such a way that the audience can easily interpret and did poorly is several areas:
+
+- The bubble radius for the poverty variable has no numeric reference, so even though they are comparable between states, any single radius has no meaning on its own. 
+- Additionally, there is no title of the graph so it is unclear what timeframe this data is coming from.
+- The state labels are messy and hard to read
+- The units could be more explicit.
+- The color choice is not the best. 
+
+Overall, there are several changes that can be made to this original graph to better illustrate the data and the message. 
+
+## Our Proposed Redesign 
+
+  In our redesigns, the primary goal is to make the visualizations easier to understand than the original graph. This entails reducing the level of effort needed to interpret the visualizations. There are some elements of the original graph that had good intentions behind them though, that are worth incorporating in our redesigns but we will also include several improvements and extensions to the original in several ways: 
+  
+- The concept of tracking three variables in the same visualization can be insightful to examine their intertwined relationships. However, we can implement this concept more effectively by simplifying variable visuals and reducing overall visual clutter within the graph. 
+- Additionally, we can create multiple graphs side by side for comparison between these variables, with each graph focusing on only one or two variables. 
+- For another example, the concept of comparing variables between states is important in telling a story about the data. However, we can implement this concept more effectively by cleaning up the state labels and even utilizing a different element, such as a color gradient, to differentiate between the multiple poverty levels. 
+- Additionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US. 
+
+These are just some of the various solutions that we implemented in our redesigns. 
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
@@ -166,13 +191,26 @@ derive_fips <- function(df, county_key = NULL, keep_unmatched = FALSE) {
 }
 
 # Horizontal colorbar that sits nicely under the main title
-nice_colorbar <- function() {
+# nice_colorbar <- function() {
+#   guide_colorbar(
+#     title.position = "top",
+#     label.position = "bottom",
+#     barwidth = unit(90, "mm"),
+#     barheight = unit(5, "mm"),
+#     ticks = FALSE
+#   )
+# }
+
+nice_colorbar <- function(width_mm = 180, height_mm = 10,
+                          title_size = 13, label_size = 12) {
   guide_colorbar(
     title.position = "top",
     label.position = "bottom",
-    barwidth = unit(90, "mm"),
-    barheight = unit(5, "mm"),
-    ticks = FALSE
+    barwidth  = unit(width_mm, "mm"),
+    barheight = unit(height_mm, "mm"),
+    ticks = FALSE,
+    title.theme = element_text(size = title_size, face = "bold", margin = margin(b = 4)),
+    label.theme = element_text(size = label_size)
   )
 }
 
@@ -194,11 +232,13 @@ palette_args <- list(option = "mako", begin = 0.15, end = 0.90, direction = -1)
 ## Comparing Crime and Poverty by U.S. County 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-#| fig-width: 18
-#| fig-height: 24
+#| column: page
+#| fig-width: 22
+#| fig-height: 30
 #| fig-align: center
 #| out-width: 100%
-#| dpi: 200
+#| dpi: 220
+
 
 df <- county
 
@@ -307,11 +347,12 @@ stack_us +
 ## Zooming in on South Carolina
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-#| fig-width: 14
-#| fig-height: 20
+#| column: page
+#| fig-width: 22
+#| fig-height: 30
 #| fig-align: center
 #| out-width: 100%
-#| dpi: 200
+#| dpi: 220
 
 df <- county
 

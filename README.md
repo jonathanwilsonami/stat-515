@@ -47,7 +47,8 @@ Make sure the renv files (especially the renv.lock) get commited to git.
 ## Publish To Github Pages
 
 I added a github workflow ci-cd to automatically push to Github pages. So when you add your changes
-and push it should automatically push the quarto site too. 
+and push it should automatically push the quarto site too. Make sure you run quarto render to render before
+pushing your changes. 
 
 If you need to manually push to Github Pages use the following command:
 

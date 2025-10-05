@@ -13,15 +13,21 @@ about:
 
 :::{#hero-heading}
 
-## Jonathan {.fw-bold .text-center .mb-2 .fs-2}
+## [Jonathan Wilson](https://jonathanwil.com) {.fw-bold .text-center .mb-2 .fs-2}
 
-![Jonathan Wilson](/images/about/jon.png){fig-alt="Jon" width="70%" fig-align="center"}
+![Jonathan Wilson](/images/about/jon.png){fig-alt="Jon" width="28%" fig-align="center"}
 
-I’m simply an engineer. I started in construction growing up, earned an undergraduate BYU degree in Applied Statistics & Computer Science, spent over a decade building software in areas such as DoD satellites (image processing, optimization), cybersecurity (petabyte-scale analytics, ML), network engineering & monitoring and data platforms. Today I design data architectures and pipelines for modeling and analyzing large scale systems. At GMU I'm pursuing a degree in Data Analytics Engineering. 
+::: {.small .lh-sm}
+I’m an engineer at heart. I grew up working in construction, earned a degree in Applied Statistics and Computer Science from BYU, and have spent more than a decade building software across diverse domains—ranging from DoD satellites (image processing, optimization) and large-scale cybersecurity analytics (petabyte-scale ML) to network engineering, monitoring, and data platforms. Today, my focus is on designing data architectures and pipelines for modeling, simulation, and analysis of large-scale systems. I’m currently pursuing a master’s in Data Analytics Engineering at GMU.
+:::
 
-## Sean {.fw-bold .text-center .mt-5 .mb-2 .fs-2}
+## [Sean Reilly](https://reillysp24.github.io/DataAnalyticsWebsite/) {.fw-bold .text-center .mb-2 .fs-2}
 
-<!-- Sean image + bio here -->
+![Sean](/images/about/sean.jpeg){fig-alt="Sean" width="28%" fig-align="center"}
+
+::: {.small .lh-sm}
+My name is Sean Reilly, and I currently work at CyberData Technologies, Inc. as a Business Analyst. I am also a Swim Coach for Streamline Swim Club. I graduated Lafayette College in Spring 2024 with a BS in Math and Minor in Data Science. While at Lafayette College, I was a Division 1 swimmer for all 4 years. I am a detail-oriented problem solver with a strong foundation in data analysis, data modeling, analytical thinking, communication, and collaboration. I had the amazing opportunity to take the position as my community summer swim team’s Head Coach for 3 summers while in college, pursuing a passion of mine, giving back to my community, and developing valuable skills along the way including leadership, interpersonal skills, organizational skills, and written communication.
+:::
 
 :::
 
