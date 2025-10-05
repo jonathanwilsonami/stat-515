@@ -32,7 +32,7 @@
     "href": "projects/index.html",
     "title": "Projects",
     "section": "",
-    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
+    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPossible Relationship Between Poverty & Crime in Dillon County South Carolina\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "projects/crime-and-poverty-CODE.html",
@@ -107,56 +107,56 @@
   {
     "objectID": "projects/crime-and-poverty.html",
     "href": "projects/crime-and-poverty.html",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "",
     "text": "Summary: Data Visualization Redesign Project."
   },
   {
     "objectID": "projects/crime-and-poverty.html#overview-background",
     "href": "projects/crime-and-poverty.html#overview-background",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Overview & Background",
-    "text": "Overview & Background\nBig Idea\n3 Min Story - Background - Original chart - Data used - Overview of data fetching process"
+    "text": "Overview & Background\nBig Idea - who, what what is the problem? hypothesis or solution offered what was done to validate this finding what are the findimgs what is the reco or call to action or final suggestin\n3 Min Story - Background - Original chart - Data used - Overview of data fetching process - Call to action"
   },
   {
     "objectID": "projects/crime-and-poverty.html#original-graphic",
     "href": "projects/crime-and-poverty.html#original-graphic",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Original Graphic",
     "text": "Original Graphic\n\n\n\n\n\n\nFigure 1: The original chart1.\n\n\n\nThe visualization shown above (see Figure 1) is the original graph that we chose for this redesign project. This visualization was taken from a website that identified multiple examples of data visualizations that do not follow best practices. Just at first glance, we can very quickly determine that there is a lot going on in this graph. In fact, there is too much going on to the point that it is hard for the audience to understand the intended story behind the graph.\n\nThe Good\n\nThe chart attempts to track three variables (property crime, violent crime, and poverty rate) in the same visualization which can be insightful to examine their intertwined relationships.\nUsing bubble charts is actually not a bad idea here and when used well it can actually be insightful allowing for proportions to be distinguished.\n\n\n\nThe Bad\nOn the other hand the chart did not do a great job in portraying the data in such a way that the audience can easily interpret and did poorly is several areas:\n\nThe bubble radius for the poverty variable has no numeric reference, so even though they are comparable between states, any single radius has no meaning on its own.\nAdditionally, there is no title of the graph so it is unclear what timeframe this data is coming from.\nThe state labels are messy and hard to read\nThe units could be more explicit.\nThe color choice is not the best.\n\nOverall, there are several changes that can be made to this original graph to better illustrate the data and the message."
   },
   {
     "objectID": "projects/crime-and-poverty.html#our-proposed-redesign",
     "href": "projects/crime-and-poverty.html#our-proposed-redesign",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Our Proposed Redesign",
     "text": "Our Proposed Redesign\nIn our redesigns, the primary goal is to make the visualizations easier to understand than the original graph. This entails reducing the level of effort needed to interpret the visualizations. There are some elements of the original graph that had good intentions behind them though, that are worth incorporating in our redesigns but we will also include several improvements and extensions to the original in several ways:\n\nThe concept of tracking three variables in the same visualization can be insightful to examine their intertwined relationships. However, we can implement this concept more effectively by simplifying variable visuals and reducing overall visual clutter within the graph.\nAdditionally, we can create multiple graphs side by side for comparison between these variables, with each graph focusing on only one or two variables.\nFor another example, the concept of comparing variables between states is important in telling a story about the data. However, we can implement this concept more effectively by cleaning up the state labels and even utilizing a different element, such as a color gradient, to differentiate between the multiple poverty levels.\nAdditionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US.\n\nThese are just some of the various solutions that we implemented in our redesigns."
   },
   {
     "objectID": "projects/crime-and-poverty.html#comparing-crime-and-poverty-by-u.s.-county",
     "href": "projects/crime-and-poverty.html#comparing-crime-and-poverty-by-u.s.-county",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Comparing Crime and Poverty by U.S. County",
     "text": "Comparing Crime and Poverty by U.S. County"
   },
   {
     "objectID": "projects/crime-and-poverty.html#zooming-in-on-south-carolina",
     "href": "projects/crime-and-poverty.html#zooming-in-on-south-carolina",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Zooming in on South Carolina",
     "text": "Zooming in on South Carolina"
   },
   {
     "objectID": "projects/crime-and-poverty.html#interactive-plot-of-south-carolina-to-look-at-individual-counties",
     "href": "projects/crime-and-poverty.html#interactive-plot-of-south-carolina-to-look-at-individual-counties",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Interactive Plot of South Carolina to Look at Individual Counties",
     "text": "Interactive Plot of South Carolina to Look at Individual Counties"
   },
   {
     "objectID": "projects/crime-and-poverty.html#footnotes",
     "href": "projects/crime-and-poverty.html#footnotes",
-    "title": "Crime And Poverty Redesign Project",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nGupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization↩︎"
   },
