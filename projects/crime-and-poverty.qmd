@@ -15,23 +15,6 @@ authors:
 **Tech Stack:** R, Python, Polars
 :::
 
-## Overview & Background 
-
-Big Idea
-- who, what 
-what is the problem? 
-hypothesis or solution offered what was done to validate this finding 
-what are the findimgs 
-what is the reco or call to action or final suggestin 
-
-
-3 Min Story
-- Background 
-- Original chart 
-- Data used 
-- Overview of data fetching process 
-- Call to action 
-
 ## Original Graphic
 
 ![The original chart[^refnote].](/images/old-chart-bubble-chart-crime.png){#fig-original fig-align="center" width="100%"}
@@ -66,6 +49,33 @@ Overall, there are several changes that can be made to this original graph to be
 - Additionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US. 
 
 These are just some of the various solutions that we implemented in our redesigns. 
+
+## Overview & Background 
+
+Big Idea
+- who, what 
+what is the problem? 
+hypothesis or solution offered what was done to validate this finding 
+what are the findimgs 
+what is the reco or call to action or final suggestin 
+
+3 Min Story
+- Background 
+- Original chart 
+- Data used 
+- Overview of data fetching process 
+- Call to action 
+
+## Data Sources
+FBI Crime Data API[^fbidata].
+
+[^fbidata]: Federal Bureau of Investigation. (n.d.). FBI Crime Data API [Web service and data API]. U.S. Department of Justice. Retrieved October 5, 2025, from https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi U.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/
+
+The United States Census Bureau[^census].
+
+[^census]: U.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/ 
+
+- Talk about data fetching and cleaning process 
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
@@ -512,7 +522,6 @@ sc <- counties_poly %>%
     )
   )
 
-# --- bins to MATCH your static poverty maps (left-anchored, 5% steps, 30–60% cap) ---
 step  <- 0.05
 upper <- min(0.60, max(0.30, ceiling(p95(sc$poverty_rate) / step) * step))
 brks  <- seq(0, upper, by = step)
@@ -526,10 +535,10 @@ p_sc <- ggplot(sc, aes(long, lat, group = group)) +
   scale_fill_viridis_b(
     option = "mako", begin = 0.15, end = 0.90, direction = -1,
     limits = range(brks),
-    breaks = brks,                     # edges → left-anchored labels
-    labels = c(labs, ""),              # empty right edge
+    breaks = brks,
+    labels = c(labs, ""),
     oob = scales::squish, na.value = "gray95",
-    name = NULL, guide = "none"        # hide ggplot legend
+    name = NULL, guide = "none"
   ) +
   labs(title = "South Carolina — Poverty Rate") +
   theme_void(base_size = 12)
@@ -552,3 +561,6 @@ p
 
 ```
 
+## From Insight to Action: Dillon County’s Poverty–Crime Overlap
+
+![From Insight to Action: Dillon County’s Poverty–Crime Overlap](/images/dillon-sc-story.png){fig-alt="Dillon County" width="100%" fig-align="center"}
