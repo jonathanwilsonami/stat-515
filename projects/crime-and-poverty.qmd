@@ -11,10 +11,6 @@ authors:
 
 **Summary:** Data Visualization Redesign Project. 
 
-::: {.badges}
-**Tech Stack:** R, Python, Polars
-:::
-
 ## Original Graphic
 
 ![The original chart[^refnote].](/images/old-chart-bubble-chart-crime.png){#fig-original fig-align="center" width="100%"}
@@ -67,15 +63,54 @@ what is the reco or call to action or final suggestin
 - Call to action 
 
 ## Data Sources
-FBI Crime Data API[^fbidata].
+The original chart did not cite its data source. Given the topic (crime and poverty rates), we assumed the data should come from authoritative databases. For this redesign, we performed substantial data preparation (described next) using the sources listed below:
+
+ 1. FBI Crime Data API[^fbidata].
 
 [^fbidata]: Federal Bureau of Investigation. (n.d.). FBI Crime Data API [Web service and data API]. U.S. Department of Justice. Retrieved October 5, 2025, from https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi U.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/
 
-The United States Census Bureau[^census].
+2. The United States Census Bureau[^census].
 
 [^census]: U.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/ 
 
-- Talk about data fetching and cleaning process 
+### A Note On Data Wrangling 
+
+We pulled 2023 data from two APIs—the U.S. Census Bureau (population and poverty) and the FBI Crime Data API—and used the Polars Python library to clean and reshape it into an analysis-ready dataset. The Census API let us retrieve state- and county-level values in a single request for 2023, but some counties lacked population (and therefore poverty rates), and a few areas (e.g., Louisiana) were missing from the pull.
+
+For crime, we queried two FBI endpoints roughly ~50,000 times using ORIs (Originating Agency Identifiers) that uniquely identify police agencies within counties. After fetching, we joined the Census and crime records on state and county, then performed the required aggregations and calculated per-100,000 incident rates.
+
+### Key Metrics & Derivations
+This project uses three key metrics namely: 
+
+- **Poverty rate**
+
+  $$
+  \text{PovertyRate (\%)} \;=\; \frac{N_{\text{below poverty}}}{N_{\text{poverty universe}}}\times 100
+  $$
+
+  *(As a proportion: \( \text{PovertyRate} = \frac{N_{\text{below}}}{N_{\text{universe}}} \).)*
+
+- **Property crime incidents per 100,000 residents**
+
+  $$
+  \text{PropertyCrimeRate}_{/100k} \;=\; \frac{N_{\text{property incidents}}}{N_{\text{population}}}\times 100{,}000
+  $$
+
+- **Violent crime incidents per 100,000 residents**
+
+  $$
+  \text{ViolentCrimeRate}_{/100k} \;=\; \frac{N_{\text{violent incidents}}}{N_{\text{population}}}\times 100{,}000
+  $$
+
+$$
+\begin{aligned}
+\textbf{Where:}\quad & \\
+N_{\text{population}} &:= \text{total population}\\
+N_{\text{below poverty}} &:= \text{count below poverty}\\
+N_{\text{property incidents}} &:= \text{total reported property crime incidents in the period (e.g., 2023)}\\
+N_{\text{violent incidents}} &:= \text{total reported violent crime incidents in the period (e.g., 2023)}
+\end{aligned}
+$$
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
@@ -215,7 +250,7 @@ scale_fill_binned_left <- function(
   max_cap = NULL,
   label_fmt = label_percent(accuracy = 1),
   name = NULL, # legend title
-  option = "mako", begin = 0.15, end = 0.90, direction = -1,
+  option = "mako", begin = 0.15, end = 0.90, direction = -1, # colormap or palette
   bar_width_mm = 200, bar_height_mm = 12,
   title_size = 13, label_size = 12,
   show_separators = TRUE  # draw white separators at bin edges
@@ -354,9 +389,9 @@ property <- build_county_map(map_df) +
     x = map_df$property_crime_per_100k,
     step = 500,  # Bucket width
     label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
-    name = "Property crime (per 100k)"
+    name = "Property crime incidents (per 100k) residents" 
   ) +
-  labs(title = "Property Crime per 100,000") +
+  labs(title = "Property crime incidents per 100,000 residents") +
   theme(
     legend.position = "top",
     plot.title = element_text(size = 22, face = "bold"),
@@ -371,9 +406,9 @@ violent <- build_county_map(map_df) +
     x = map_df$violent_crime_per_100k,
     step = 100,
     label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
-    name = "Violent crime (per 100k)"
+    name = "Violent crime incidents per 100k residents"
   ) +
-  labs(title = "Violent Crime per 100,000") +
+  labs(title = "Violent crime incidents per 100,000 residents") +
   theme(
     legend.position = "top",
     plot.title = element_text(size = 22, face = "bold"),
@@ -452,9 +487,9 @@ property_sc <- build_county_map(sc_map) +
     x = sc_map$property_crime_per_100k,
     step = 500,
     label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
-    name = "Property crime (per 100k residents)"
+    name = "Property crime incidents per 100k residents"
   ) +
-  labs(title = "Property Crime per 100,000") +
+  labs(title = "Property crime incidents per 100,000 residents") +
   theme(
     legend.position = "top",
     plot.title.position = "plot",
@@ -469,9 +504,9 @@ violent_sc <- build_county_map(sc_map) +
     x = sc_map$violent_crime_per_100k,
     step = 200,
     label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
-    name = "Violent crime (per 100k residents)"
+    name = "Violent crime incidents per 100k residents"
   ) +
-  labs(title = "Violent Crime per 100,000") +
+  labs(title = "Violent crime incidents per 100,000 residents") +
   theme(
     legend.position = "top",
     plot.title.position = "plot",
@@ -528,12 +563,11 @@ brks  <- seq(0, upper, by = step)
 labs  <- paste0(scales::percent(head(brks, -1), accuracy = 1), "–",
                 scales::percent(tail(brks, -1), accuracy = 1))
 
-# --- ggplot (legend off; Plotly will supply the colorbar) ---
 p_sc <- ggplot(sc, aes(long, lat, group = group)) +
   geom_polygon(aes(fill = poverty_rate, text = hover_text), color = "gray85", linewidth = 0.1, na.rm = TRUE) +
   coord_quickmap() +
   scale_fill_viridis_b(
-    option = "mako", begin = 0.15, end = 0.90, direction = -1,
+    option = "mako", begin = 0.15, end = 0.90, direction = -1, # colormap or palette
     limits = range(brks),
     breaks = brks,
     labels = c(labs, ""),
