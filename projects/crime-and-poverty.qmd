@@ -1,12 +1,12 @@
 ---
-title: "Crime And Poverty Redesign Project"
+title: "Possible Relationship Between Poverty & Crime in Dillon County South Carolina"
 date: 2025-09-25
 categories: [Data Viz]
 repo-url: https://github.com/jonathanwilsonami/stat-515
 format: html
 authors: 
-  - "Jonathan M Wilson"
-  - "Sean"
+  - "Jonathan Wilson"
+  - "Sean Reilly"
 ---
 
 **Summary:** Data Visualization Redesign Project. 
@@ -18,12 +18,19 @@ authors:
 ## Overview & Background 
 
 Big Idea
+- who, what 
+what is the problem? 
+hypothesis or solution offered what was done to validate this finding 
+what are the findimgs 
+what is the reco or call to action or final suggestin 
+
 
 3 Min Story
 - Background 
 - Original chart 
 - Data used 
 - Overview of data fetching process 
+- Call to action 
 
 ## Original Graphic
 
@@ -190,43 +197,100 @@ derive_fips <- function(df, county_key = NULL, keep_unmatched = FALSE) {
   stop("derive_fips(): need one of: 'fips'; 'state'+'county'; or 'state_abbr'+county name.")
 }
 
-# Horizontal colorbar that sits nicely under the main title
-# nice_colorbar <- function() {
-#   guide_colorbar(
-#     title.position = "top",
-#     label.position = "bottom",
-#     barwidth = unit(90, "mm"),
-#     barheight = unit(5, "mm"),
-#     ticks = FALSE
-#   )
-# }
+# Used to make the color scale look better 
+scale_fill_binned_left <- function(
+  x, # numeric vector used to size bins 
+  step, # bin width 
+  min_cap = NULL,
+  max_cap = NULL,
+  label_fmt = label_percent(accuracy = 1),
+  name = NULL, # legend title
+  option = "mako", begin = 0.15, end = 0.90, direction = -1,
+  bar_width_mm = 200, bar_height_mm = 12,
+  title_size = 13, label_size = 12,
+  show_separators = TRUE  # draw white separators at bin edges
+) {
+  stopifnot(is.numeric(x), is.numeric(step), step > 0)
 
-nice_colorbar <- function(width_mm = 180, height_mm = 10,
-                          title_size = 13, label_size = 12) {
-  guide_colorbar(
-    title.position = "top",
-    label.position = "bottom",
-    barwidth  = unit(width_mm, "mm"),
-    barheight = unit(height_mm, "mm"),
-    ticks = FALSE,
-    title.theme = element_text(size = title_size, face = "bold", margin = margin(b = 4)),
-    label.theme = element_text(size = label_size)
+  # compute "nice" upper bound from p95, then clamp to caps if provided
+  upper_raw <- ceiling(p95(x) / step) * step
+  if (!is.null(min_cap)) upper_raw <- max(min_cap, upper_raw)
+  if (!is.null(max_cap)) upper_raw <- min(max_cap, upper_raw)
+
+  brks <- seq(0, upper_raw, by = step)
+  labs <- paste0(label_fmt(head(brks, -1)), "–", label_fmt(tail(brks, -1)))
+  labs <- c(labs, "")
+
+  scale_fill_viridis_b(
+    option = option, begin = begin, end = end, direction = direction,
+    limits = range(brks),
+    breaks = brks,
+    labels = labs,
+    oob = scales::squish, na.value = "gray95",
+    name = name %||% "",
+    guide = guide_colorsteps(
+      title.position = "top",
+      label.position = "top", # labels above bar
+      label.theme  = element_text(size = label_size, hjust = 0),  # left-justify
+      ticks = show_separators,
+      ticks.colour = if (show_separators) "white" else NULL,
+      ticks.linewidth = if (show_separators) 2 else NULL,
+      show.limits = FALSE,
+      barwidth  = grid::unit(bar_width_mm,  "mm"),
+      barheight = grid::unit(bar_height_mm, "mm"),
+      title.theme = element_text(size = title_size, face = "bold",
+                                 margin = margin(b = 4))
+    )
   )
 }
 
-# Poverty ticks every 5 percentage points, capped to avoid clutter
-poverty_breaks <- function(upper) {
-  upper <- min(upper, 0.40)
-  seq(0, upper, by = 0.05)
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
+# Formtter for plotly maps 
+apply_plotly_binned_colorbar <- function(p, brks, labs, palette = "mako",
+                                         begin = 0.15, end = 0.90, direction = -1,
+                                         title = "Legend", horizontal = TRUE,
+                                         thickness = 28, len = 1, show_separators = TRUE,
+                                         title_font_size = 13, tick_font_size = 12) {
+  cols <- viridisLite::mako(length(brks) - 1, begin = begin, end = end, direction = direction)
+
+  # invisible heatmap solely to carry the colorbar
+  p <- p %>%
+    plotly::add_heatmap(
+      z = matrix(seq(min(brks), max(brks), length.out = 2), nrow = 1),
+      showscale = TRUE,
+      colors = cols,
+      hoverinfo = "skip",
+      opacity = 0,
+      xaxis = "x2", yaxis = "y2"
+    ) %>%
+    plotly::layout(
+      xaxis2 = list(visible = FALSE, domain = c(0, 0.001), anchor = "y2", overlaying = "x"),
+      yaxis2 = list(visible = FALSE, domain = c(0, 0.001), anchor = "x2", overlaying = "y")
+    )
+
+  idx <- length(p$x$data)
+  p$x$data[[idx]]$colorbar <- list(
+    title    = list(text = title, side = "top", font = list(size = title_font_size)),
+    tickmode = "array",
+    tickvals = brks,
+    ticktext = c(labs, ""),  # empty label on rightmost edge
+    ticks    = if (show_separators) "outside" else "",
+    tickcolor = if (show_separators) "white" else NULL,
+    tickwidth = if (show_separators) 2 else NULL,
+    tickfont = list(size = tick_font_size),
+    len = len,
+    thickness = thickness
+  )
+  if (horizontal) {
+    p$x$data[[idx]]$colorbar$orientation <- "h"
+    p$x$data[[idx]]$colorbar$x <- 0.5
+    p$x$data[[idx]]$colorbar$xanchor <- "center"
+    p$x$data[[idx]]$colorbar$y <- -0.22
+  }
+  p
 }
 
-# Pretty numeric ticks up to the computed cap
-pretty_breaks_to <- function(upper, n = 6) {
-  scales::pretty_breaks(n)(c(0, upper))
-}
-
-# A cooler palette without the bright yellow; trim extremes
-palette_args <- list(option = "mako", begin = 0.15, end = 0.90, direction = -1)
 ```
 
 ## Comparing Crime and Poverty by U.S. County 
@@ -258,68 +322,54 @@ lim_viol <- c(0, p95(map_df$violent_crime_per_100k))
 
 poverty <- build_county_map(map_df) +
   geom_polygon(aes(fill = poverty_rate)) +
-  do.call(scale_fill_viridis_c, c(
-    palette_args,
-    list(
-      limits = lim_pov,
-      breaks = poverty_breaks(lim_pov[2]),
-      labels = scales::percent_format(accuracy = 1),
-      oob = scales::squish, na.value = "gray95",
-      name = "Poverty rate (% of residents)",
-      guide = nice_colorbar()
-    )
-  )) +
+  scale_fill_binned_left(
+    x = map_df$poverty_rate,
+    step = 0.05, 
+    min_cap = 0.30, max_cap = 0.60,
+    label_fmt = scales::label_percent(accuracy = 1),
+    name = "Poverty rate (% of residents)"
+  ) +
   labs(title = "Poverty Rate by County") +
   theme(
     legend.position = "top",
+    plot.title = element_text(size = 22, face = "bold"),
     plot.title.position = "plot",
     legend.justification = "left",
-    legend.box.just = "left",
-    plot.title = element_text(size = 22, face = "bold")
+    legend.box.just = "left"
   )
 
 property <- build_county_map(map_df) +
   geom_polygon(aes(fill = property_crime_per_100k)) +
-  do.call(scale_fill_viridis_c, c(
-    palette_args,
-    list(
-      limits = lim_prop,
-      breaks = pretty_breaks_to(lim_prop[2], n = 6),
-      labels = scales::comma_format(accuracy = 1),
-      oob = scales::squish, na.value = "gray95",
-      name = "Property crime (per 100k residents)",
-      guide = nice_colorbar()
-    )
-  )) +
+  scale_fill_binned_left(
+    x = map_df$property_crime_per_100k,
+    step = 500,  # Bucket width
+    label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
+    name = "Property crime (per 100k)"
+  ) +
   labs(title = "Property Crime per 100,000") +
   theme(
     legend.position = "top",
+    plot.title = element_text(size = 22, face = "bold"),
     plot.title.position = "plot",
     legend.justification = "left",
-    legend.box.just = "left",
-    plot.title = element_text(size = 22, face = "bold")
+    legend.box.just = "left"
   )
 
 violent <- build_county_map(map_df) +
   geom_polygon(aes(fill = violent_crime_per_100k)) +
-  do.call(scale_fill_viridis_c, c(
-    palette_args,
-    list(
-      limits = lim_viol,
-      breaks = pretty_breaks_to(lim_viol[2], n = 6),
-      labels = scales::comma_format(accuracy = 1),
-      oob = scales::squish, na.value = "gray95",
-      name = "Violent crime (per 100k residents)",
-      guide = nice_colorbar()
-    )
-  )) +
+  scale_fill_binned_left(
+    x = map_df$violent_crime_per_100k,
+    step = 100,
+    label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
+    name = "Violent crime (per 100k)"
+  ) +
   labs(title = "Violent Crime per 100,000") +
   theme(
     legend.position = "top",
+    plot.title = element_text(size = 22, face = "bold"),
     plot.title.position = "plot",
     legend.justification = "left",
-    legend.box.just = "left",
-    plot.title = element_text(size = 22, face = "bold")
+    legend.box.just = "left"
   )
 
 # Stack each plot vertically
@@ -370,17 +420,13 @@ lim_viol <- c(0, {x <- p95(sc_map$violent_crime_per_100k);  if (!is.finite(x)) m
 
 poverty_sc <- build_county_map(sc_map) +
   geom_polygon(aes(fill = poverty_rate)) +
-  do.call(scale_fill_viridis_c, c(
-    palette_args,
-    list(
-      limits = lim_pov,
-      breaks = poverty_breaks(lim_pov[2]),
-      labels = scales::percent_format(accuracy = 1),
-      oob = scales::squish, na.value = "gray95",
-      name = "Poverty rate (% of residents)",
-      guide = nice_colorbar()
-    )
-  )) +
+  scale_fill_binned_left(
+    x = sc_map$poverty_rate,
+    step = 0.05,
+    min_cap = 0.30, max_cap = 0.60,
+    label_fmt = scales::label_percent(accuracy = 1),
+    name = "Poverty rate (% of residents)"
+  ) +
   labs(title = "Poverty Rate by County") +
   theme(
     legend.position = "top",
@@ -392,17 +438,12 @@ poverty_sc <- build_county_map(sc_map) +
 
 property_sc <- build_county_map(sc_map) +
   geom_polygon(aes(fill = property_crime_per_100k)) +
-  do.call(scale_fill_viridis_c, c(
-    palette_args,
-    list(
-      limits = lim_prop,
-      breaks = pretty_breaks_to(lim_prop[2], n = 6),
-      labels = scales::comma_format(accuracy = 1),
-      oob = scales::squish, na.value = "gray95",
-      name = "Property crime (per 100k residents)",
-      guide = nice_colorbar()
-    )
-  )) +
+  scale_fill_binned_left(
+    x = sc_map$property_crime_per_100k,
+    step = 500,
+    label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
+    name = "Property crime (per 100k residents)"
+  ) +
   labs(title = "Property Crime per 100,000") +
   theme(
     legend.position = "top",
@@ -414,17 +455,12 @@ property_sc <- build_county_map(sc_map) +
 
 violent_sc <- build_county_map(sc_map) +
   geom_polygon(aes(fill = violent_crime_per_100k)) +
-  do.call(scale_fill_viridis_c, c(
-    palette_args,
-    list(
-      limits = lim_viol,
-      breaks = pretty_breaks_to(lim_viol[2], n = 6),
-      labels = scales::comma_format(accuracy = 1),
-      oob = scales::squish, na.value = "gray95",
-      name = "Violent crime (per 100k residents)",
-      guide = nice_colorbar()
-    )
-  )) +
+  scale_fill_binned_left(
+    x = sc_map$violent_crime_per_100k,
+    step = 200,
+    label_fmt = scales::label_number(accuracy = 1, big.mark = ","),
+    name = "Violent crime (per 100k residents)"
+  ) +
   labs(title = "Violent Crime per 100,000") +
   theme(
     legend.position = "top",
@@ -459,111 +495,60 @@ stack_sc +
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
-# --- Load your data ---
-df <- read.csv("data/crime_poverty_by_county_2023.csv", check.names = FALSE)
+df <- county
 
-# optional flag -> logical
-to_bool <- function(x) {
-  if (is.logical(x)) return(ifelse(is.na(x), FALSE, x))
-  if (is.numeric(x)) return(ifelse(is.na(x), FALSE, x != 0))
-  if (is.character(x)) { y <- tolower(trimws(x)); return(y %in% c("true","t","1","yes","y")) }
-  rep(FALSE, length(x))
-}
-if ("no_population" %in% names(df)) df <- df %>% filter(!to_bool(no_population))
+df <- derive_fips(df)
 
-df <- df %>%
-  mutate(
-    poverty_rate = as.numeric(poverty_rate),
-    property_crime_per_100k = as.numeric(property_crime_per_100k),
-    violent_crime_per_100k  = as.numeric(violent_crime_per_100k)
-  )
-
-# --- County polygons and FIPS via maps::county.fips ---
-us_counties <- ggplot2::map_data("county")
-county_key  <- maps::county.fips %>% mutate(polyname = str_to_lower(polyname))
-
-counties_poly <- us_counties %>%
-  mutate(polyname = paste(region, subregion, sep = ",")) %>%
-  left_join(county_key, by = "polyname") %>%
-  rename(fips = fips) %>%
-  filter(!is.na(fips))
-
-# If your CSV doesn’t have fips, try to derive from names (state_abbr + county name)
-if (!"fips" %in% names(df)) {
-  county_col <- if ("county_name" %in% names(df)) "county_name"
-                else if ("county" %in% names(df)) "county" else NA_character_
-  if (!is.na(county_col) && "state_abbr" %in% names(df)) {
-    states_lookup <- tibble(
-      state_abbr = c(state.abb, "DC"),
-      state_name = c(state.name, "District of Columbia")
-    ) %>% mutate(state_name_lower = str_to_lower(state_name))
-    df <- df %>%
-      left_join(states_lookup, by = "state_abbr") %>%
-      mutate(
-        state_name_norm  = state_name_lower,
-        county_name_norm = str_to_lower(.data[[county_col]]) %>%
-          str_replace_all("\\s+(county|parish|borough|census area|municipality|city)$", "") %>%
-          str_replace_all("^st\\.?\\s", "saint "),
-        polyname = paste(state_name_norm, county_name_norm, sep = ",")
-      ) %>%
-      left_join(county_key, by = "polyname") %>%
-      rename(fips = fips)
-  }
-}
-df <- df %>% filter(!is.na(fips))
-
-# --- Build SC-only map data ---
-sc <- counties_poly %>% filter(region == "south carolina") %>%
-  left_join(df %>% select(fips, all_of(county_metric_cols)), by = "fips") %>%
-  mutate(
+sc <- counties_poly %>%
+  dplyr::filter(region == "south carolina") %>%
+  dplyr::left_join(df %>% dplyr::select(fips, poverty_rate, property_crime_per_100k, violent_crime_per_100k),
+                   by = "fips") %>%
+  dplyr::mutate(
     hover_text = paste0(
-      "County: ", str_to_title(subregion), "<br>",
-      "Poverty rate: ", percent(poverty_rate, accuracy = 0.1), "<br>",
-      "Property /100k: ", comma(property_crime_per_100k, accuracy = 1), "<br>",
-      "Violent /100k: ",  comma(violent_crime_per_100k,  accuracy = 1)
+      "County: ", stringr::str_to_title(subregion), "<br>",
+      "Poverty rate: ", scales::percent(poverty_rate, accuracy = 0.1), "<br>",
+      "Property /100k: ", scales::comma(property_crime_per_100k, accuracy = 1), "<br>",
+      "Violent /100k: ",  scales::comma(violent_crime_per_100k,  accuracy = 1)
     )
   )
 
-# Pick which metric to color by
-fill_var <- "violent_crime_per_100k"  # or "poverty_rate" or "property_crime_per_100k"
+# --- bins to MATCH your static poverty maps (left-anchored, 5% steps, 30–60% cap) ---
+step  <- 0.05
+upper <- min(0.60, max(0.30, ceiling(p95(sc$poverty_rate) / step) * step))
+brks  <- seq(0, upper, by = step)
+labs  <- paste0(scales::percent(head(brks, -1), accuracy = 1), "–",
+                scales::percent(tail(brks, -1), accuracy = 1))
 
-# sensible upper limit (95th pct) + labels
-p95 <- function(x) { x <- x[is.finite(x)]; if (!length(x)) return(NA_real_); as.numeric(quantile(x, 0.95, na.rm = TRUE)) }
-if (fill_var == "poverty_rate") {
-  lim_hi <- max(0.3, min(0.6, ceiling(p95(sc$poverty_rate) * 10) / 10))
-  label_fun <- scales::percent_format(accuracy = 1)
-  legend_name <- "Poverty"
-  title_txt <- "South Carolina — Poverty Rate"
-} else if (fill_var == "property_crime_per_100k") {
-  lim_hi <- p95(sc$property_crime_per_100k); if (!is.finite(lim_hi)) lim_hi <- max(sc$property_crime_per_100k, na.rm = TRUE)
-  label_fun <- scales::comma_format(accuracy = 1)
-  legend_name <- "Per 100k"
-  title_txt <- "South Carolina — Property Crime per 100k"
-} else {
-  lim_hi <- p95(sc$violent_crime_per_100k); if (!is.finite(lim_hi)) lim_hi <- max(sc$violent_crime_per_100k, na.rm = TRUE)
-  label_fun <- scales::comma_format(accuracy = 1)
-  legend_name <- "Per 100k"
-  title_txt <- "South Carolina — Violent Crime per 100k"
-}
-
-# --- Plot (ggplot -> plotly) ---
+# --- ggplot (legend off; Plotly will supply the colorbar) ---
 p_sc <- ggplot(sc, aes(long, lat, group = group)) +
-  geom_polygon(aes(fill = .data[[fill_var]], text = hover_text), color = "gray85", linewidth = 0.1, na.rm = TRUE) +
+  geom_polygon(aes(fill = poverty_rate, text = hover_text), color = "gray85", linewidth = 0.1, na.rm = TRUE) +
   coord_quickmap() +
-  scale_fill_viridis_c(
-    labels = label_fun,
-    limits = c(0, lim_hi),
-    oob = scales::squish,
-    na.value = "gray95",
-    direction = -1,
-    name = legend_name
+  scale_fill_viridis_b(
+    option = "mako", begin = 0.15, end = 0.90, direction = -1,
+    limits = range(brks),
+    breaks = brks,                     # edges → left-anchored labels
+    labels = c(labs, ""),              # empty right edge
+    oob = scales::squish, na.value = "gray95",
+    name = NULL, guide = "none"        # hide ggplot legend
   ) +
-  labs(title = title_txt) +
-  theme_void(base_size = 12) +
-  theme(legend.position = "bottom", plot.title = element_text(face = "bold", size = 18))
+  labs(title = "South Carolina — Poverty Rate") +
+  theme_void(base_size = 12)
 
-plotly::ggplotly(p_sc, tooltip = "text") %>%
-  plotly::layout(hovermode = "closest")
+# --- plotly conversion + enforced title + custom colorbar ---
+p <- plotly::ggplotly(p_sc, tooltip = "text")
+p <- plotly::layout(p, title = list(text = "South Carolina — Poverty Rate", x = 0, xanchor = "left"))
+
+p <- apply_plotly_binned_colorbar(
+  p,
+  brks = brks,
+  labs = labs,
+  title = "Poverty rate (% of residents)",
+  horizontal = TRUE,
+  thickness = 28, len = 1, show_separators = TRUE,
+  title_font_size = 13, tick_font_size = 12
+)
+
+p
 
 ```
 
