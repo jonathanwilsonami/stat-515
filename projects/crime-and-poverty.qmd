@@ -340,6 +340,10 @@ apply_plotly_binned_colorbar <- function(p, brks, labs, palette = "mako",
 
 ## Comparing Crime and Poverty by U.S. County 
 
+State-level data is useful for identifying broad, statewide trends, but county-level views let us zoom into specific pockets within states to understand patterns at a finer, more granular level. By comparing the three maps side by side, the color saturation makes it easier to spot counties of interest and see how the metrics move together.
+
+One state that suggests a clear pattern is South Carolina. Looking across all three charts, a region stands out with consistently darker hues—yet it’s still a bit hard to tell exactly which county is driving that signal.
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #| column: page
 #| fig-width: 22
@@ -440,6 +444,7 @@ stack_us +
 ```
 
 ## Zooming in on South Carolina
+Continuing our analysis, we remove the broader noise and focus on South Carolina using the same chart type. In the upper-right corner, one county consistently exhibits the darkest hue across all three metrics—poverty rate, property crime, and violent crime. Which county is that?
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 #| column: page
@@ -537,6 +542,7 @@ stack_sc +
 ```
 
 ## Interactive Plot of South Carolina to Look at Individual Counties
+To explore all counties across the metrics, use the interactive Plotly chart to identify each county. Hover to see names and values, and use the zoom/pan controls in the top-right modebar; to find Dillon County, zoom into the upper-right corner of South Carolina and hover until the tooltip shows “Dillon County.”
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
@@ -596,5 +602,12 @@ p
 ```
 
 ## From Insight to Action: Dillon County’s Poverty–Crime Overlap
+The chart below uses a callout (“bang box”) to highlight the county that appears most at risk. Our call to action notes a strong apparent relationship between poverty rates and crime in Dillon County. While this is not an advanced statistical analysis, cursory online research suggests that through 2023 both crime and poverty were very high according to several reports[^report1], and at least one source indicates some action was taken in 2024[^report2].
+
+Before this analysis, we weren’t even aware of Dillon County; data visualization helped us surface a real-world issue. We will forgo making any claims about causality for now—further research is needed, ideally leveraging additional datasets such as Data Commons[^datacomon] and data on drug use, among others, to build a more comprehensive picture.
+
+[^datacomon]: https://datacommons.org/place/geoId/45033 
+[^report1]: https://www.wbtw.com/news/pee-dee/dillon-county/dillon-county-sheriff-talks-about-decreasing-crime-after-sleds-2023-report/ 
+[^report2]: https://wpde.com/news/local/violent-crime-rates-down-29-percent-in-dillon-county-says-sled-south-carolina-state-law-enforcement-division-statistics-murder-sexual-battery-robbery-aggravated-assault-breaking-entering-car-theft-larceny-arson-reduction-charges-investigations  
 
 ![From Insight to Action: Dillon County’s Poverty–Crime Overlap](/images/dillon-sc-story.png){fig-alt="Dillon County" width="100%" fig-align="center"}

@@ -144,35 +144,35 @@
     "href": "projects/crime-and-poverty.html#comparing-crime-and-poverty-by-u.s.-county",
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Comparing Crime and Poverty by U.S. County",
-    "text": "Comparing Crime and Poverty by U.S. County"
+    "text": "Comparing Crime and Poverty by U.S. County\nState-level data is useful for identifying broad, statewide trends, but county-level views let us zoom into specific pockets within states to understand patterns at a finer, more granular level. By comparing the three maps side by side, the color saturation makes it easier to spot counties of interest and see how the metrics move together.\nOne state that suggests a clear pattern is South Carolina. Looking across all three charts, a region stands out with consistently darker hues—yet it’s still a bit hard to tell exactly which county is driving that signal."
   },
   {
     "objectID": "projects/crime-and-poverty.html#zooming-in-on-south-carolina",
     "href": "projects/crime-and-poverty.html#zooming-in-on-south-carolina",
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Zooming in on South Carolina",
-    "text": "Zooming in on South Carolina"
+    "text": "Zooming in on South Carolina\nContinuing our analysis, we remove the broader noise and focus on South Carolina using the same chart type. In the upper-right corner, one county consistently exhibits the darkest hue across all three metrics—poverty rate, property crime, and violent crime. Which county is that?"
   },
   {
     "objectID": "projects/crime-and-poverty.html#interactive-plot-of-south-carolina-to-look-at-individual-counties",
     "href": "projects/crime-and-poverty.html#interactive-plot-of-south-carolina-to-look-at-individual-counties",
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Interactive Plot of South Carolina to Look at Individual Counties",
-    "text": "Interactive Plot of South Carolina to Look at Individual Counties"
+    "text": "Interactive Plot of South Carolina to Look at Individual Counties\nTo explore all counties across the metrics, use the interactive Plotly chart to identify each county. Hover to see names and values, and use the zoom/pan controls in the top-right modebar; to find Dillon County, zoom into the upper-right corner of South Carolina and hover until the tooltip shows “Dillon County.”"
   },
   {
     "objectID": "projects/crime-and-poverty.html#from-insight-to-action-dillon-countys-povertycrime-overlap",
     "href": "projects/crime-and-poverty.html#from-insight-to-action-dillon-countys-povertycrime-overlap",
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "From Insight to Action: Dillon County’s Poverty–Crime Overlap",
-    "text": "From Insight to Action: Dillon County’s Poverty–Crime Overlap\n\n\n\nFrom Insight to Action: Dillon County’s Poverty–Crime Overlap"
+    "text": "From Insight to Action: Dillon County’s Poverty–Crime Overlap\nThe chart below uses a callout (“bang box”) to highlight the county that appears most at risk. Our call to action notes a strong apparent relationship between poverty rates and crime in Dillon County. While this is not an advanced statistical analysis, cursory online research suggests that through 2023 both crime and poverty were very high according to several reports4, and at least one source indicates some action was taken in 20245.\nBefore this analysis, we weren’t even aware of Dillon County; data visualization helped us surface a real-world issue. We will forgo making any claims about causality for now—further research is needed, ideally leveraging additional datasets such as Data Commons6 and data on drug use, among others, to build a more comprehensive picture.\n\n\n\nFrom Insight to Action: Dillon County’s Poverty–Crime Overlap"
   },
   {
     "objectID": "projects/crime-and-poverty.html#footnotes",
     "href": "projects/crime-and-poverty.html#footnotes",
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "Footnotes",
-    "text": "Footnotes\n\n\nGupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization↩︎\nFederal Bureau of Investigation. (n.d.). FBI Crime Data API [Web service and data API]. U.S. Department of Justice. Retrieved October 5, 2025, from https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi U.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/↩︎\nU.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/↩︎"
+    "text": "Footnotes\n\n\nGupta, A. (2022, February 23). 10 Good and Bad Examples of Data Visualization · Polymer. Polymer. https://www.polymersearch.com/blog/10-good-and-bad-examples-of-data-visualization↩︎\nFederal Bureau of Investigation. (n.d.). FBI Crime Data API [Web service and data API]. U.S. Department of Justice. Retrieved October 5, 2025, from https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi U.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/↩︎\nU.S. Census Bureau. (n.d.). data.census.gov [Data portal]. Retrieved October 5, 2025, from https://data.census.gov/↩︎\nhttps://www.wbtw.com/news/pee-dee/dillon-county/dillon-county-sheriff-talks-about-decreasing-crime-after-sleds-2023-report/↩︎\nhttps://wpde.com/news/local/violent-crime-rates-down-29-percent-in-dillon-county-says-sled-south-carolina-state-law-enforcement-division-statistics-murder-sexual-battery-robbery-aggravated-assault-breaking-entering-car-theft-larceny-arson-reduction-charges-investigations↩︎\nhttps://datacommons.org/place/geoId/45033↩︎"
   },
   {
     "objectID": "projects.html",
