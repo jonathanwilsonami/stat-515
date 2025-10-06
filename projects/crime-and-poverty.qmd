@@ -11,6 +11,9 @@ authors:
 
 **Summary:** Data Visualization Redesign Project. 
 
+## Introduction 
+The task of this project is to find an existing data visualization, critically analyze its context and shortcomings, create multiple improved redesigns to reveal new patterns, compare the effectiveness of the original and redesigned plots, and provide thoughtful commentary on the process, challenges, and potential next steps while providing a story we can tell from the data.  
+
 ## Original Graphic
 
 ![The original chart[^refnote].](/images/old-chart-bubble-chart-crime.png){#fig-original fig-align="center" width="100%"}
@@ -45,22 +48,6 @@ Overall, there are several changes that can be made to this original graph to be
 - Additionally, we can even move away from classic dot plots and explore plotting this data on a map, as most readers are familiar with a map of the US. 
 
 These are just some of the various solutions that we implemented in our redesigns. 
-
-## Overview & Background 
-
-Big Idea
-- who, what 
-what is the problem? 
-hypothesis or solution offered what was done to validate this finding 
-what are the findimgs 
-what is the reco or call to action or final suggestin 
-
-3 Min Story
-- Background 
-- Original chart 
-- Data used 
-- Overview of data fetching process 
-- Call to action 
 
 ## Data Sources
 The original chart did not cite its data source. Given the topic (crime and poverty rates), we assumed the data should come from authoritative databases. For this redesign, we performed substantial data preparation (described next) using the sources listed below:
@@ -337,6 +324,384 @@ apply_plotly_binned_colorbar <- function(p, brks, labs, palette = "mako",
 }
 
 ```
+
+
+## ------------------------------------------
+## Original Graphic Redesign
+
+The goal of our first redesign is to recreate the original graphic keeping most elements the same, but with improved labeling, less visual clutter, and clear interpretation of the poverty variable. More specifically, we will add a title that explains the nature and origin of the data, use a color gradient to differentiate between poverty levels, and transition the state labels to an interactive element of the visualization.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.show = "hide"}
+#load state data to be used for all state-level visualizations
+#####PLOT 1#####
+
+#create plot with all 3 variables (recreate original graph)
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+dataviz1a = ggplot(state, aes(x=crime_rate_per_100k_property,y=crime_rate_per_100k_violent,
+                              text = paste0("State: ", state_abbr,
+                                            "<br>Poverty: ", poverty_rate_pct, "%",
+                                            "<br>Property Crime: ", crime_rate_per_100k_property,
+                                            "<br>Violent Crime: ", crime_rate_per_100k_violent)))+
+  geom_point(aes(fill=poverty_rate_pct), color = "black", shape = 21, size = 3.5, stroke = 0.2)+
+  theme_minimal()+
+  scale_fill_gradientn(
+    name = "Poverty Percentage",
+    colours = c("white", "goldenrod1", "darkred"),
+    values = scales::rescale(c(0, median(state$poverty_rate_pct, na.rm = TRUE), max(state$poverty_rate_pct, na.rm = TRUE))),
+    na.value = "grey50", 
+    labels = function(x) paste0(x, "%"))+ #used AI to help create code to add percent symbols in legend
+  labs(title = "2023 Property Crime vs Violent Crime by State in Relation to Poverty",
+       x = "Property Crime Incidents per 100k Residents",
+       y = "Violent Crime Incidents per 100k Residents")
+dataviz1a
+
+#convert previous plot to an interactive plotly plot
+###DISPLAY THIS PLOT ON WEBSITE###
+ggplotly(dataviz1a, tooltip = "text")
+```
+
+Note that we can quickly see that the District of Columbia (DC) has significantly more crime incidents (both property crime and violent crime) than any US state, which stretches the scales of the axes. Let’s recreate this graph, excluding the outlier data point of DC, so that we can identify potential trends between the 50 states more clearly.  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.show = "hide"}
+#####PLOT 2#####
+
+#create previous plot excluding the outlier data point (DC)
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+dataviz1b = ggplot(state, aes(x=crime_rate_per_100k_property,y=crime_rate_per_100k_violent,
+                       text = paste0("State: ", state_abbr,
+                                     "<br>Poverty: ", poverty_rate_pct, "%",
+                                     "<br>Property Crime: ", crime_rate_per_100k_property,
+                                     "<br>Violent Crime: ", crime_rate_per_100k_violent))) +
+  geom_point(aes(fill=poverty_rate_pct), color = "black", shape = 21, size = 3.5, stroke = 0.2)+
+  theme_minimal()+
+  scale_fill_gradientn(
+    name = "Poverty Percentage",
+    colours = c("white", "goldenrod1", "darkred"),
+    values = scales::rescale(c(0, median(state$poverty_rate_pct, na.rm = TRUE), max(state$poverty_rate_pct, na.rm = TRUE))),
+    na.value = "grey50",
+    labels = function(x) paste0(x, "%"))+ #used AI to help create code to add percent symbols in legend
+  xlim(800,3000)+ 
+  ylim(100,800)+
+  labs(title = "2023 Property Crime vs Violent Crime by State in Relation to Poverty
+(D.C. Excluded)",
+       x = "Property Crime Incidents per 100k Residents",
+       y = "Violent Crime Incidents per 100k Residents")
+dataviz1b
+
+#convert previous plot to an interactive plotly plot
+###DISPLAY THIS PLOT ON WEBSITE###
+ggplotly(dataviz1b, tooltip = "text")
+```
+
+Now let’s analyze the redesign shown above. When viewing this visualization, we can identify a positive relationship between property crime and violent crime much easier than in the original graphic. In other words, the more property crime incidents a state experiences often correlates with more violent crime incidents. Additionally, it is worth taking note that there are multiple states with higher poverty percentages scattered throughout the plot (look at Mississippi, West Virgina, Kentucky, Louisiana, and New Mexico).  
+
+## Alternative Data Visualization - Using Bar Charts
+
+There are several alternative ways to illustrate the same information from the original graphic. The redesign below portrays the same data but in a familiar way by using two bar charts side by side, with one for property crime data by state and one for violent crime data by state. One positive of this type of visualization is that the state abbreviation labels are clearly displayed without requiring any interactive elements. Another positive is that these bar charts allow for even easier comparisons between state data, as states’ bars are arranged by their property crime data. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.show = "hide"}
+#arrange state data by property crime rate
+state2a <- state %>%
+  mutate(state_abbr = factor(state_abbr, levels = state_abbr[order(crime_rate_per_100k_property)]))
+
+#plot property crime data
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+ggplot(state2a, aes(x=crime_rate_per_100k_property,y=state_abbr)) +
+  geom_bar(stat="identity", aes(fill=poverty_rate_pct),color='black') +
+  labs(x="Property Crime Incidents per 100k Residents",
+       y="States",
+       title="2023 Property Crime by State in Relation to Poverty")+
+  theme_minimal()+
+  scale_fill_gradientn(
+    name = "Poverty Percentage",
+    colours = c("white", "goldenrod1", "darkred"),
+    values = scales::rescale(c(0, median(state$poverty_rate_pct, na.rm = TRUE), max(state$poverty_rate_pct, na.rm = TRUE))),
+    na.value = "grey50",
+    labels = function(x) paste0(x, "%")) #used AI to help create code to add percent symbols in legend
+
+#arrange state data by violent crime rate
+state2b <- state %>%
+  mutate(state_abbr = factor(state_abbr, levels = state_abbr[order(crime_rate_per_100k_violent)]))
+
+#plot violent crime data
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+ggplot(state2b, aes(x=crime_rate_per_100k_violent,y=state_abbr)) +
+  geom_bar(stat="identity", aes(fill=poverty_rate_pct),color='black') +
+  labs(x="Violent Crime Incidents per 100k Residents",
+       y="States",
+       title="2023 Violent Crime by State in Relation to Poverty")+
+  theme_minimal()+
+  scale_fill_gradientn(
+    name = "Poverty Percentage",
+    colours = c("white", "goldenrod1", "darkred"),
+    values = scales::rescale(c(0, median(state$poverty_rate_pct, na.rm = TRUE), max(state$poverty_rate_pct, na.rm = TRUE))),
+    na.value = "grey50",
+    labels = function(x) paste0(x, "%")) #used AI to help create code to add percent symbols in legend
+
+#convert state data to long format, so we can combine previous 2 plots into 1
+state_long2 <- state2a %>%
+  pivot_longer(cols = c(crime_rate_per_100k_property, crime_rate_per_100k_violent),
+               names_to = "crime_type",
+               values_to = "crime_rate") %>%
+  mutate(crime_type = recode(crime_type,
+                             crime_rate_per_100k_property = "Property Crime",
+                             crime_rate_per_100k_violent = "Violent Crime"))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.width=10, fig.height=7}
+#plot property crime and violent crime side by side
+###DISPLAY THIS PLOT ON WEBSITE###
+ggplot(state_long2, aes(x = crime_rate, y = state_abbr)) +
+  geom_bar(stat = "identity", aes(fill = poverty_rate_pct), color = "black") +
+  labs(x = "Crime Incidents per 100k Residents",
+       y = "States",
+       title = "2023 Crime by State in Relation to Poverty",
+       fill = "Poverty Percentage") +
+  theme_minimal() +
+  scale_fill_gradientn(
+    name = "Poverty Percentage",
+    colours = c("white", "goldenrod1", "darkred"),
+    values = scales::rescale(c(0, median(state$poverty_rate_pct, na.rm = TRUE), max(state$poverty_rate_pct, na.rm = TRUE))),
+    na.value = "grey50",
+    labels = function(x) paste0(x, "%"))+ #used AI to help create code to add percent symbols in legend
+  theme(
+    plot.title = element_text(face = "bold"))+
+  facet_wrap(~ crime_type, ncol = 2, scales = "free_x")
+```
+
+When comparing the two bar charts, the previously identified positive trend between property crime and violent crime is shown, although it is not exactly linear. Upon examining the visualization more closely, it is interesting that Mississippi exhibits relatively low property crime and violent crime given its high poverty percentage. Conversely, it is interesting that Colorado has such a low poverty percentage given that it exhibits higher property crime and violent crime. This could indicate the lack of a substantial relationship between poverty percentage and crime incidents (property crime and violent crime) at the state level. 
+
+## Alternative Data Visualization - Using Poverty as Dependent Variable
+
+While our previous graphs highlight more of the relationship between property crime and violent crime, the goal of the visualization below is to succinctly investigate the relationship between poverty and crime, by tracking poverty percentage as the dependent variable instead of a color gradient. This is done by creating two separate scatterplots side by side, one for property crime versus poverty and one for violent crime versus property. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.show = "hide"}
+#create/load hw theme commonly used in class
+hw <- theme_gray()+ theme(
+  plot.title=element_text(hjust=0.5),
+  plot.subtitle=element_text(hjust=0.5),
+  plot.caption=element_text(hjust=-.5),
+  
+  strip.text.y = element_blank(),
+  strip.background=element_rect(fill=rgb(.9,.95,1),
+                                colour=gray(.5), linewidth =.2),
+  
+  panel.border=element_rect(fill=FALSE,colour=gray(.70)),
+  panel.grid.minor.y = element_blank(),
+  panel.grid.minor.x = element_blank(),
+  panel.spacing.x = unit(0.10,"cm"),
+  panel.spacing.y = unit(0.05,"cm"),
+  
+  # axis.ticks.y= element_blank()
+  axis.ticks=element_blank(),
+  axis.text=element_text(colour="black"),
+  axis.text.y=element_text(margin=margin(0,3,0,3)),
+  axis.text.x=element_text(margin=margin(-1,0,3,0))
+)
+
+#create plot with only property crime and poverty data variables
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+ggplot(state, aes(x=crime_rate_per_100k_property,y=poverty_rate_pct))+
+  geom_point(fill="green", color = "black", shape = 21, size = 3, stroke = 0.5)+
+  hw+
+  labs(title = "2023 Property Crime vs Poverty by State",
+       x = "Property Crime Incidents per 100k Residents",
+       y = "Poverty Percentage")
+
+#create plot with only violent crime and poverty data variables
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+ggplot(state, aes(x=crime_rate_per_100k_violent,y=poverty_rate_pct))+
+  geom_point(fill="blue", color = "black", shape = 21, size = 3, stroke = 0.5)+
+  hw+
+  labs(title = "2023 Violent Crime vs Poverty by State",
+       x = "Violent Crime Incidents per 100k Residents",
+       y = "Poverty Percentage")
+
+#convert state data to long format, so we can combine previous 2 plots into 1
+state_long3 <- state %>%
+  select(state_abbr, poverty_rate_pct,
+         crime_rate_per_100k_property,
+         crime_rate_per_100k_violent) %>%
+  pivot_longer(
+    cols = c(crime_rate_per_100k_property, crime_rate_per_100k_violent),
+    names_to = "crime_type",
+    values_to = "crime_rate"
+  ) %>%
+  mutate(
+    crime_type = recode(crime_type,
+                        crime_rate_per_100k_property = "Property Crime",
+                        crime_rate_per_100k_violent = "Violent Crime")
+  )
+
+#plot property crime vs poverty and violent crime vs poverty side by side on same visualization
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+ggplot(state_long3, aes(x = crime_rate, y = poverty_rate_pct)) +
+  geom_point(aes(fill = crime_type), color = "black", shape = 21, size = 3, stroke = 0.5) +
+  scale_fill_manual(values = c("Property Crime" = "green", "Violent Crime" = "blue")) +
+  facet_wrap(~ crime_type, ncol = 2, scales = "free_x") +
+  labs(
+    title = "2023 Crime vs Poverty by State, Separated by Crime Type",
+    x = "Crime Incidents per 100k Residents",
+    y = "Poverty Percentage",
+    fill = "Crime Type"
+  ) +
+  hw 
+
+##recreate previous plot using plotly below (used AI to help create desired conversion)
+
+#create the Property Crime plot using plotly
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+plotly3a <- plot_ly(
+  data = state,
+  x = ~crime_rate_per_100k_property,
+  y = ~poverty_rate_pct,
+  type = "scatter",
+  mode = "markers",
+  marker = list(color = "green", line = list(color = "black", width = 0.5), size = 10),
+  text = ~paste0("State: ", state_abbr,
+                 "<br>Property Crime: ", crime_rate_per_100k_property,
+                 "<br>Poverty: ", poverty_rate_pct, "%"),
+  hoverinfo = "text",
+  name = "Property Crime"
+) %>%
+  layout(
+    title = "Property Crime vs Poverty",
+    xaxis = list(title = "Property Crime Incidents 
+    per 100k Residents"),
+    yaxis = list(title = "Poverty Percentage")
+  )
+
+#create the Violent Crime plot using plotly
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+plotly3b <- plot_ly(
+  data = state,
+  x = ~crime_rate_per_100k_violent,
+  y = ~poverty_rate_pct,
+  type = "scatter",
+  mode = "markers",
+  marker = list(color = "blue", line = list(color = "black", width = 0.5), size = 10),
+  text = ~paste0("State: ", state_abbr,
+                 "<br>Violent Crime: ", crime_rate_per_100k_violent,
+                 "<br>Poverty: ", poverty_rate_pct, "%"),
+  hoverinfo = "text",
+  name = "Violent Crime"
+) %>%
+  layout(
+    title = "Violent Crime vs Poverty",
+    xaxis = list(title = "Violent Crime Incidents 
+    per 100k Residents"),
+    yaxis = list(title = "Poverty Percentage")
+  )
+
+#combine the two previous plots into a subplot
+###DISPLAY THIS PLOT ON WEBSITE###
+subplot(plotly3a, plotly3b, nrows = 1, shareY = TRUE, titleX = TRUE, titleY = TRUE) %>%
+  layout(
+    title = "2023 Crime vs Poverty by State, Separated by Crime Type",
+    showlegend = FALSE
+  )
+```
+
+When analyzing these scatterplots of state-level data, we cannot identify a clear correlation between property crime and poverty, while only a slightly positive correlation between violent crime and poverty is observed. This confirms our suspicion that there is no substantial relationship between poverty percentage and crime incidents (property crime and violent crime) at the state level based on our data. Given this information, let’s visualize the data in one more way before determining the next steps. 
+
+## Comparing Crime and Poverty by State on USA Map
+
+After identifying some of the relationships between property crime, violent crime, and poverty using bubble charts, bar charts, and scatterplots, let's plot this data on a geographical map[^classnotes] that everyone is familiar with. The visualization below displays three US maps, each tracking a different variable by a common color gradient, making it easier to spot states of interest and see how the metrics move together. 
+
+[^classnotes]: Dassanayake (2023). Example 2: Republican voting in 1976 by state [HTML file]. In Maps (maps (4).html). Retrieved from file:///Users/sean/Downloads/maps%20(4).html#example-2-republican-voting-in-1976-by-state 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.show = "hide"}
+#get USA map data and save as tibble
+usa_tbl <- map_data("state") %>% as_tibble()
+#take state data and convert all state names to lower case
+state4 <- state %>%
+  mutate(state_name = str_to_lower(state_name))
+#join USE map data and state data
+usa_state_data <- usa_tbl %>%
+  left_join(state4, by = c("region"= "state_name"))
+
+#create USA map containing poverty data
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+dataviz4a = ggplot(usa_state_data, aes(long, lat, group = group)) +
+  geom_map(
+    aes(map_id = region),
+    map = usa_tbl,
+    color = "gray80", fill = "gray30", size = 0.3) +
+  coord_map("ortho", orientation = c(39, -98, 0)) +
+  geom_polygon(aes( fill = poverty_rate_pct), color = "black") +
+  scale_fill_gradientn(
+    name = "Poverty Percentage",
+    colours = c("darkseagreen2", "steelblue", "midnightblue"),
+    values = scales::rescale(c(0, median(state$poverty_rate_pct, na.rm = TRUE), max(state$poverty_rate_pct, na.rm = TRUE))),
+    na.value = "grey50", 
+    labels = function(x) paste0(x, "%")) +
+  theme_void() +
+  labs(title = "2023 Poverty Percentage by State",x = "", y = "", fill = "") +
+  theme(
+    plot.title = element_text(size = 22, face = "bold", color = "darkred", hjust=0.5),
+    legend.title = element_text(size=12, face = "bold"),
+    legend.margin = margin(t = 10),
+    legend.key.size = unit(1, "cm"),
+    legend.position = "top")
+dataviz4a
+
+#create USA map containing property crime data
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+dataviz4b = ggplot(usa_state_data, aes(long, lat, group = group)) +
+  geom_map(
+    aes(map_id = region),
+    map = usa_tbl,
+    color = "gray80", fill = "gray30", size = 0.3) +
+  coord_map("ortho", orientation = c(39, -98, 0)) +
+  geom_polygon(aes( fill = crime_rate_per_100k_property), color = "black") +
+  scale_fill_gradientn(
+    name = "Property Crime Incidents per 100k Residents",
+    colours = c("darkseagreen2", "steelblue", "midnightblue"),
+    values = scales::rescale(c(0, max(state$crime_rate_per_100k_property, na.rm = TRUE))),
+    na.value = "grey50") +
+  theme_void() +
+  labs(title = "2023 Property Crime Incidents per 100,000 Residents by State",x = "", y = "", fill = "") +
+  theme(
+    plot.title = element_text(size = 22, face = "bold", color = "darkgreen", hjust=0.5),
+    legend.title = element_text(size=12, face = "bold"),
+    legend.margin = margin(t = 10),
+    legend.key.size = unit(1, "cm"),
+    legend.position = "top")
+dataviz4b
+
+#create USA map containing violent crime data
+#DO NOT DISPLAY THIS PLOT ON WEBSITE#
+dataviz4c = ggplot(usa_state_data, aes(long, lat, group = group)) +
+  geom_map(
+    aes(map_id = region),
+    map = usa_tbl,
+    color = "gray80", fill = "gray30", size = 0.3) +
+  coord_map("ortho", orientation = c(39, -98, 0)) +
+  geom_polygon(aes( fill = crime_rate_per_100k_violent), color = "black") +
+  scale_fill_gradientn(
+    name = "Violent Crime Incidents per 100k Residents",
+    colours = c("darkseagreen2", "steelblue", "midnightblue"),
+    values = scales::rescale(c(0, max(state$crime_rate_per_100k_violent, na.rm = TRUE))),
+    na.value = "grey50") +
+  theme_void() +
+  labs(title = "2023 Violent Crime Incidents per 100,000 Residents by State",x = "", y = "", fill = "") +
+  theme(
+    plot.title = element_text(size = 22, face = "bold", color = "darkblue", hjust=0.5),
+    legend.title = element_text(size=12, face = "bold"),
+    legend.margin = margin(t = 10),
+    legend.key.size = unit(1, "cm"),
+    legend.position = "top")
+dataviz4c
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.width=12, fig.height=15}
+#combine the previous 3 plots
+###DISPLAY THIS PLOT ON WEBSITE###
+dataviz4 <- dataviz4a / dataviz4b / dataviz4c
+dataviz4
+```
+
+There are a few regions in the US that exhibit a relatively darker hue on all three maps. These regions include the southern Midwest states, states in the mid-southern West Coast area, and a few states in the mid-southern East Coast area. However, analyzing broader state data may not be the most effective route to capture more comprehensive trends. To better understand the relationship between poverty and crime in the US, the next step is to examine data at the county level, allowing for more detailed and comprehensive analysis. 
 
 ## Comparing Crime and Poverty by U.S. County 
 
