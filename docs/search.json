@@ -140,13 +140,6 @@
     "text": "Data Sources\nThe original chart did not cite its data source. Given the topic (crime and poverty rates), we assumed the data should come from authoritative databases. For this redesign, we performed substantial data preparation (described next) using the sources listed below:\n\nFBI Crime Data API2.\n\n\nThe United States Census Bureau3.\n\n\nA Note On Data Wrangling\nWe pulled 2023 data from two APIs—the U.S. Census Bureau (population and poverty) and the FBI Crime Data API—and used the Polars Python library to clean and reshape it into an analysis-ready dataset. The Census API let us retrieve state- and county-level values in a single request for 2023, but some counties lacked population (and therefore poverty rates), and a few areas (e.g., Louisiana) were missing from the pull.\nFor crime, we queried two FBI endpoints roughly ~50,000 times using ORIs (Originating Agency Identifiers) that uniquely identify police agencies within counties. After fetching, we joined the Census and crime records on state and county, then performed the required aggregations and calculated per-100,000 incident rates.\n\n\nKey Metrics & Derivations\nThis project uses three key metrics namely:\n\nPoverty rate\n\\[\n\\text{PovertyRate (\\%)} \\;=\\; \\frac{N_{\\text{below poverty}}}{N_{\\text{poverty universe}}}\\times 100\n\\]\n(As a proportion: ( = ).)\nProperty crime incidents per 100,000 residents\n\\[\n\\text{PropertyCrimeRate}_{/100k} \\;=\\; \\frac{N_{\\text{property incidents}}}{N_{\\text{population}}}\\times 100{,}000\n\\]\nViolent crime incidents per 100,000 residents\n\\[\n\\text{ViolentCrimeRate}_{/100k} \\;=\\; \\frac{N_{\\text{violent incidents}}}{N_{\\text{population}}}\\times 100{,}000\n\\]\n\n\\[\n\\begin{aligned}\n\\textbf{Where:}\\quad & \\\\\nN_{\\text{population}} &:= \\text{total population}\\\\\nN_{\\text{below poverty}} &:= \\text{count below poverty}\\\\\nN_{\\text{property incidents}} &:= \\text{total reported property crime incidents in the period (e.g., 2023)}\\\\\nN_{\\text{violent incidents}} &:= \\text{total reported violent crime incidents in the period (e.g., 2023)}\n\\end{aligned}\n\\]"
   },
   {
-    "objectID": "projects/crime-and-poverty.html#section",
-    "href": "projects/crime-and-poverty.html#section",
-    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
-    "section": "——————————————",
-    "text": "——————————————"
-  },
-  {
     "objectID": "projects/crime-and-poverty.html#original-graphic-redesign",
     "href": "projects/crime-and-poverty.html#original-graphic-redesign",
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
@@ -201,6 +194,13 @@
     "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
     "section": "From Insight to Action: Dillon County’s Poverty–Crime Overlap",
     "text": "From Insight to Action: Dillon County’s Poverty–Crime Overlap\nThe chart below uses a callout (“bang box”) to highlight the county that appears most at risk. Our call to action notes a strong apparent relationship between poverty rates and crime in Dillon County. While this is not an advanced statistical analysis, cursory online research suggests that through 2023 both crime and poverty were very high according to several reports5, and at least one source indicates some action was taken in 20246.\nBefore this analysis, we weren’t even aware of Dillon County; data visualization helped us surface a real-world issue. We will forgo making any claims about causality for now—further research is needed, ideally leveraging additional datasets such as Data Commons7 and data on drug use, among others, to build a more comprehensive picture.\n\n\n\nFrom Insight to Action: Dillon County’s Poverty–Crime Overlap"
+  },
+  {
+    "objectID": "projects/crime-and-poverty.html#video-demo",
+    "href": "projects/crime-and-poverty.html#video-demo",
+    "title": "Possible Relationship Between Poverty & Crime in Dillon County South Carolina",
+    "section": "Video Demo",
+    "text": "Video Demo"
   },
   {
     "objectID": "projects/crime-and-poverty.html#footnotes",
