@@ -976,4 +976,4 @@ Before this analysis, we weren’t even aware of Dillon County; data visualizati
 ![From Insight to Action: Dillon County’s Poverty–Crime Overlap](/images/dillon-sc-story.png){fig-alt="Dillon County" width="100%" fig-align="center"}
 
 ## Video Demo 
-{{< video https://www.youtube.com/embed/wo9vZccmqwc >}} 
+{{< video https://youtu.be/SMLH-oHrjuU >}} 
