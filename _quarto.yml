@@ -24,6 +24,8 @@ website:
             href: projects/crime-and-poverty.qmd
           - text: Mid Term Redesign - CODE
             href: projects/crime-and-poverty-CODE.qmd
+          - text: Final Project
+            href: projects/power.qmd
   page-footer:
     center:
       - text: "© 2025 Jonathan Wilson"

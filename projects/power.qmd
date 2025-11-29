@@ -1,0 +1,50 @@
+---
+title: "Power"
+date: 2025-12-10
+categories: [Statistical Learning]
+repo-url: https://github.com/jonathanwilsonami/stat-515
+format: html
+authors: 
+  - "Jonathan Wilson"
+  - "Sean Reilly"
+---
+
+**Summary:** summary of project. 
+
+## Abstract
+
+## Introduction & Background
+
+![U.S. Census Regions and Divisions[^refnote].](/images/power-grid/us-census-regions-and-divisions.png){#fig-regions-divisions fig-align="center" width="100%"}
+
+## Data 
+
+### Dataset 
+
+### EDA
+
+## Research Questions 
+
+
+## Question 1
+
+### Methods
+
+### Results 
+
+## Question 2
+
+### Methods
+
+### Results 
+
+
+## Question 3
+
+### Methods
+
+### Results 
+
+## Conclusion
+
+## References 

@@ -15,7 +15,6 @@ notes.txt
 ~$*.DS_Store*
 ~$*.Rproj.user*
 ~$*.RData*
-*.Rproj*
 *.RData*
 
 # Office Temporal Files
@@ -34,3 +33,4 @@ Backup of *.doc*
 *.~vsd*
 
 renv/library/
+.Rproj.user

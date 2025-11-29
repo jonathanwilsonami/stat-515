@@ -32,7 +32,7 @@
     "href": "projects/index.html",
     "title": "Projects",
     "section": "",
-    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPossible Relationship Between Poverty & Crime in Dillon County South Carolina\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
+    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPower\n\n\n\n\n\n\n\n\n\nDec 10, 2025\n\n\n\n\n\n\n\n\n\n\n\nPossible Relationship Between Poverty & Crime in Dillon County South Carolina\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "projects/crime-and-poverty-CODE.html",
@@ -215,5 +215,75 @@
     "title": "Projects",
     "section": "",
     "text": "Welcome! Explore featured work across Data Viz, AI/ML, IoT & Electronics, and Construction.\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "projects/power.html",
+    "href": "projects/power.html",
+    "title": "Power",
+    "section": "",
+    "text": "Summary: summary of project."
+  },
+  {
+    "objectID": "projects/power.html#introduction-background",
+    "href": "projects/power.html#introduction-background",
+    "title": "Power",
+    "section": "Introduction & Background",
+    "text": "Introduction & Background\n\n\n\n\n\n\nFigure 1: U.S. Census Regions and Divisions[^refnote]."
+  },
+  {
+    "objectID": "projects/power.html#data",
+    "href": "projects/power.html#data",
+    "title": "Power",
+    "section": "Data",
+    "text": "Data\n\nDataset\n\n\nEDA"
+  },
+  {
+    "objectID": "projects/power.html#research-questions",
+    "href": "projects/power.html#research-questions",
+    "title": "Power",
+    "section": "Research Questions",
+    "text": "Research Questions"
+  },
+  {
+    "objectID": "projects/power.html#question-1",
+    "href": "projects/power.html#question-1",
+    "title": "Power",
+    "section": "Question 1",
+    "text": "Question 1\n\nMethods\n\n\nResults"
+  },
+  {
+    "objectID": "projects/power.html#question-2",
+    "href": "projects/power.html#question-2",
+    "title": "Power",
+    "section": "Question 2",
+    "text": "Question 2\n\nMethods\n\n\nResults"
+  },
+  {
+    "objectID": "projects/power.html#question-3",
+    "href": "projects/power.html#question-3",
+    "title": "Power",
+    "section": "Question 3",
+    "text": "Question 3\n\nMethods\n\n\nResults"
+  },
+  {
+    "objectID": "projects/power.html#abstract",
+    "href": "projects/power.html#abstract",
+    "title": "Power",
+    "section": "Abstract",
+    "text": "Abstract"
+  },
+  {
+    "objectID": "projects/power.html#conclusion",
+    "href": "projects/power.html#conclusion",
+    "title": "Power",
+    "section": "Conclusion",
+    "text": "Conclusion"
+  },
+  {
+    "objectID": "projects/power.html#references",
+    "href": "projects/power.html#references",
+    "title": "Power",
+    "section": "References",
+    "text": "References"
   }
 ]
