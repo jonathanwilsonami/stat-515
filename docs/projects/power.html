@@ -8,7 +8,7 @@
 
 <meta name="dcterms.date" content="2025-12-10">
 
-<title>Power – Stat 515</title>
+<title>Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends – Stat 515</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,7 +21,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -69,6 +89,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+      
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -171,7 +192,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Power</h1>
+<h1 class="title">Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends</h1>
   <div class="quarto-categories">
     <div class="quarto-category">Statistical Learning</div>
   </div>
@@ -204,9 +225,11 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><strong>Summary:</strong> summary of project.</p>
 <section id="abstract" class="level2">
 <h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
+<p>…Just a summary section on what this paper is about…</p>
+<p>Today, the region is known as “Data Center Alley,” and an estimated 70% of the world’s internet traffic flows through it, with the boom continuing due to demands from AI and cloud computing.</p>
+<p>The years between 2015 and 2023 saw a %500 increase</p>
 </section>
 <section id="introduction-background" class="level2">
 <h2 class="anchored" data-anchor-id="introduction-background">Introduction &amp; Background</h2>
@@ -220,18 +243,47 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </figcaption>
 </figure>
 </div>
+<p>As shown in recent studies <span class="citation" data-cites="texaspowerdemand"><a href="#ref-texaspowerdemand" role="doc-biblioref">[1]</a></span>, data centers significantly increase load.</p>
 </section>
 <section id="data" class="level2">
 <h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>The Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends.</p>
+<p>Original Data Source <span class="citation" data-cites="eia861_2025"><a href="#ref-eia861_2025" role="doc-biblioref">[2]</a></span>. Cleaned up Data Source <span class="citation" data-cites="corgis_electricity_2021"><a href="#ref-corgis_electricity_2021" role="doc-biblioref">[3]</a></span>.</p>
+<p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
+<ul>
+<li>High commercial load</li>
+<li>Rapid growth</li>
+<li>High purchased-power dependency</li>
+<li>High demand intensity (kWh/customer)</li>
+</ul>
+<p>The reveals some limitations we will have to admit…. Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid.</p>
 <section id="dataset" class="level3">
 <h3 class="anchored" data-anchor-id="dataset">Dataset</h3>
+<p>Provides extensive and compelling commentary on the data selected to address the research question of interest (e.g.&nbsp;data selection, data processing, data limitations, etc.).</p>
 </section>
 <section id="eda" class="level3">
 <h3 class="anchored" data-anchor-id="eda">EDA</h3>
+<p>Checklist - Summary stats such as national averages, totals, state by state comparisons, etc. - plots showing spreads</p>
+<p>short exploratory analysis (summary statistics, histogram/density plot) before fitting a statistical model. Your model may be guided by this. For example a skewed density plot may suggest you should transform a variable.</p>
 </section>
 </section>
 <section id="research-questions" class="level2">
 <h2 class="anchored" data-anchor-id="research-questions">Research Questions</h2>
+<ol type="1">
+<li>Can we predict a utility’s total electricity usage in Virginia based on customer type, revenue structure, and purchased power?</li>
+<li>Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?</li>
+<li>Unsupervised learning methods:</li>
+</ol>
+<ol type="a">
+<li>Cluster states (VA, GA, TX, OH, OR) based on utility characteristics to see which look like high-data-center (or just high usage) regions</li>
+<li>Which utilities in Virginia are outliers in commercial electricity consumption. Identify abnormal utilities whose usage patterns do not match their declared utility type.</li>
+</ol>
+<p>How does data-center-driven load growth in Virginia compare to national utilities, and which statistical learning models best predict future peak demand?</p>
+<p>Does the rise of data centers in Virginia change the balance between local power generation and purchased electricity differently than utilities nationwide?</p>
+<p>Under different data-center growth scenarios, how could Virginia’s electricity demand, pricing, and grid stress evolve relative to national trends?</p>
+<p>Provides extensive and compelling commentary on all components of the data analysis (e.g.&nbsp;methodology selection, model assumptions, modeling results, limitations on the analysis, etc.).</p>
+<p>If comparisons are made between methods, clearly articulates the advantages and disadvantages of each method, comparative performance on</p>
+<p>Provides extensive and compelling commentary on the interpretation of the analytical results within the context of the research question of interest. • Provides numerous clear, reasonable, and actionable next steps for refining and improving the analysis.</p>
 </section>
 <section id="question-1" class="level2">
 <h2 class="anchored" data-anchor-id="question-1">Question 1</h2>
@@ -264,12 +316,23 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
 </section>
 <section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">References</h2>
+
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
+<div id="ref-texaspowerdemand" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">T. Hodge, <span>“We expect rapid electricity demand growth in texas and the mid-atlantic,”</span> <em>EIA Reports</em>, 2025, Available: <a href="https://www.eia.gov/todayinenergy/detail.php?id=65844">https://www.eia.gov/todayinenergy/detail.php?id=65844</a></div>
+</div>
+<div id="ref-eia861_2025" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“<span class="nocase">EIA-861 Annual Electric Power Industry Report, detailed data files</span>.”</span> Online dataset, 2025. Available: <a href="https://www.eia.gov/electricity/data/eia861/">https://www.eia.gov/electricity/data/eia861/</a></div>
+</div>
+<div id="ref-corgis_electricity_2021" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">CORGIS Dataset Project, <span>“<span class="nocase">CORGIS Electricity Dataset (2017 data) – electricity.csv</span>.”</span> Online dataset, version 2.0.0, 2021. Available: <a href="https://corgis-edu.github.io/corgis/csv/electricity/">https://corgis-edu.github.io/corgis/csv/electricity/</a></div>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

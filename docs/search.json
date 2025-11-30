@@ -32,7 +32,7 @@
     "href": "projects/index.html",
     "title": "Projects",
     "section": "",
-    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPower\n\n\n\n\n\n\n\n\n\nDec 10, 2025\n\n\n\n\n\n\n\n\n\n\n\nPossible Relationship Between Poverty & Crime in Dillon County South Carolina\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
+    "text": "A collection of visualization projects—dashboards, interactive charts, and storytelling with data.\n\n\n\n\n\n\n\n\n\n\n\n\nCrime And Poverty Redesign Project CODE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nModeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends\n\n\n\n\n\n\n\n\n\nDec 10, 2025\n\n\n\n\n\n\n\n\n\n\n\nPossible Relationship Between Poverty & Crime in Dillon County South Carolina\n\n\n\n\n\n\n\n\n\nSep 25, 2025\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "projects/crime-and-poverty-CODE.html",
@@ -219,63 +219,63 @@
   {
     "objectID": "projects/power.html",
     "href": "projects/power.html",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "",
-    "text": "Summary: summary of project."
+    "text": "…Just a summary section on what this paper is about…\nToday, the region is known as “Data Center Alley,” and an estimated 70% of the world’s internet traffic flows through it, with the boom continuing due to demands from AI and cloud computing.\nThe years between 2015 and 2023 saw a %500 increase"
   },
   {
     "objectID": "projects/power.html#introduction-background",
     "href": "projects/power.html#introduction-background",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Introduction & Background",
-    "text": "Introduction & Background\n\n\n\n\n\n\nFigure 1: U.S. Census Regions and Divisions[^refnote]."
+    "text": "Introduction & Background\n\n\n\n\n\n\nFigure 1: U.S. Census Regions and Divisions[^refnote].\n\n\n\nAs shown in recent studies [1], data centers significantly increase load."
   },
   {
     "objectID": "projects/power.html#data",
     "href": "projects/power.html#data",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Data",
-    "text": "Data\n\nDataset\n\n\nEDA"
+    "text": "Data\nThe Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends.\nOriginal Data Source [2]. Cleaned up Data Source [3].\nOriginally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:\n\nHigh commercial load\nRapid growth\nHigh purchased-power dependency\nHigh demand intensity (kWh/customer)\n\nThe reveals some limitations we will have to admit…. Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid.\n\nDataset\nProvides extensive and compelling commentary on the data selected to address the research question of interest (e.g. data selection, data processing, data limitations, etc.).\n\n\nEDA\nChecklist - Summary stats such as national averages, totals, state by state comparisons, etc. - plots showing spreads\nshort exploratory analysis (summary statistics, histogram/density plot) before fitting a statistical model. Your model may be guided by this. For example a skewed density plot may suggest you should transform a variable."
   },
   {
     "objectID": "projects/power.html#research-questions",
     "href": "projects/power.html#research-questions",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Research Questions",
-    "text": "Research Questions"
+    "text": "Research Questions\n\nCan we predict a utility’s total electricity usage in Virginia based on customer type, revenue structure, and purchased power?\nCan we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?\nUnsupervised learning methods:\n\n\nCluster states (VA, GA, TX, OH, OR) based on utility characteristics to see which look like high-data-center (or just high usage) regions\nWhich utilities in Virginia are outliers in commercial electricity consumption. Identify abnormal utilities whose usage patterns do not match their declared utility type.\n\nHow does data-center-driven load growth in Virginia compare to national utilities, and which statistical learning models best predict future peak demand?\nDoes the rise of data centers in Virginia change the balance between local power generation and purchased electricity differently than utilities nationwide?\nUnder different data-center growth scenarios, how could Virginia’s electricity demand, pricing, and grid stress evolve relative to national trends?\nProvides extensive and compelling commentary on all components of the data analysis (e.g. methodology selection, model assumptions, modeling results, limitations on the analysis, etc.).\nIf comparisons are made between methods, clearly articulates the advantages and disadvantages of each method, comparative performance on\nProvides extensive and compelling commentary on the interpretation of the analytical results within the context of the research question of interest. • Provides numerous clear, reasonable, and actionable next steps for refining and improving the analysis."
   },
   {
     "objectID": "projects/power.html#question-1",
     "href": "projects/power.html#question-1",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Question 1",
     "text": "Question 1\n\nMethods\n\n\nResults"
   },
   {
     "objectID": "projects/power.html#question-2",
     "href": "projects/power.html#question-2",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Question 2",
     "text": "Question 2\n\nMethods\n\n\nResults"
   },
   {
     "objectID": "projects/power.html#question-3",
     "href": "projects/power.html#question-3",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Question 3",
     "text": "Question 3\n\nMethods\n\n\nResults"
   },
   {
     "objectID": "projects/power.html#abstract",
     "href": "projects/power.html#abstract",
-    "title": "Power",
-    "section": "Abstract",
-    "text": "Abstract"
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
+    "section": "",
+    "text": "…Just a summary section on what this paper is about…\nToday, the region is known as “Data Center Alley,” and an estimated 70% of the world’s internet traffic flows through it, with the boom continuing due to demands from AI and cloud computing.\nThe years between 2015 and 2023 saw a %500 increase"
   },
   {
     "objectID": "projects/power.html#conclusion",
     "href": "projects/power.html#conclusion",
-    "title": "Power",
+    "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Conclusion",
     "text": "Conclusion"
   },

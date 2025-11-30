@@ -1,5 +1,5 @@
 ---
-title: "Power"
+title: "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends"
 date: 2025-12-10
 categories: [Statistical Learning]
 repo-url: https://github.com/jonathanwilsonami/stat-515
@@ -9,22 +9,99 @@ authors:
   - "Sean Reilly"
 ---
 
-**Summary:** summary of project. 
-
 ## Abstract
+...Just a summary section on what this paper is about...
+
+Today, the region is known as "Data Center Alley," and an estimated 70% of the world's internet traffic flows through it, with the boom continuing due to demands from AI and cloud computing. 
+
+The years between 2015 and 2023 saw a %500 increase
 
 ## Introduction & Background
 
 ![U.S. Census Regions and Divisions[^refnote].](/images/power-grid/us-census-regions-and-divisions.png){#fig-regions-divisions fig-align="center" width="100%"}
 
+As shown in recent studies [@texaspowerdemand], data centers significantly increase load.
+
 ## Data 
+
+The Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry's status and trends. 
+
+Original Data Source [@eia861_2025]. 
+Cleaned up Data Source [@corgis_electricity_2021].
+
+Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:
+
+- High commercial load
+- Rapid growth
+- High purchased-power dependency
+- High demand intensity (kWh/customer)
+
+The reveals some limitations we will have to admit....
+Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. 
 
 ### Dataset 
 
+Provides extensive and compelling
+commentary on the data selected to
+address the research question of interest
+(e.g. data selection, data processing, data
+limitations, etc.).
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+##################################
+# Data Sources 
+##################################
+power <- read.csv("data/electricity.csv")
+
+```
+
 ### EDA
+
+Checklist 
+- Summary stats such as national averages, totals, state by state comparisons, etc. 
+- plots showing spreads 
+
+short exploratory analysis (summary statistics, histogram/density plot)
+before fitting a statistical model. Your model may be guided by this. For example a skewed
+density plot may suggest you should transform a variable.
+
+
 
 ## Research Questions 
 
+1. Can we predict a utility’s total electricity usage in Virginia based on customer type, revenue structure, and purchased power?
+2. Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country? 
+3. Unsupervised learning methods: 
+  a. Cluster states (VA, GA, TX, OH, OR) based on utility characteristics to see which look like high-data-center (or just high usage) regions
+  b. Which utilities in Virginia are outliers in commercial electricity consumption. Identify abnormal utilities whose usage patterns do not match their declared utility type. 
+
+
+How does data-center-driven load growth in Virginia compare to national utilities, and which statistical learning models best predict future peak demand?
+
+Does the rise of data centers in Virginia change the balance between local power generation and purchased electricity differently than utilities nationwide?
+
+Under different data-center growth scenarios, how could Virginia’s electricity demand, pricing, and grid stress evolve relative to national trends?
+
+
+Provides extensive and compelling
+commentary on all components of the
+data analysis (e.g. methodology
+selection, model assumptions, modeling
+results, limitations on the analysis, etc.).
+
+If comparisons are made between
+methods, clearly articulates the
+advantages and disadvantages of each
+method, comparative performance on
+
+Provides extensive and compelling
+commentary on the interpretation of the
+analytical results within the context of
+the research question of interest.
+• Provides numerous clear, reasonable,
+and actionable next steps for refining
+and improving the analysis.
 
 ## Question 1
 

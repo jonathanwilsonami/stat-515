@@ -34,3 +34,6 @@ Backup of *.doc*
 
 renv/library/
 .Rproj.user
+
+# Lock files 
+*.~lock.*
