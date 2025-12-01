@@ -161,6 +161,7 @@ div.csl-indent {
   <ul>
   <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
   <li><a href="#introduction-background" id="toc-introduction-background" class="nav-link" data-scroll-target="#introduction-background">Introduction &amp; Background</a></li>
+  <li><a href="#related-works" id="toc-related-works" class="nav-link" data-scroll-target="#related-works">Related Works</a></li>
   <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a>
   <ul class="collapse">
   <li><a href="#dataset" id="toc-dataset" class="nav-link" data-scroll-target="#dataset">Dataset</a></li>
@@ -233,6 +234,13 @@ div.csl-indent {
 </section>
 <section id="introduction-background" class="level2">
 <h2 class="anchored" data-anchor-id="introduction-background">Introduction &amp; Background</h2>
+<p>TODO: provide the main motivaitons and background Virginia has historically been the internet backbone of the United States. Currently the largest data center ally in the world. “70% of internet IP traffic is either created or passes through Loudoun County’s “Data Center Alley,” making Ashburn the epicenter for global interconnection.”</p>
+<p>In 1992, a consortium of private companies founded Metropolitan Area Exchange, East (MAE-East). A year later, the National Science Foundation awarded MFS/MAE-East a grant, establishing it as one of four original Network Access Points, along with Chicago, San Francisco, and Pennsauken, N.J.</p>
+<p>Hossein Fateh, CEO and co-founder of DFT, provided the original hyperscalers (e.g.&nbsp;Yahoo!, Microsoft, and Facebook) a revolutionary infrastructure design: point-of-delivery architecture, a repeatable design pattern that maximizes scalability.</p>
+<p>“Hyperscale leases can be massive, often 10MW to 20MW or much larger, which drove a record 270MW of bookings in Northern Virginia during 2018.” no other data center market in the world has ever exceeded 70MW of annual absorption. “hyperscale” companies that have a significant presence in Virginia, including Microsoft Azure/Office 365, Facebook, Alphabet’s Google Cloud, IBM Cloud, Oracle Cloud, Apple, Alibaba, Yahoo!, Uber, LinkedIn, and Dropbox, The relentless growth of data continues to be driven by e-commerce, wireless networks, social media, streaming content, software as a service, artificial intelligence, machine learning, virtual reality, gaming and machine-to-machine communication, also known as the Internet of Things (IoT).</p>
+<p>hyperscalers<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>MAREA-BRUSA subsea cable landing station in Virginia Beach</p>
+<p>TODO: why the need for all the datacenters - AI genration</p>
 <div id="fig-regions-divisions" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-regions-divisions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -243,12 +251,18 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </figcaption>
 </figure>
 </div>
-<p>As shown in recent studies <span class="citation" data-cites="texaspowerdemand"><a href="#ref-texaspowerdemand" role="doc-biblioref">[1]</a></span>, data centers significantly increase load.</p>
+<p>TODO: Company mappings Virginia Electric &amp; Power Co is part of Dominion Energy Virginia Virginia Electric &amp; Power Co (sometimes “Virginia Electric and Power Company”) U.S. Energy Information Administration +2 Dominion Energy +2 Dominion Energy Virginia Investor-owned utility (IOU). Main supplier for most of Northern Virginia and the state as a whole. Often abbreviated DEV by regulators.</p>
+<p>Virginia was well-positioned to be a hub for the early internet because of its proximity to the federal government in Washington, D.C., and the research institution now known as the Defense Advanced Research Projects Agency, or DARPA. In the 1960s, the agency led a project to develop ARPANET, a computer network that was a building block for the internet. Dominion Energy, Virginia’s biggest electric utility, played a role in attracting this new development by offering competitive electricity prices to big power users, which were lower than those in many competing markets.</p>
+<p>As shown in recent studies <span class="citation" data-cites="texas-power-demand"><a href="#ref-texas-power-demand" role="doc-biblioref">[1]</a></span>, data centers significantly increase load.</p>
+</section>
+<section id="related-works" class="level2">
+<h2 class="anchored" data-anchor-id="related-works">Related Works</h2>
+<p>TODO: Discuss 3 (already selected) other studies and approaches that have been used to understand these issues. How does our reserach differ and what new contributions do we have to add?</p>
 </section>
 <section id="data" class="level2">
 <h2 class="anchored" data-anchor-id="data">Data</h2>
 <p>The Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends.</p>
-<p>Original Data Source <span class="citation" data-cites="eia861_2025"><a href="#ref-eia861_2025" role="doc-biblioref">[2]</a></span>. Cleaned up Data Source <span class="citation" data-cites="corgis_electricity_2021"><a href="#ref-corgis_electricity_2021" role="doc-biblioref">[3]</a></span>.</p>
+<p>Original Data Source <span class="citation" data-cites="original-eia-data"><a href="#ref-original-eia-data" role="doc-biblioref">[2]</a></span>. Cleaned up Data Source <span class="citation" data-cites="dataset"><a href="#ref-dataset" role="doc-biblioref">[3]</a></span>.</p>
 <p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
 <ul>
 <li>High commercial load</li>
@@ -259,11 +273,27 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <p>The reveals some limitations we will have to admit…. Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid.</p>
 <section id="dataset" class="level3">
 <h3 class="anchored" data-anchor-id="dataset">Dataset</h3>
-<p>Provides extensive and compelling commentary on the data selected to address the research question of interest (e.g.&nbsp;data selection, data processing, data limitations, etc.).</p>
+<p>TODO: Discuss briefly the data used DONT include the entire list of fields just provide a linke them TODO: Decribe each data sheet used. Include the form and description from the EIA site. TODO: Include an calcualted fields and discuss the reasoning behind them</p>
+<p>Data Cleaning</p>
+<ul>
+<li>Filled in blanks and dots with zeros</li>
+<li>Dropped any rows with states that were empty or null</li>
+<li>Dropped all rows that were completly duplicated..</li>
+</ul>
+<p>In EIA-861 spreadsheets, a dot (.) is not a number and not missing data in the usual sense. It specifically means:</p>
+<p>“Data suppressed / Not available / Not applicable”</p>
+<p>This is usually because:</p>
+<p>The utility did not report the value</p>
+<p>The value was below a disclosure threshold</p>
+<p>The value was not applicable to that utility (e.g., they don’t own generation)</p>
 </section>
 <section id="eda" class="level3">
 <h3 class="anchored" data-anchor-id="eda">EDA</h3>
-<p>Checklist - Summary stats such as national averages, totals, state by state comparisons, etc. - plots showing spreads</p>
+<p>Checklist</p>
+<ul>
+<li>Summary stats such as national averages, totals, state by state comparisons, etc.</li>
+<li>plots showing spreads</li>
+</ul>
 <p>short exploratory analysis (summary statistics, histogram/density plot) before fitting a statistical model. Your model may be guided by this. For example a skewed density plot may suggest you should transform a variable.</p>
 </section>
 </section>
@@ -314,6 +344,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The conclusion….</p>
 </section>
 <section id="references" class="level2">
 
@@ -322,17 +353,23 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 
 </section>
 
+
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" data-entry-spacing="0" role="list">
-<div id="ref-texaspowerdemand" class="csl-entry" role="listitem">
+<div id="ref-texas-power-demand" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[1] </div><div class="csl-right-inline">T. Hodge, <span>“We expect rapid electricity demand growth in texas and the mid-atlantic,”</span> <em>EIA Reports</em>, 2025, Available: <a href="https://www.eia.gov/todayinenergy/detail.php?id=65844">https://www.eia.gov/todayinenergy/detail.php?id=65844</a></div>
 </div>
-<div id="ref-eia861_2025" class="csl-entry" role="listitem">
+<div id="ref-original-eia-data" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[2] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“<span class="nocase">EIA-861 Annual Electric Power Industry Report, detailed data files</span>.”</span> Online dataset, 2025. Available: <a href="https://www.eia.gov/electricity/data/eia861/">https://www.eia.gov/electricity/data/eia861/</a></div>
 </div>
-<div id="ref-corgis_electricity_2021" class="csl-entry" role="listitem">
+<div id="ref-dataset" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[3] </div><div class="csl-right-inline">CORGIS Dataset Project, <span>“<span class="nocase">CORGIS Electricity Dataset (2017 data) – electricity.csv</span>.”</span> Online dataset, version 2.0.0, 2021. Available: <a href="https://corgis-edu.github.io/corgis/csv/electricity/">https://corgis-edu.github.io/corgis/csv/electricity/</a></div>
 </div>
-</div></section></div></main> <!-- /main -->
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

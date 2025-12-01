@@ -18,16 +18,48 @@ The years between 2015 and 2023 saw a %500 increase
 
 ## Introduction & Background
 
+TODO: provide the main motivaitons and background 
+Virginia has historically been the internet backbone of the United States. Currently the largest data center ally in the world. "70% of internet IP traffic is either created or passes through Loudoun County’s “Data Center Alley,” making Ashburn the epicenter for global interconnection."
+
+In 1992, a consortium of private companies founded Metropolitan Area Exchange, East (MAE-East). A year later, the National Science Foundation awarded MFS/MAE-East a grant, establishing it as one of four original Network Access Points, along with Chicago, San Francisco, and Pennsauken, N.J.
+
+Hossein Fateh, CEO and co-founder of DFT, provided the original hyperscalers (e.g. Yahoo!, Microsoft, and Facebook) a revolutionary infrastructure design: point-of-delivery architecture, a repeatable design pattern that maximizes scalability.
+
+"Hyperscale leases can be massive, often 10MW to 20MW or much larger, which drove a record 270MW of bookings in Northern Virginia during 2018." no other data center market in the world has ever exceeded 70MW of annual absorption. “hyperscale” companies that have a significant presence in Virginia, including Microsoft Azure/Office 365, Facebook, Alphabet’s Google Cloud, IBM Cloud, Oracle Cloud, Apple, Alibaba, Yahoo!, Uber, LinkedIn, and Dropbox, The relentless growth of data continues to be driven by e-commerce, wireless networks, social media, streaming content, software as a service, artificial intelligence, machine learning, virtual reality, gaming and machine-to-machine communication, also known as the Internet of Things (IoT). 
+
+hyperscalers^[A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.]
+
+MAREA-BRUSA subsea cable landing station in Virginia Beach
+
+TODO: why the need for all the datacenters - AI genration 
+
 ![U.S. Census Regions and Divisions[^refnote].](/images/power-grid/us-census-regions-and-divisions.png){#fig-regions-divisions fig-align="center" width="100%"}
 
-As shown in recent studies [@texaspowerdemand], data centers significantly increase load.
+TODO: Company mappings 
+Virginia Electric & Power Co is part of Dominion Energy Virginia
+Virginia Electric & Power Co (sometimes “Virginia Electric and Power Company”) 
+U.S. Energy Information Administration
++2
+Dominion Energy
++2
+Dominion Energy Virginia
+Investor-owned utility (IOU). Main supplier for most of Northern Virginia and the state as a whole. Often abbreviated DEV by regulators.
+
+Virginia was well-positioned to be a hub for the early internet because of its proximity to the federal government in Washington, D.C., and the research institution now known as the Defense Advanced Research Projects Agency, or DARPA. In the 1960s, the agency led a project to develop ARPANET, a computer network that was a building block for the internet.
+Dominion Energy, Virginia’s biggest electric utility, played a role in attracting this new development by offering competitive electricity prices to big power users, which were lower than those in many competing markets.
+
+As shown in recent studies [@texas-power-demand], data centers significantly increase load.
+
+## Related Works 
+
+TODO: Discuss 3 (already selected) other studies and approaches that have been used to understand these issues. How does our reserach differ and what new contributions do we have to add? 
 
 ## Data 
 
 The Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry's status and trends. 
 
-Original Data Source [@eia861_2025]. 
-Cleaned up Data Source [@corgis_electricity_2021].
+Original Data Source [@original-eia-data]. 
+Cleaned up Data Source [@dataset].
 
 Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:
 
@@ -41,24 +73,42 @@ Some private commercial companies might not have participated in the survey whic
 
 ### Dataset 
 
-Provides extensive and compelling
-commentary on the data selected to
-address the research question of interest
-(e.g. data selection, data processing, data
-limitations, etc.).
+TODO: Discuss briefly the data used DONT include the entire list of fields just provide a linke them 
+TODO: Decribe each data sheet used. Include the form and description from the EIA site. 
+TODO: Include an calcualted fields and discuss the reasoning behind them
+
+Data Cleaning
+
+- Filled in blanks and dots with zeros 
+- Dropped any rows with states that were empty or null 
+- Dropped all rows that were completly duplicated.. 
+
+In EIA-861 spreadsheets, a dot (.) is not a number and not missing data in the usual sense.
+It specifically means:
+
+“Data suppressed / Not available / Not applicable”
+
+This is usually because:
+
+The utility did not report the value
+
+The value was below a disclosure threshold
+
+The value was not applicable to that utility (e.g., they don’t own generation)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 ##################################
 # Data Sources 
 ##################################
-power <- read.csv("data/electricity.csv")
+power <- read.csv("data/power/electricity.csv")
 
 ```
 
 ### EDA
 
 Checklist 
+
 - Summary stats such as national averages, totals, state by state comparisons, etc. 
 - plots showing spreads 
 
@@ -123,5 +173,7 @@ and improving the analysis.
 ### Results 
 
 ## Conclusion
+
+The conclusion....
 
 ## References 
