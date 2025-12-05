@@ -104,7 +104,13 @@ density plot may suggest you should transform a variable.
 
 ## Research Questions 
 
-1. 
+1. Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?
+2. Do utilities with “data-center-like” characteristics exhibit higher energy losses or operational stress compared to typical utilities? 
+    a. Are data-center-heavy utilities operating closer to their physical limits?
+    b. Do they buy more power because their infrastructure is strained?
+    c. Do they exhibit more losses?
+3. Another question 
+
 
 ## Question 1
 
