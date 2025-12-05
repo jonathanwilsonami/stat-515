@@ -242,7 +242,7 @@
     "href": "projects/power.html#research-questions",
     "title": "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends",
     "section": "Research Questions",
-    "text": "Research Questions"
+    "text": "Research Questions\n\nCan we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?\nDo utilities with “data-center-like” characteristics exhibit higher energy losses or operational stress compared to typical utilities?\n\nAre data-center-heavy utilities operating closer to their physical limits?\nDo they buy more power because their infrastructure is strained?\nDo they exhibit more losses?\n\nAnother question"
   },
   {
     "objectID": "projects/power.html#question-1",
