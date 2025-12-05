@@ -49,65 +49,49 @@ TODO: Discuss 3 (already selected) other studies and approaches that have been u
 
 ## Data 
 
-The Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry's status and trends. 
+### Dataset Overview
 
-Original Data Source [@original-eia-data]. 
-Cleaned up Data Source [@dataset].
+For this analysis we used the Annual Electric Power Industry Report (Form EIA-861) which is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry's status and trends [@original-eia-data]. 
 
-Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:
+Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is generated compiled by the EIA contains the main companies we are interested in at least their bulk aggregated numbers which will be discussed later. For example, doing a little research on line revealed that the utility named Virginia Electric & Power Co whcih is found in the data is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:
 
 - High commercial load
 - Rapid growth
 - High purchased-power dependency
 - High demand intensity (kWh/customer)
 
-The reveals some limitations we will have to admit....
-Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. 
+A data dictionary^[https://corgis-edu.github.io/corgis/csv/electricity/] of the various data elements used in this analysis can also be referenced. 
 
-Virginia Electric & Power Co is part of Dominion Energy Virginia
-Virginia Electric & Power Co (sometimes “Virginia Electric and Power Company”) 
-U.S. Energy Information Administration
-+2
-Dominion Energy
-+2
-Dominion Energy Virginia
-Investor-owned utility (IOU). Main supplier for most of Northern Virginia and the state as a whole. Often abbreviated DEV by regulators. --provide source for this info
+### Limitations 
 
-### Dataset 
+The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which masks some of the. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. 
 
-TODO: Discuss briefly the data used DONT include the entire list of fields just provide a linke them 
-TODO: Decribe each data sheet used. Include the form and description from the EIA site. 
-TODO: Include an calcualted fields and discuss the reasoning behind them
+### Data Cleaning, Processing & Assumptions 
 
-Data Cleaning
+We initially started our analysis on the 2017 EIA-861 curated dataset developed by the CORGIS Dataset Project [@data-dictionary]. However, when comparing the numbers for 2017 to the original data source the numbers were off. This might have been due to updates to upstream data that never reached the curated dataset. After this discovery we created a python script to regenerate the same exact dataset (same fields as the CORGIS Dataset) not only for 2017 but for 10 years worth of data. So 2015 to 2015. This script basically parsed each of the zipped files from source and extracted data from 3 different schedules: 
 
-- Filled in blanks and dots with zeros 
-- Dropped any rows with states that were empty or null 
-- Dropped all rows that were completly duplicated.. 
+1. **Operational Data** - The data containing aggregate operational data for the source and disposition of energy and revenue information from each electric utility.
+2. **Utility Data** - The data contain information on a utility’s North American Electric Reliability (NERC) regions of operation. The data also indicate a utility’s independent system operator (ISO) or regional transmission organization (RTO) and whether that utility is engaged in any of the following activities: generation, transmission, buying transmission, distribution, buying distribution, wholesale marketing, retail marketing, bundled service, or operating alternative-fueled vehicles.
+3. **Sales to Ultimate Customers** - The data contain revenue, sales (in megawatthours), and customer count of electricity delivered to end-use customers by state, sector, and balancing authority. A state, service type, and balancing authority-level adjustment is made for non-respondents and for customer-sited respondents.
 
-In EIA-861 spreadsheets, a dot (.) is not a number and not missing data in the usual sense.
-It specifically means:
+When it comes to data cleaning we had to handle the following and make some assumptions: 
 
-“Data suppressed / Not available / Not applicable”
+- In EIA-861 spreadsheets a dot (.) could represent data that was suppressed (as mentioned before with private companies), not available, or did not meet a certain threshold value. For these values we decided to make zero but might use soem form of data imputation to fill these in. 
+- We found only a handful of empty values in the state field. We dropped these rows as knowing where the utility is located was critical to the analysis.  
 
-This is usually because:
-
-The utility did not report the value
-
-The value was below a disclosure threshold
-
-The value was not applicable to that utility (e.g., they don’t own generation)
+### Derived Featurs 
+Add description on any derived features for this analysis 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 
 ##################################
 # Data Sources 
 ##################################
-power <- read.csv("data/power/electricity.csv")
+power_2025 <- read.csv("data/power/electricity_2024.csv")
 
 ```
 
-### EDA
+### Exploratory Data Analysis 
 
 Checklist 
 
@@ -118,42 +102,9 @@ short exploratory analysis (summary statistics, histogram/density plot)
 before fitting a statistical model. Your model may be guided by this. For example a skewed
 density plot may suggest you should transform a variable.
 
-
-
 ## Research Questions 
 
-1. Can we predict a utility’s total electricity usage in Virginia based on customer type, revenue structure, and purchased power?
-2. Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country? 
-3. Unsupervised learning methods: 
-  a. Cluster states (VA, GA, TX, OH, OR) based on utility characteristics to see which look like high-data-center (or just high usage) regions
-  b. Which utilities in Virginia are outliers in commercial electricity consumption. Identify abnormal utilities whose usage patterns do not match their declared utility type. 
-
-
-How does data-center-driven load growth in Virginia compare to national utilities, and which statistical learning models best predict future peak demand?
-
-Does the rise of data centers in Virginia change the balance between local power generation and purchased electricity differently than utilities nationwide?
-
-Under different data-center growth scenarios, how could Virginia’s electricity demand, pricing, and grid stress evolve relative to national trends?
-
-
-Provides extensive and compelling
-commentary on all components of the
-data analysis (e.g. methodology
-selection, model assumptions, modeling
-results, limitations on the analysis, etc.).
-
-If comparisons are made between
-methods, clearly articulates the
-advantages and disadvantages of each
-method, comparative performance on
-
-Provides extensive and compelling
-commentary on the interpretation of the
-analytical results within the context of
-the research question of interest.
-• Provides numerous clear, reasonable,
-and actionable next steps for refining
-and improving the analysis.
+1. 
 
 ## Question 1
 

@@ -171,8 +171,11 @@ div.csl-indent {
   <li><a href="#related-works" id="toc-related-works" class="nav-link" data-scroll-target="#related-works">Related Works</a></li>
   <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a>
   <ul class="collapse">
-  <li><a href="#dataset" id="toc-dataset" class="nav-link" data-scroll-target="#dataset">Dataset</a></li>
-  <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda">EDA</a></li>
+  <li><a href="#dataset-overview" id="toc-dataset-overview" class="nav-link" data-scroll-target="#dataset-overview">Dataset Overview</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#data-cleaning-processing-assumptions" id="toc-data-cleaning-processing-assumptions" class="nav-link" data-scroll-target="#data-cleaning-processing-assumptions">Data Cleaning, Processing &amp; Assumptions</a></li>
+  <li><a href="#derived-featurs" id="toc-derived-featurs" class="nav-link" data-scroll-target="#derived-featurs">Derived Featurs</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
   </ul></li>
   <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions">Research Questions</a></li>
   <li><a href="#question-1" id="toc-question-1" class="nav-link" data-scroll-target="#question-1">Question 1</a>
@@ -282,35 +285,42 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="data" class="level2">
 <h2 class="anchored" data-anchor-id="data">Data</h2>
-<p>The Annual Electric Power Industry Report (Form EIA-861) is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends.</p>
-<p>Original Data Source <span class="citation" data-cites="original-eia-data"><a href="#ref-original-eia-data" role="doc-biblioref">[6]</a></span>. Cleaned up Data Source <span class="citation" data-cites="dataset"><a href="#ref-dataset" role="doc-biblioref">[7]</a></span>.</p>
-<p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and various other issues related to revealing trade secrets. Alas, the data that is generated from EIA is perfect for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
+<section id="dataset-overview" class="level3">
+<h3 class="anchored" data-anchor-id="dataset-overview">Dataset Overview</h3>
+<p>For this analysis we used the Annual Electric Power Industry Report (Form EIA-861) which is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends <span class="citation" data-cites="original-eia-data"><a href="#ref-original-eia-data" role="doc-biblioref">[6]</a></span>.</p>
+<p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is generated compiled by the EIA contains the main companies we are interested in at least their bulk aggregated numbers which will be discussed later. For example, doing a little research on line revealed that the utility named Virginia Electric &amp; Power Co whcih is found in the data is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
 <ul>
 <li>High commercial load</li>
 <li>Rapid growth</li>
 <li>High purchased-power dependency</li>
 <li>High demand intensity (kWh/customer)</li>
 </ul>
-<p>The reveals some limitations we will have to admit…. Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid.</p>
-<p>Virginia Electric &amp; Power Co is part of Dominion Energy Virginia Virginia Electric &amp; Power Co (sometimes “Virginia Electric and Power Company”) U.S. Energy Information Administration +2 Dominion Energy +2 Dominion Energy Virginia Investor-owned utility (IOU). Main supplier for most of Northern Virginia and the state as a whole. Often abbreviated DEV by regulators. –provide source for this info</p>
-<section id="dataset" class="level3">
-<h3 class="anchored" data-anchor-id="dataset">Dataset</h3>
-<p>TODO: Discuss briefly the data used DONT include the entire list of fields just provide a linke them TODO: Decribe each data sheet used. Include the form and description from the EIA site. TODO: Include an calcualted fields and discuss the reasoning behind them</p>
-<p>Data Cleaning</p>
-<ul>
-<li>Filled in blanks and dots with zeros</li>
-<li>Dropped any rows with states that were empty or null</li>
-<li>Dropped all rows that were completly duplicated..</li>
-</ul>
-<p>In EIA-861 spreadsheets, a dot (.) is not a number and not missing data in the usual sense. It specifically means:</p>
-<p>“Data suppressed / Not available / Not applicable”</p>
-<p>This is usually because:</p>
-<p>The utility did not report the value</p>
-<p>The value was below a disclosure threshold</p>
-<p>The value was not applicable to that utility (e.g., they don’t own generation)</p>
+<p>A data dictionary<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> of the various data elements used in this analysis can also be referenced.</p>
 </section>
-<section id="eda" class="level3">
-<h3 class="anchored" data-anchor-id="eda">EDA</h3>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
+<p>The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which masks some of the. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid.</p>
+</section>
+<section id="data-cleaning-processing-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="data-cleaning-processing-assumptions">Data Cleaning, Processing &amp; Assumptions</h3>
+<p>We initially started our analysis on the 2017 EIA-861 curated dataset developed by the CORGIS Dataset Project <span class="citation" data-cites="data-dictionary"><a href="#ref-data-dictionary" role="doc-biblioref">[7]</a></span>. However, when comparing the numbers for 2017 to the original data source the numbers were off. This might have been due to updates to upstream data that never reached the curated dataset. After this discovery we created a python script to regenerate the same exact dataset (same fields as the CORGIS Dataset) not only for 2017 but for 10 years worth of data. So 2015 to 2015. This script basically parsed each of the zipped files from source and extracted data from 3 different schedules:</p>
+<ol type="1">
+<li><strong>Operational Data</strong> - The data containing aggregate operational data for the source and disposition of energy and revenue information from each electric utility.</li>
+<li><strong>Utility Data</strong> - The data contain information on a utility’s North American Electric Reliability (NERC) regions of operation. The data also indicate a utility’s independent system operator (ISO) or regional transmission organization (RTO) and whether that utility is engaged in any of the following activities: generation, transmission, buying transmission, distribution, buying distribution, wholesale marketing, retail marketing, bundled service, or operating alternative-fueled vehicles.</li>
+<li><strong>Sales to Ultimate Customers</strong> - The data contain revenue, sales (in megawatthours), and customer count of electricity delivered to end-use customers by state, sector, and balancing authority. A state, service type, and balancing authority-level adjustment is made for non-respondents and for customer-sited respondents.</li>
+</ol>
+<p>When it comes to data cleaning we had to handle the following and make some assumptions:</p>
+<ul>
+<li>In EIA-861 spreadsheets a dot (.) could represent data that was suppressed (as mentioned before with private companies), not available, or did not meet a certain threshold value. For these values we decided to make zero but might use soem form of data imputation to fill these in.</li>
+<li>We found only a handful of empty values in the state field. We dropped these rows as knowing where the utility is located was critical to the analysis.</li>
+</ul>
+</section>
+<section id="derived-featurs" class="level3">
+<h3 class="anchored" data-anchor-id="derived-featurs">Derived Featurs</h3>
+<p>Add description on any derived features for this analysis</p>
+</section>
+<section id="exploratory-data-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h3>
 <p>Checklist</p>
 <ul>
 <li>Summary stats such as national averages, totals, state by state comparisons, etc.</li>
@@ -322,20 +332,8 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <section id="research-questions" class="level2">
 <h2 class="anchored" data-anchor-id="research-questions">Research Questions</h2>
 <ol type="1">
-<li>Can we predict a utility’s total electricity usage in Virginia based on customer type, revenue structure, and purchased power?</li>
-<li>Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?</li>
-<li>Unsupervised learning methods:</li>
+<li></li>
 </ol>
-<ol type="a">
-<li>Cluster states (VA, GA, TX, OH, OR) based on utility characteristics to see which look like high-data-center (or just high usage) regions</li>
-<li>Which utilities in Virginia are outliers in commercial electricity consumption. Identify abnormal utilities whose usage patterns do not match their declared utility type.</li>
-</ol>
-<p>How does data-center-driven load growth in Virginia compare to national utilities, and which statistical learning models best predict future peak demand?</p>
-<p>Does the rise of data centers in Virginia change the balance between local power generation and purchased electricity differently than utilities nationwide?</p>
-<p>Under different data-center growth scenarios, how could Virginia’s electricity demand, pricing, and grid stress evolve relative to national trends?</p>
-<p>Provides extensive and compelling commentary on all components of the data analysis (e.g.&nbsp;methodology selection, model assumptions, modeling results, limitations on the analysis, etc.).</p>
-<p>If comparisons are made between methods, clearly articulates the advantages and disadvantages of each method, comparative performance on</p>
-<p>Provides extensive and compelling commentary on the interpretation of the analytical results within the context of the research question of interest. • Provides numerous clear, reasonable, and actionable next steps for refining and improving the analysis.</p>
 </section>
 <section id="question-1" class="level2">
 <h2 class="anchored" data-anchor-id="question-1">Question 1</h2>
@@ -395,13 +393,14 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <div id="ref-original-eia-data" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[6] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“<span class="nocase">EIA-861 Annual Electric Power Industry Report, detailed data files</span>.”</span> Online dataset, 2025. Available: <a href="https://www.eia.gov/electricity/data/eia861/">https://www.eia.gov/electricity/data/eia861/</a></div>
 </div>
-<div id="ref-dataset" class="csl-entry" role="listitem">
+<div id="ref-data-dictionary" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[7] </div><div class="csl-right-inline">CORGIS Dataset Project, <span>“<span class="nocase">CORGIS Electricity Dataset (2017 data) – electricity.csv</span>.”</span> Online dataset, version 2.0.0, 2021. Available: <a href="https://corgis-edu.github.io/corgis/csv/electricity/">https://corgis-edu.github.io/corgis/csv/electricity/</a></div>
 </div>
 </div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
 <li id="fn1"><p>A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>https://corgis-edu.github.io/corgis/csv/electricity/<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
