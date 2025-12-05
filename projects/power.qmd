@@ -1,7 +1,7 @@
 ---
 title: "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends"
 date: 2025-12-10
-categories: [Statistical Learning]
+categories: [Data Centers, Power Grid]
 repo-url: https://github.com/jonathanwilsonami/stat-515
 format: html
 authors: 
@@ -10,47 +10,40 @@ authors:
 ---
 
 ## Abstract
-...Just a summary section on what this paper is about...
-
-Today, the region is known as "Data Center Alley," and an estimated 70% of the world's internet traffic flows through it, with the boom continuing due to demands from AI and cloud computing. 
-
-The years between 2015 and 2023 saw a %500 increase
+Do this at the end...Just a summary section on what this paper is about...
 
 ## Introduction & Background
 
-TODO: provide the main motivaitons and background 
-Virginia has historically been the internet backbone of the United States. Currently the largest data center ally in the world. "70% of internet IP traffic is either created or passes through Loudoun County’s “Data Center Alley,” making Ashburn the epicenter for global interconnection."
+### Motivation
+Over the past few decades, technological output has risen steadily. That gradual climb transformed into exponential growth with the advent of cloud computing, and now with the acceleration of the AI era that trajectory is poised to surge even faster. This rapid expansion is widely recognized. What’s far less understood, however, is the critical infrastructure that makes all of it possible. At the center of this digital revolution lies the often overlooked backbone of modern society: the power grid. It is the heartbeat of every computation, the lifeblood behind the flow of ones and zeros. Without this essential utility—something most of us rarely think about—the modern world as we know it would come to a halt. And no where is that more true than in the state of Virginia. 
 
-In 1992, a consortium of private companies founded Metropolitan Area Exchange, East (MAE-East). A year later, the National Science Foundation awarded MFS/MAE-East a grant, establishing it as one of four original Network Access Points, along with Chicago, San Francisco, and Pennsauken, N.J.
+### Virginia's Internet & Data Boom
+Over the past several decades, Virginia has evolved from a strategically located government corridor into the epicenter of the modern internet. This transformation began in the early 1990s, when the Metropolitan Area Exchange–East (MAE-East)—one of the original four Network Access Points funded by the National Science Foundation—was established in Northern Virginia. Its proximity to federal agencies and research institutions such as DARPA, whose ARPANET project laid the foundations for the internet, positioned the region as a natural hub for digital networks. Over time, transatlantic subsea cable systems like MAREA-BRUSA, landing in Virginia Beach, further strengthened the state's role in global connectivity [@data-center-capital].
 
-Hossein Fateh, CEO and co-founder of DFT, provided the original hyperscalers (e.g. Yahoo!, Microsoft, and Facebook) a revolutionary infrastructure design: point-of-delivery architecture, a repeatable design pattern that maximizes scalability.
+Today, that historical advantage has scaled into an unmatched concentration of data centers, making Virginia the digital heart of the world. An estimated 70% of global internet IP traffic is created in or routed through Loudoun County’s famed “Data Center Alley,” cementing Ashburn as the world’s central point for cloud and interconnection [@dawn-of-data]. Virginia now hosts the largest cluster of data centers anywhere on Earth—surpassing Texas, California, and Illinois—with rapid expansion fueled by skyrocketing demand for cloud computing, AI workloads, and global digital services [@cushman]. This boom is supported in part by Dominion Energy’s historically competitive electricity prices, which helped attract and retain power-intensive facilities. But it also places unprecedented strain on the state’s power grid: the very infrastructure that sustains the flow of computation. As AI and cloud demands continue to accelerate, Virginia’s electricity consumption is set to become one of the most consequential factors shaping both its economic future and the stability of its energy systems [@data-center-capital].
 
-"Hyperscale leases can be massive, often 10MW to 20MW or much larger, which drove a record 270MW of bookings in Northern Virginia during 2018." no other data center market in the world has ever exceeded 70MW of annual absorption. “hyperscale” companies that have a significant presence in Virginia, including Microsoft Azure/Office 365, Facebook, Alphabet’s Google Cloud, IBM Cloud, Oracle Cloud, Apple, Alibaba, Yahoo!, Uber, LinkedIn, and Dropbox, The relentless growth of data continues to be driven by e-commerce, wireless networks, social media, streaming content, software as a service, artificial intelligence, machine learning, virtual reality, gaming and machine-to-machine communication, also known as the Internet of Things (IoT). 
+### Virginia's Power Demands & Hyperscaler's Damnd for Data
+Virginia’s data center ecosystem has expanded at an unprecedented pace, driven largely by the accelerating demand for cloud computing and AI workloads. With more than 24,000 megawatts of planned data center capacity, Virginia surpasses every other market in the world—by more than a factor of three—in total expected power demand [@cushman]. This explosive growth reflects the state’s long-standing role as the heart of global internet traffic, as well as its strategic appeal to the companies building the modern digital economy. Nowhere is this more evident than in Northern Virginia, where annual data center absorption has shattered global records; the region reached 270 MW of bookings in 2018, while no other market worldwide has ever exceeded 70 MW in a single year [@dawn-of-data].
 
-hyperscalers^[A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.]
+At the center of this surge are the hyperscalers^[A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.] major cloud and platform providers such as Microsoft, Google, Meta (Facebook), Apple, Oracle, IBM, Yahoo!, LinkedIn, Alibaba, Uber, and Dropbox. These companies require immense and rapidly scalable infrastructure, with hyperscale leases often ranging from 10 to 20 megawatts or more for a single deployment. Their adoption of point-of-delivery architectures and other repeatable, modular design patterns has enabled them to scale at a pace unmatched in the industry. The resulting demand for data is fueled by the relentless expansion of e-commerce, wireless networks, social media, streaming content, SaaS platforms, artificial intelligence, machine learning, gaming, virtual reality, and the Internet of Things. Collectively, these forces make Virginia not just a data center leader, but the world’s central engine for digital power consumption [@data-center-capital].
 
-MAREA-BRUSA subsea cable landing station in Virginia Beach
+### The Fragile Power Grid
 
-TODO: why the need for all the datacenters - AI genration 
+The power grid is essentially a giant, interconnected system that moves electricity from where it’s generated to where it’s needed. Power plants feed electricity into long-distance high-voltage transmission lines, which deliver power to substations where transformers reduce the voltage for safe distribution to homes, businesses, and—more recently—massive data centers. Because electricity cannot be stored easily at grid scale, supply and demand must remain in perfect balance at every moment. This requires constant coordination among utilities, transmission operators, and regional balancing authorities to maintain stability. When demand surges faster than supply, the grid becomes stressed, increasing the risk of brownouts or outages [@power-grid].
+
+This balancing act becomes especially challenging in states like Virginia, where hyperscale data centers consume tens of megawatts each—orders of magnitude more than typical commercial users. As Virginia has become home to the world’s largest concentration of data centers, the strain on its power system has expanded accordingly. Each new facility adds continuous, around-the-clock demand that the grid must support without interruption. This is why long-term planning for new generation, transmission upgrades, and regional reliability is becoming central to Virginia’s energy future: the digital infrastructure powering cloud computing, AI, and global internet traffic can only grow if the physical grid underneath it can keep up.
+
+To understand how these pressures play out across the country, it is helpful to situate Virginia within the broader structure of the United States energy landscape. The graphic below shows the U.S. Census Regions and Divisions, which group the nation into four major regions and nine divisions commonly used for national energy, economic, and demographic analysis.
 
 ![U.S. Census Regions and Divisions[^refnote].](/images/power-grid/us-census-regions-and-divisions.png){#fig-regions-divisions fig-align="center" width="100%"}
 
-TODO: Company mappings 
-Virginia Electric & Power Co is part of Dominion Energy Virginia
-Virginia Electric & Power Co (sometimes “Virginia Electric and Power Company”) 
-U.S. Energy Information Administration
-+2
-Dominion Energy
-+2
-Dominion Energy Virginia
-Investor-owned utility (IOU). Main supplier for most of Northern Virginia and the state as a whole. Often abbreviated DEV by regulators.
+### What Our Research Contributes 
 
-Virginia was well-positioned to be a hub for the early internet because of its proximity to the federal government in Washington, D.C., and the research institution now known as the Defense Advanced Research Projects Agency, or DARPA. In the 1960s, the agency led a project to develop ARPANET, a computer network that was a building block for the internet.
-Dominion Energy, Virginia’s biggest electric utility, played a role in attracting this new development by offering competitive electricity prices to big power users, which were lower than those in many competing markets.
-
-As shown in recent studies [@texas-power-demand], data centers significantly increase load.
+Taken together, Virginia’s outsized role in global internet infrastructure, the explosive growth of hyperscale data centers, and the increasing fragility of the power grid form the backdrop for the analysis that follows. As demand for AI, cloud computing, and digital services accelerates, understanding how this demand translates into regional electricity usage becomes critical—not only for Virginia but for the nation. This study seeks to examine how Virginia’s utilities compare to those across the United States, identify whether data-center-driven growth produces distinctive load patterns, and explore the emerging pressures placed on the grid as a result. By combining national utility data with Virginia-specific trends, our goal is to measure where Virginia stands today, how its electricity profile is changing, and what these shifts may imply for energy planning, reliability, and the future of the digital economy.
 
 ## Related Works 
+
+As shown in recent studies [@texas-power-demand], data centers significantly increase load.
 
 TODO: Discuss 3 (already selected) other studies and approaches that have been used to understand these issues. How does our reserach differ and what new contributions do we have to add? 
 
@@ -70,6 +63,15 @@ Originally we wanted to know about the impact of data centers in local communiti
 
 The reveals some limitations we will have to admit....
 Some private commercial companies might not have participated in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, EIA data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. 
+
+Virginia Electric & Power Co is part of Dominion Energy Virginia
+Virginia Electric & Power Co (sometimes “Virginia Electric and Power Company”) 
+U.S. Energy Information Administration
++2
+Dominion Energy
++2
+Dominion Energy Virginia
+Investor-owned utility (IOU). Main supplier for most of Northern Virginia and the state as a whole. Often abbreviated DEV by regulators. --provide source for this info
 
 ### Dataset 
 
