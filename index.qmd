@@ -13,10 +13,10 @@ about:
   links:
     - icon: folder
       text: "Projects"
-      href: projects/index.qmd
+      href: projects/
     - icon: person
       text: "About"
-      href: about.qmd
+      href: about.html
 ---
 
 :::{#hero-heading .center}
