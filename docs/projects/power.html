@@ -309,14 +309,14 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="related-works" class="level2">
 <h2 class="anchored" data-anchor-id="related-works">Related Works</h2>
-<p>As shown in recent studies <span class="citation" data-cites="texas-power-demand"><a href="#ref-texas-power-demand" role="doc-biblioref">[5]</a></span>, data centers significantly increase load.</p>
+<p>As shown in recent studies <span class="citation" data-cites="texas-power-demand"><a href="#ref-texas-power-demand" role="doc-biblioref"><strong>texas-power-demand?</strong></a></span>, data centers significantly increase load.</p>
 <p>TODO: Discuss 3 (already selected) other studies and approaches that have been used to understand these issues. How does our reserach differ and what new contributions do we have to add?</p>
 </section>
 <section id="data" class="level2">
 <h2 class="anchored" data-anchor-id="data">Data</h2>
 <section id="dataset-overview" class="level3">
 <h3 class="anchored" data-anchor-id="dataset-overview">Dataset Overview</h3>
-<p>For this analysis we used the Annual Electric Power Industry Report (Form EIA-861) which is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends <span class="citation" data-cites="original-eia-data"><a href="#ref-original-eia-data" role="doc-biblioref">[6]</a></span>.</p>
+<p>For this analysis we used the Annual Electric Power Industry Report (Form EIA-861) which is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends <span class="citation" data-cites="original-eia-data"><a href="#ref-original-eia-data" role="doc-biblioref">[5]</a></span>.</p>
 <p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is generated compiled by the EIA contains the main companies we are interested in at least their bulk aggregated numbers which will be discussed later. For example, doing a little research on line revealed that the utility named Virginia Electric &amp; Power Co whcih is found in the data is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
 <ul>
 <li>High commercial load</li>
@@ -333,7 +333,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="data-cleaning-processing-assumptions" class="level3">
 <h3 class="anchored" data-anchor-id="data-cleaning-processing-assumptions">Data Cleaning, Processing &amp; Assumptions</h3>
-<p>We initially started our analysis on the 2017 EIA-861 curated dataset developed by the CORGIS Dataset Project <span class="citation" data-cites="data-dictionary"><a href="#ref-data-dictionary" role="doc-biblioref">[7]</a></span>. However, when comparing the numbers for 2017 to the original data source the numbers were off. This might have been due to updates to upstream data that never reached the curated dataset. After this discovery we created a python script to regenerate the same exact dataset (same fields as the CORGIS Dataset) not only for 2017 but for 10 years worth of data. So 2015 to 2015. This script basically parsed each of the zipped files from source and extracted data from 3 different schedules:</p>
+<p>We initially started our analysis on the 2017 EIA-861 curated dataset developed by the CORGIS Dataset Project <span class="citation" data-cites="data-dictionary"><a href="#ref-data-dictionary" role="doc-biblioref">[6]</a></span>. However, when comparing the numbers for 2017 to the original data source the numbers were off. This might have been due to updates to upstream data that never reached the curated dataset. After this discovery we created a python script to regenerate the same exact dataset (same fields as the CORGIS Dataset) not only for 2017 but for 10 years worth of data. So 2015 to 2015. This script basically parsed each of the zipped files from source and extracted data from 3 different schedules:</p>
 <ol type="1">
 <li><strong>Operational Data</strong> - The data containing aggregate operational data for the source and disposition of energy and revenue information from each electric utility.</li>
 <li><strong>Utility Data</strong> - The data contain information on a utility’s North American Electric Reliability (NERC) regions of operation. The data also indicate a utility’s independent system operator (ISO) or regional transmission organization (RTO) and whether that utility is engaged in any of the following activities: generation, transmission, buying transmission, distribution, buying distribution, wholesale marketing, retail marketing, bundled service, or operating alternative-fueled vehicles.</li>
@@ -374,7 +374,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="losses-ratio" class="level4">
 <h4 class="anchored" data-anchor-id="losses-ratio">Losses Ratio</h4>
-<p>Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> patterns on the grid. <span class="math display">\[
+<p>Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> patterns on the grid.<span class="citation" data-cites="power-loss"><a href="#ref-power-loss" role="doc-biblioref">[7]</a></span> <span class="math display">\[
 \text{Losses\_Ratio}
 \;=\;
 \frac{\text{Losses}}{\text{Total Uses}}
@@ -421,6 +421,171 @@ z(\text{Commercial\_SPC})
 </section>
 <section id="exploratory-data-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h3>
+<p>The number of reporting utilities varies substantially by state.<br>
+Figure <a href="#fig-state-utilities" class="quarto-xref">Figure&nbsp;2</a> shows the distribution of utilities across states in 2023, with <strong>Virginia highlighted</strong> for comparison.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-state-utilities" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-state-utilities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-state-utilities-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-state-utilities-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Number of utilities per state in 2023, with Virginia highlighted.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We also examine the mix of utility business types (investor-owned, municipal, cooperative, etc.).<br>
+Figure <a href="#fig-utility-types" class="quarto-xref">Figure&nbsp;3</a> summarizes the <strong>count of utilities by type</strong> in 2023.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-utility-types" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-utility-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-utility-types-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-utility-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Number of utilities by type in 2023.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-num-var-distributions" class="quarto-xref">Figure&nbsp;4</a> shows the skewed nature of the raw variables. Log-transforming the data (Figure <a href="#fig-num-var-distributions-log" class="quarto-xref">Figure&nbsp;5</a>) improves interpretability.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-num-var-distributions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-num-var-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-num-var-distributions-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-num-var-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Distributions of key electricity variables in 2023 (original scale).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-num-var-distributions-log" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-num-var-distributions-log-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-num-var-distributions-log-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-num-var-distributions-log-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Distributions of key electricity variables in 2023 (log10 scale).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Sector composition across utilities varies widely (Figure <a href="#fig-sector-ratios-hist" class="quarto-xref">Figure&nbsp;6</a>). Virginia’s utilities show distinct distributional patterns compared with the rest of the U.S. (Figure <a href="#fig-sector-ratios-va-vs-others" class="quarto-xref">Figure&nbsp;7</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sector-ratios-hist" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sector-ratios-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-sector-ratios-hist-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sector-ratios-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Distribution of key electricity sector ratios across all U.S. utilities in 2023.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sector-ratios-va-vs-others" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sector-ratios-va-vs-others-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-sector-ratios-va-vs-others-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sector-ratios-va-vs-others-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Comparison of sector ratios between Virginia utilities and all other U.S. utilities in 2023.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-customer-intensity-va-vs-others" class="quarto-xref">Figure&nbsp;8</a> shows that Virginia utilities generally have higher per-customer intensity levels, especially for commercial customers.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-customer-intensity-va-vs-others" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-customer-intensity-va-vs-others-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-customer-intensity-va-vs-others-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-customer-intensity-va-vs-others-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Comparison of per-customer electricity intensity measures for Virginia utilities versus all other U.S. utilities (2023). Values shown on a log scale.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-sales-vs-customers-2023" class="quarto-xref">Figure&nbsp;9</a> shows how Virginia utilities compare to national utilities in overall system size and total electricity demand.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sales-vs-customers-2023" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sales-vs-customers-2023-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-sales-vs-customers-2023-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sales-vs-customers-2023-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Relationship between total customers and total electricity sales (log–log scale) for U.S. utilities in 2023, highlighting Virginia utilities.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-commercial-ratio-spc-2023" class="quarto-xref">Figure&nbsp;10</a> highlights the commercial load structure and intensity for Virginia relative to other states.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-commercial-ratio-spc-2023" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-commercial-ratio-spc-2023-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-commercial-ratio-spc-2023-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-commercial-ratio-spc-2023-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Commercial sector structure versus commercial sales per customer (log scale) for U.S. utilities in 2023, with Virginia utilities highlighted.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-va-vs-us-salespercustomer" class="quarto-xref">Figure&nbsp;11</a> shows how Virginia’s average electricity intensity per customer compares to the national trend from 2015–2024.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-va-vs-us-salespercustomer" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-va-vs-us-salespercustomer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-va-vs-us-salespercustomer-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-va-vs-us-salespercustomer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Average electricity sales per customer over time (2015–2024), comparing Virginia to all other U.S. states.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure <a href="#fig-va-vs-us-commercialratio" class="quarto-xref">Figure&nbsp;12</a> illustrates how Virginia’s commercial load share differs from the rest of the U.S. over time.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-va-vs-us-commercialratio" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-va-vs-us-commercialratio-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-va-vs-us-commercialratio-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-va-vs-us-commercialratio-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Average commercial electricity sales ratio over time (2015–2024), comparing Virginia to all other U.S. states.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="research-questions" class="level2">
@@ -485,14 +650,14 @@ z(\text{Commercial\_SPC})
 <div id="ref-power-grid" class="csl-entry" role="listitem">
 <div class="csl-left-margin">[4] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“Delivery to consumers – u.s. Energy information administration (EIA).”</span> <a href="https://www.eia.gov/energyexplained/electricity/delivery-to-consumers.php" class="uri">https://www.eia.gov/energyexplained/electricity/delivery-to-consumers.php</a>; EIA, 2016.</div>
 </div>
-<div id="ref-texas-power-demand" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[5] </div><div class="csl-right-inline">T. Hodge, <span>“We expect rapid electricity demand growth in texas and the mid-atlantic,”</span> <em>EIA Reports</em>, 2025, Available: <a href="https://www.eia.gov/todayinenergy/detail.php?id=65844">https://www.eia.gov/todayinenergy/detail.php?id=65844</a></div>
-</div>
 <div id="ref-original-eia-data" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[6] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“<span class="nocase">EIA-861 Annual Electric Power Industry Report, detailed data files</span>.”</span> Online dataset, 2025. Available: <a href="https://www.eia.gov/electricity/data/eia861/">https://www.eia.gov/electricity/data/eia861/</a></div>
+<div class="csl-left-margin">[5] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“<span class="nocase">EIA-861 Annual Electric Power Industry Report, detailed data files</span>.”</span> Online dataset, 2025. Available: <a href="https://www.eia.gov/electricity/data/eia861/">https://www.eia.gov/electricity/data/eia861/</a></div>
 </div>
 <div id="ref-data-dictionary" class="csl-entry" role="listitem">
-<div class="csl-left-margin">[7] </div><div class="csl-right-inline">CORGIS Dataset Project, <span>“<span class="nocase">CORGIS Electricity Dataset (2017 data) – electricity.csv</span>.”</span> Online dataset, version 2.0.0, 2021. Available: <a href="https://corgis-edu.github.io/corgis/csv/electricity/">https://corgis-edu.github.io/corgis/csv/electricity/</a></div>
+<div class="csl-left-margin">[6] </div><div class="csl-right-inline">CORGIS Dataset Project, <span>“<span class="nocase">CORGIS Electricity Dataset (2017 data) – electricity.csv</span>.”</span> Online dataset, version 2.0.0, 2021. Available: <a href="https://corgis-edu.github.io/corgis/csv/electricity/">https://corgis-edu.github.io/corgis/csv/electricity/</a></div>
+</div>
+<div id="ref-power-loss" class="csl-entry" role="listitem">
+<div class="csl-left-margin">[7] </div><div class="csl-right-inline">U.S. Energy Information Administration, <span>“How much electricity is lost in electricity transmission and distribution in the united states?”</span> <a href="https://www.eia.gov/tools/faqs/faq.php?id=105&amp;t=3" class="uri">https://www.eia.gov/tools/faqs/faq.php?id=105&amp;t=3</a>, 2016.</div>
 </div>
 </div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 

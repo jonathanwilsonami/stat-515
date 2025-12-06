@@ -110,7 +110,7 @@ $$
 $$
 
 #### Losses Ratio
-Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss^[Transmission and distribution losses represent the electricity that is generated but never reaches customers. This energy is lost as heat in power lines and transformers as it travels across the grid.] patterns on the grid. 
+Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss^[Transmission and distribution losses represent the electricity that is generated but never reaches customers. This energy is lost as heat in power lines and transformers as it travels across the grid.] patterns on the grid.[@power-loss] 
 $$
 \text{Losses\_Ratio}
 \;=\;
@@ -162,11 +162,13 @@ $$
 $$
 
 
-
-
 ### Exploratory Data Analysis 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
+#| message: false
+#| warning: false
+
+
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -182,452 +184,395 @@ elec_all  <- read_csv("data/power/electricity_2015_to_2024.csv")
 # glimpse(elec_2023)
 # glimpse(elec_all)
 
-# ############################################################
-# ## 2. Basic Cleaning & Utility Feature Engineering
-# ############################################################
-# 
-# featurize_utilities_raw <- function(df) {
-#   df %>%
-#     mutate(
-#       is_VA = if_else(Utility.State == "VA", 1L, 0L)
-#     ) %>%
-#     filter(
-#       Retail.Total.Customers > 0,
-#       Retail.Total.Sales > 0,
-#       Uses.Total > 0
-#     ) %>%
-#     mutate(
-#       Commercial_Ratio    = Retail.Commercial.Sales / Retail.Total.Sales,
-#       Residential_Ratio   = Retail.Residential.Sales / Retail.Total.Sales,
-#       Industrial_Ratio    = Retail.Industrial.Sales / Retail.Total.Sales,
-#       SalesPerCustomer    = Retail.Total.Sales / Retail.Total.Customers,
-#       Commercial_SPC      = if_else(Retail.Commercial.Customers > 0,
-#                                     Retail.Commercial.Sales / Retail.Commercial.Customers,
-#                                     NA_real_),
-#       Residential_SPC     = if_else(Retail.Residential.Customers > 0,
-#                                     Retail.Residential.Sales / Retail.Residential.Customers,
-#                                     NA_real_),
-#       Losses_Ratio        = Uses.Losses / Uses.Total,
-#       log_Total_Sales     = log(Retail.Total.Sales),
-#       log_Total_Customers = log(Retail.Total.Customers)
-#     )
-# }
-# 
-# elec_2023_fe <- featurize_utilities_raw(elec_2023)
-# elec_all_fe  <- featurize_utilities_raw(elec_all)
-# 
-# ############################################################
-# ## 3. Missingness & Basic Counts (2023)
-# ############################################################
-# 
-# na_summary_2023 <- elec_2023 %>%
-#   summarise(across(everything(), ~ sum(is.na(.)))) %>%
-#   pivot_longer(everything(), names_to = "variable", values_to = "n_na") %>%
-#   arrange(desc(n_na))
-# 
-# na_summary_2023
-# 
-# ggplot(na_summary_2023, aes(x = reorder(variable, n_na), y = n_na)) +
-#   geom_col() +
-#   coord_flip() +
-#   labs(
-#     title = "Number of Missing Values per Variable (2023)",
-#     x = "Variable",
-#     y = "Count of NAs"
-#   )
-# 
-# state_counts_2023 <- elec_2023_fe %>%
-#   count(Utility.State, sort = TRUE)
-# 
-# state_counts_2023 %>% head(10)
-# 
-# ggplot(state_counts_2023,
-#        aes(x = reorder(Utility.State, n), y = n)) +
-#   geom_col() +
-#   coord_flip() +
-#   labs(
-#     title = "Number of Utilities per State (2023)",
-#     x = "State",
-#     y = "Number of Utilities"
-#   )
-# 
-# type_counts_2023 <- elec_2023_fe %>%
-#   count(Utility.Type, sort = TRUE)
-# 
-# type_counts_2023
-# 
-# ggplot(type_counts_2023,
-#        aes(x = reorder(Utility.Type, n), y = n)) +
-#   geom_col() +
-#   coord_flip() +
-#   labs(
-#     title = "Number of Utilities by Type (2023)",
-#     x = "Utility Type",
-#     y = "Count"
-#   )
-# 
-# ############################################################
-# ## 4. Distribution Plots for Key Numeric Variables (2023)
-# ############################################################
-# 
-# # We’ll try to select specific meaningful numeric variables if they exist,
-# # but do it safely using any_of() so missing columns don't error.
-# 
-# candidate_numeric_cols <- c(
-#   "Demand.Summer.Peak",
-#   "Demand.Winter.Peak",
-#   "Sources.Generation",
-#   "Sources.Purchased",
-#   "Uses.Total",
-#   "Retail.Residential.Sales",
-#   "Retail.Commercial.Sales",
-#   "Retail.Industrial.Sales",
-#   "Retail.Total.Sales",
-#   "Retail.Total.Customers"
-# )
-# 
-# num_vars_2023 <- elec_2023_fe %>%
-#   select(any_of(candidate_numeric_cols))
-# 
-# # If some of those don't exist, num_vars_2023 will just have the ones that do.
-# 
-# num_long_2023 <- num_vars_2023 %>%
-#   pivot_longer(everything(),
-#                names_to = "variable",
-#                values_to = "value")
-# 
-# if (ncol(num_vars_2023) > 0) {
-#   # Histograms in original scale
-#   ggplot(num_long_2023, aes(x = value)) +
-#     geom_histogram(bins = 50) +
-#     facet_wrap(~ variable, scales = "free") +
-#     labs(
-#       title = "Distributions of Key Electricity Variables (2023, original scale)",
-#       x = "Value",
-#       y = "Count"
-#     )
-#   
-#   # Histograms in log10 scale
-#   ggplot(num_long_2023, aes(x = value)) +
-#     geom_histogram(bins = 50) +
-#     facet_wrap(~ variable, scales = "free") +
-#     scale_x_log10() +
-#     labs(
-#       title = "Distributions of Key Electricity Variables (2023, log10 scale)",
-#       x = "Value (log10)",
-#       y = "Count"
-#     )
-# }
-# 
-# # Optional: generic EDA of ALL numeric variables (for completeness)
-# num_all_2023 <- elec_2023_fe %>%
-#   select(where(is.numeric))
-# 
-# num_all_long_2023 <- num_all_2023 %>%
-#   pivot_longer(everything(),
-#                names_to = "variable",
-#                values_to = "value")
-# 
-# ggplot(num_all_long_2023, aes(x = value)) +
-#   geom_histogram(bins = 40) +
-#   facet_wrap(~ variable, scales = "free") +
-#   labs(
-#     title = "Distributions of All Numeric Variables (2023)",
-#     x = "Value",
-#     y = "Count"
-#   )
-# 
-# ############################################################
-# ## 5. Sector Mix & Ratios (2023, incl. Virginia vs Others)
-# ############################################################
-# 
-# ratio_long_2023 <- elec_2023_fe %>%
-#   select(
-#     Utility.State, is_VA,
-#     Commercial_Ratio, Residential_Ratio,
-#     Industrial_Ratio, Losses_Ratio
-#   ) %>%
-#   pivot_longer(
-#     cols = c(Commercial_Ratio, Residential_Ratio, Industrial_Ratio, Losses_Ratio),
-#     names_to = "ratio_type",
-#     values_to = "value"
-#   )
-# 
-# ggplot(ratio_long_2023,
-#        aes(x = value)) +
-#   geom_histogram(bins = 50) +
-#   facet_wrap(~ ratio_type, scales = "free") +
-#   labs(
-#     title = "Distribution of Sector Ratios (2023)",
-#     x = "Ratio",
-#     y = "Count"
-#   )
-# 
-# ratio_long_2023_va <- ratio_long_2023 %>%
-#   mutate(Region = if_else(is_VA == 1L, "Virginia", "Other States"))
-# 
-# ggplot(ratio_long_2023_va,
-#        aes(x = value, fill = Region)) +
-#   geom_density(alpha = 0.4) +
-#   facet_wrap(~ ratio_type, scales = "free") +
-#   labs(
-#     title = "Sector Ratios: Virginia vs Other States (2023)",
-#     x = "Ratio",
-#     y = "Density"
-#   )
-# 
-# ############################################################
-# ## 6. Per-Customer Intensities (2023)
-# ############################################################
-# 
-# spc_long_2023 <- elec_2023_fe %>%
-#   select(
-#     is_VA,
-#     SalesPerCustomer,
-#     Commercial_SPC,
-#     Residential_SPC
-#   ) %>%
-#   pivot_longer(
-#     cols = c(SalesPerCustomer, Commercial_SPC, Residential_SPC),
-#     names_to = "metric",
-#     values_to = "value"
-#   ) %>%
-#   mutate(Region = if_else(is_VA == 1L, "Virginia", "Other States"))
-# 
-# ggplot(spc_long_2023,
-#        aes(x = Region, y = value)) +
-#   geom_boxplot(outlier.alpha = 0.4) +
-#   facet_wrap(~ metric, scales = "free_y") +
-#   scale_y_log10() +
-#   labs(
-#     title = "Per-Customer Electricity Intensities (2023, log scale)",
-#     x = "",
-#     y = "Value (log10)"
-#   )
-# 
-# ############################################################
-# ## 7. Scatterplots: Structure of Load (2023)
-# ############################################################
-# 
-# ggplot(elec_2023_fe,
-#        aes(x = Retail.Total.Customers,
-#            y = Retail.Total.Sales,
-#            color = factor(is_VA))) +
-#   geom_point(alpha = 0.6) +
-#   scale_x_log10() +
-#   scale_y_log10() +
-#   labs(
-#     title = "Total Sales vs Total Customers (2023)",
-#     x = "Total Customers (log10)",
-#     y = "Total Sales (log10)",
-#     color = "Virginia (1 = VA)"
-#   )
-# 
-# ggplot(elec_2023_fe,
-#        aes(x = Commercial_Ratio,
-#            y = Commercial_SPC,
-#            color = factor(is_VA))) +
-#   geom_point(alpha = 0.6) +
-#   scale_y_log10() +
-#   labs(
-#     title = "Commercial Ratio vs Commercial Sales per Customer (2023)",
-#     x = "Commercial Ratio",
-#     y = "Commercial Sales per Commercial Customer (log10)",
-#     color = "Virginia (1 = VA)"
-#   )
-# 
-# ############################################################
-# ## 8. Correlation Heatmap (2023, Engineered Vars)
-# ############################################################
-# 
-# corr_vars_2023 <- elec_2023_fe %>%
-#   select(
-#     Commercial_Ratio,
-#     Residential_Ratio,
-#     Industrial_Ratio,
-#     SalesPerCustomer,
-#     Commercial_SPC,
-#     Residential_SPC,
-#     Losses_Ratio,
-#     log_Total_Sales,
-#     log_Total_Customers
-#   )
-# 
-# corr_mat_2023 <- cor(corr_vars_2023, use = "pairwise.complete.obs")
-# corr_df_2023  <- melt(corr_mat_2023, varnames = c("Var1", "Var2"),
-#                       value.name = "Correlation")
-# 
-# ggplot(corr_df_2023,
-#        aes(x = Var1, y = Var2, fill = Correlation)) +
-#   geom_tile() +
-#   scale_fill_gradient2(low = "blue", mid = "white", high = "red",
-#                        midpoint = 0, limits = c(-1, 1)) +
-#   coord_fixed() +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-#   labs(
-#     title = "Correlation Heatmap of Key Structural Variables (2023)",
-#     x = "",
-#     y = ""
-#   )
-# 
-# ############################################################
-# ## 9. Multi-Year EDA: National Trends (2015–2024)
-# ############################################################
-# 
-# national_by_year <- elec_all_fe %>%
-#   group_by(Year) %>%
-#   summarise(
-#     total_sales       = sum(Retail.Total.Sales, na.rm = TRUE),
-#     total_res_sales   = sum(Retail.Residential.Sales, na.rm = TRUE),
-#     total_comm_sales  = sum(Retail.Commercial.Sales, na.rm = TRUE),
-#     total_ind_sales   = sum(Retail.Industrial.Sales, na.rm = TRUE),
-#     total_customers   = sum(Retail.Total.Customers, na.rm = TRUE),
-#     .groups = "drop"
-#   )
-# 
-# national_long <- national_by_year %>%
-#   select(Year, total_res_sales, total_comm_sales, total_ind_sales) %>%
-#   pivot_longer(
-#     cols = -Year,
-#     names_to = "sector",
-#     values_to = "sales"
-#   )
-# 
-# ggplot(national_long,
-#        aes(x = Year, y = sales, color = sector)) +
-#   geom_line(size = 1) +
-#   labs(
-#     title = "National Sectoral Electricity Sales Over Time",
-#     x = "Year",
-#     y = "Sales (MWh, as reported)",
-#     color = "Sector"
-#   )
-# 
-# national_ratio_year <- elec_all_fe %>%
-#   group_by(Year) %>%
-#   summarise(
-#     avg_comm_ratio = mean(Commercial_Ratio, na.rm = TRUE),
-#     avg_res_ratio  = mean(Residential_Ratio, na.rm = TRUE),
-#     avg_ind_ratio  = mean(Industrial_Ratio, na.rm = TRUE),
-#     .groups = "drop"
-#   ) %>%
-#   pivot_longer(
-#     cols = starts_with("avg_"),
-#     names_to = "ratio_type",
-#     values_to = "value"
-#   )
-# 
-# ggplot(national_ratio_year,
-#        aes(x = Year, y = value, color = ratio_type)) +
-#   geom_line(size = 1) +
-#   labs(
-#     title = "Average Sector Ratios Across Utilities Over Time (National)",
-#     x = "Year",
-#     y = "Average Ratio",
-#     color = "Ratio Type"
-#   )
-# 
-# ############################################################
-# ## 10. Multi-Year: Virginia vs Other States
-# ############################################################
-# 
-# va_vs_us_year <- elec_all_fe %>%
-#   mutate(Region = if_else(Utility.State == "VA", "Virginia", "Other States")) %>%
-#   group_by(Year, Region) %>%
-#   summarise(
-#     total_sales          = sum(Retail.Total.Sales, na.rm = TRUE),
-#     total_customers      = sum(Retail.Total.Customers, na.rm = TRUE),
-#     avg_SalesPerCustomer = mean(SalesPerCustomer, na.rm = TRUE),
-#     avg_Commercial_Ratio = mean(Commercial_Ratio, na.rm = TRUE),
-#     .groups = "drop"
-#   )
-# 
-# ggplot(va_vs_us_year,
-#        aes(x = Year, y = total_sales, color = Region)) +
-#   geom_line(size = 1) +
-#   labs(
-#     title = "Total Retail Electricity Sales: Virginia vs Other States",
-#     x = "Year",
-#     y = "Total Sales",
-#     color = "Region"
-#   )
-# 
-# ggplot(va_vs_us_year,
-#        aes(x = Year, y = avg_SalesPerCustomer, color = Region)) +
-#   geom_line(size = 1) +
-#   labs(
-#     title = "Average Sales per Customer: Virginia vs Other States",
-#     x = "Year",
-#     y = "Average Sales per Customer",
-#     color = "Region"
-#   )
-# 
-# ggplot(va_vs_us_year,
-#        aes(x = Year, y = avg_Commercial_Ratio, color = Region)) +
-#   geom_line(size = 1) +
-#   labs(
-#     title = "Average Commercial Ratio: Virginia vs Other States",
-#     x = "Year",
-#     y = "Average Commercial Ratio",
-#     color = "Region"
-#   )
-# 
-# ############################################################
-# ## 11. Multi-Year: Commercial Ratio by Year
-# ############################################################
-# 
-# ggplot(elec_all_fe,
-#        aes(x = factor(Year), y = Commercial_Ratio)) +
-#   geom_boxplot(outlier.alpha = 0.3) +
-#   labs(
-#     title = "Distribution of Commercial Ratio by Year (All States)",
-#     x = "Year",
-#     y = "Commercial Ratio"
-#   )
-# 
-# ggplot(elec_all_fe %>% filter(Utility.State == "VA"),
-#        aes(x = factor(Year), y = Commercial_Ratio)) +
-#   geom_boxplot(outlier.alpha = 0.4, fill = "steelblue") +
-#   labs(
-#     title = "Distribution of Commercial Ratio by Year (Virginia Utilities)",
-#     x = "Year",
-#     y = "Commercial Ratio"
-#   )
-# 
-# ############################################################
-# ## 12. Structural Position of Virginia Utilities (All Years)
-# ############################################################
-# 
-# ggplot(elec_all_fe,
-#        aes(x = SalesPerCustomer,
-#            y = Commercial_SPC,
-#            color = if_else(Utility.State == "VA", "Virginia", "Other States"))) +
-#   geom_point(alpha = 0.4) +
-#   scale_x_log10() +
-#   scale_y_log10() +
-#   labs(
-#     title = "Utility Structural Load: Virginia vs Other States (All Years)",
-#     x = "Sales per Customer (log10)",
-#     y = "Commercial Sales per Commercial Customer (log10)",
-#     color = "Region"
-#   )
-# 
-# ggplot(elec_2023_fe,
-#        aes(x = SalesPerCustomer,
-#            y = Commercial_SPC,
-#            color = if_else(Utility.State == "VA", "Virginia", "Other States"))) +
-#   geom_point(alpha = 0.6) +
-#   scale_x_log10() +
-#   scale_y_log10() +
-#   labs(
-#     title = "Utility Structural Load: Virginia vs Other States (2023)",
-#     x = "Sales per Customer (log10)",
-#     y = "Commercial Sales per Commercial Customer (log10)",
-#     color = "Region"
-#   )
+############################################################
+## Data Cleaning & Feature Engineering
+############################################################
 
-
+# Utility to build features and clean data 
+# - is_VA classifies obs if Utility.State == "VA"
+# - Filter out certain important fields that are zero
+# - Feature engineer 
+featurize_utilities_raw <- function(df) {
+  df %>%
+    mutate(
+      is_VA = if_else(Utility.State == "VA", 1L, 0L)
+    ) %>%
+    filter(
+      Retail.Total.Customers > 0,
+      Retail.Total.Sales > 0,
+      Uses.Total > 0
+    ) %>%
+    mutate(
+      Commercial_Ratio = Retail.Commercial.Sales / Retail.Total.Sales,
+      Residential_Ratio = Retail.Residential.Sales / Retail.Total.Sales,
+      Industrial_Ratio = Retail.Industrial.Sales / Retail.Total.Sales,
+      SalesPerCustomer = Retail.Total.Sales / Retail.Total.Customers,
+      Commercial_SPC = if_else(Retail.Commercial.Customers > 0,
+                                    Retail.Commercial.Sales / Retail.Commercial.Customers,
+                                    NA_real_),
+      Residential_SPC = if_else(Retail.Residential.Customers > 0,
+                                    Retail.Residential.Sales / Retail.Residential.Customers,
+                                    NA_real_),
+      Losses_Ratio = Uses.Losses / Uses.Total,
+      log_Total_Sales = log(Retail.Total.Sales),
+      log_Total_Customers = log(Retail.Total.Customers)
+    )
+}
+ 
+elec_2023_fe <- featurize_utilities_raw(elec_2023)
+elec_all_fe  <- featurize_utilities_raw(elec_all)
 ```
+
+The number of reporting utilities varies substantially by state.  
+Figure @fig-state-utilities shows the distribution of utilities across states in 2023, with **Virginia highlighted** for comparison.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
+#| label: fig-state-utilities
+#| fig-cap: "Number of utilities per state in 2023, with Virginia highlighted."
+#| fig-width: 7
+#| fig-height: 5
+
+state_counts_2023 <- elec_2023_fe %>%
+  count(Utility.State, sort = TRUE) %>%
+  mutate(
+    Highlight = if_else(Utility.State == "VA", "Virginia", "Other States")
+  )
+
+ggplot(state_counts_2023,
+       aes(x = reorder(Utility.State, n), y = n, fill = Highlight)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = c("Virginia" = "firebrick", "Other States" = "grey70")) +
+  labs(
+    title = "Number of Utilities per State (2023)",
+    x = "State",
+    y = "Number of Utilities",
+    fill = ""
+  )
+```
+
+
+We also examine the mix of utility business types (investor-owned, municipal, cooperative, etc.).  
+Figure @fig-utility-types summarizes the **count of utilities by type** in 2023.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
+#| label: fig-utility-types
+#| fig-cap: "Number of utilities by type in 2023."
+#| fig-width: 7
+#| fig-height: 5
+
+type_counts_2023 <- elec_2023_fe %>%
+  count(Utility.Type, sort = TRUE)
+
+ggplot(type_counts_2023,
+       aes(x = reorder(Utility.Type, n), y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Number of Utilities by Type (2023)",
+    x = "Utility Type",
+    y = "Count"
+  )
+```
+
+Figure @fig-num-var-distributions shows the skewed nature of the raw variables.
+Log-transforming the data (Figure @fig-num-var-distributions-log) improves interpretability.
+
+```{r}
+#| label: fig-num-var-distributions
+#| fig-cap: "Distributions of key electricity variables in 2023 (original scale)."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+############################################################
+## Distribution Plots for Key Numeric Variables (2023)
+############################################################
+
+candidate_numeric_cols <- c(
+  "Demand.Summer.Peak",
+  "Demand.Winter.Peak",
+  "Sources.Generation",
+  "Sources.Purchased",
+  "Uses.Total",
+  "Retail.Residential.Sales",
+  "Retail.Commercial.Sales",
+  "Retail.Industrial.Sales",
+  "Retail.Total.Sales",
+  "Retail.Total.Customers"
+)
+
+num_vars_2023 <- elec_2023_fe %>%
+  select(any_of(candidate_numeric_cols))
+
+num_long_2023 <- num_vars_2023 %>%
+  tidyr::pivot_longer(
+    everything(),
+    names_to = "variable",
+    values_to = "value"
+  )
+
+ggplot(num_long_2023, aes(x = value)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~ variable, scales = "free") +
+  labs(
+    title = "Distributions of Key Electricity Variables (2023, original scale)",
+    x = "Value",
+    y = "Count"
+  )
+```
+
+```{r}
+#| label: fig-num-var-distributions-log
+#| fig-cap: "Distributions of key electricity variables in 2023 (log10 scale)."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+ggplot(num_long_2023, aes(x = value)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~ variable, scales = "free") +
+  scale_x_log10() +
+  labs(
+    title = "Distributions of Key Electricity Variables (2023, log10 scale)",
+    x = "Value (log10)",
+    y = "Count"
+  )
+```
+
+Sector composition across utilities varies widely (Figure @fig-sector-ratios-hist).
+Virginia’s utilities show distinct distributional patterns compared with the rest of the U.S.
+(Figure @fig-sector-ratios-va-vs-others).
+
+```{r}
+#| label: fig-sector-ratios-hist
+#| fig-cap: "Distribution of key electricity sector ratios across all U.S. utilities in 2023."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+
+############################################################
+## 5. Sector Mix & Ratios (2023, including Virginia vs Others)
+############################################################
+
+ratio_long_2023 <- elec_2023_fe %>%
+  select(
+    Utility.State, is_VA,
+    Commercial_Ratio, Residential_Ratio,
+    Industrial_Ratio, Losses_Ratio
+  ) %>%
+  tidyr::pivot_longer(
+    cols = c(Commercial_Ratio, Residential_Ratio, Industrial_Ratio, Losses_Ratio),
+    names_to = "ratio_type",
+    values_to = "value"
+  )
+
+ggplot(ratio_long_2023,
+       aes(x = value)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~ ratio_type, scales = "free") +
+  labs(
+    title = "Distribution of Sector Ratios (2023)",
+    x = "Ratio",
+    y = "Count"
+  )
+```
+
+```{r}
+#| label: fig-sector-ratios-va-vs-others
+#| fig-cap: "Comparison of sector ratios between Virginia utilities and all other U.S. utilities in 2023."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+
+ratio_long_2023_va <- ratio_long_2023 %>%
+  mutate(
+    Region = if_else(is_VA == 1L, "Virginia", "Other States")
+  )
+
+ggplot(ratio_long_2023_va,
+       aes(x = value, fill = Region)) +
+  geom_density(alpha = 0.4) +
+  facet_wrap(~ ratio_type, scales = "free") +
+  labs(
+    title = "Sector Ratios: Virginia vs Other States (2023)",
+    x = "Ratio",
+    y = "Density",
+    fill = "Region"
+  )
+```
+
+Figure @fig-customer-intensity-va-vs-others shows that Virginia utilities generally have higher
+per-customer intensity levels, especially for commercial customers.
+
+```{r}
+#| label: fig-customer-intensity-va-vs-others
+#| fig-cap: "Comparison of per-customer electricity intensity measures for Virginia utilities versus all other U.S. utilities (2023). Values shown on a log scale."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+
+spc_long_2023 <- elec_2023_fe %>%
+  dplyr::select(
+    is_VA,
+    SalesPerCustomer,
+    Commercial_SPC,
+    Residential_SPC
+  ) %>%
+  tidyr::pivot_longer(
+    cols = c(SalesPerCustomer, Commercial_SPC, Residential_SPC),
+    names_to = "metric",
+    values_to = "value"
+  ) %>%
+  dplyr::mutate(
+    Region = if_else(is_VA == 1L, "Virginia", "Other States")
+  )
+
+ggplot(spc_long_2023,
+       aes(x = Region, y = value)) +
+  geom_boxplot(outlier.alpha = 0.4) +
+  facet_wrap(~ metric, scales = "free_y") +
+  scale_y_log10() +
+  labs(
+    title = "Per-Customer Electricity Intensities (2023, log scale)",
+    x = "",
+    y = "Value (log10)"
+  )
+```
+
+Figure @fig-sales-vs-customers-2023 shows how Virginia utilities compare to national utilities 
+in overall system size and total electricity demand.
+
+```{r}
+#| label: fig-sales-vs-customers-2023
+#| fig-cap: "Relationship between total customers and total electricity sales (log–log scale) for U.S. utilities in 2023, highlighting Virginia utilities."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+
+ggplot(elec_2023_fe,
+       aes(x = Retail.Total.Customers,
+           y = Retail.Total.Sales,
+           color = factor(is_VA))) +
+  geom_point(alpha = 0.6) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(
+    title = "Total Sales vs Total Customers (2023)",
+    x = "Total Customers (log10)",
+    y = "Total Sales (log10)",
+    color = "Virginia (1 = VA)"
+  ) +
+  scale_color_manual(values = c("0" = "gray60", "1" = "red"))
+```
+
+Figure @fig-commercial-ratio-spc-2023 highlights the commercial load structure and intensity 
+for Virginia relative to other states.
+
+```{r}
+#| label: fig-commercial-ratio-spc-2023
+#| fig-cap: "Commercial sector structure versus commercial sales per customer (log scale) for U.S. utilities in 2023, with Virginia utilities highlighted."
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| warning: false
+#| message: false
+#| error: false
+
+ggplot(elec_2023_fe,
+       aes(x = Commercial_Ratio,
+           y = Commercial_SPC,
+           color = factor(is_VA))) +
+  geom_point(alpha = 0.6) +
+  scale_y_log10() +
+  labs(
+    title = "Commercial Ratio vs Commercial Sales per Customer (2023)",
+    x = "Commercial Ratio",
+    y = "Commercial Sales per Commercial Customer (log10)",
+    color = "Virginia (1 = VA)"
+  ) +
+  scale_color_manual(values = c("0" = "gray60", "1" = "red"))
+```
+
+Figure @fig-va-vs-us-salespercustomer shows how Virginia's average electricity 
+intensity per customer compares to the national trend from 2015–2024.
+
+```{r}
+#| label: fig-va-vs-us-salespercustomer
+#| fig-cap: "Average electricity sales per customer over time (2015–2024), comparing Virginia to all other U.S. states."
+#| fig-width: 9
+#| fig-height: 6
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+va_vs_us_year <- elec_all_fe %>%
+  mutate(Region = if_else(Utility.State == "VA", "Virginia", "Other States")) %>%
+  group_by(Year, Region) %>%
+  summarise(
+    total_sales          = sum(Retail.Total.Sales, na.rm = TRUE),
+    total_customers      = sum(Retail.Total.Customers, na.rm = TRUE),
+    avg_SalesPerCustomer = mean(SalesPerCustomer, na.rm = TRUE),
+    avg_Commercial_Ratio = mean(Commercial_Ratio, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ggplot(va_vs_us_year,
+       aes(x = Year, y = avg_SalesPerCustomer, color = Region)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Average Sales per Customer: Virginia vs Other States (2015–2024)",
+    x = "Year",
+    y = "Average Sales per Customer",
+    color = "Region"
+  ) +
+  scale_color_manual(values = c("Virginia" = "red", "Other States" = "gray40"))
+```
+
+Figure @fig-va-vs-us-commercialratio illustrates how Virginia's commercial 
+load share differs from the rest of the U.S. over time.
+
+```{r}
+#| label: fig-va-vs-us-commercialratio
+#| fig-cap: "Average commercial electricity sales ratio over time (2015–2024), comparing Virginia to all other U.S. states."
+#| fig-width: 9
+#| fig-height: 6
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+ggplot(va_vs_us_year,
+       aes(x = Year, y = avg_Commercial_Ratio, color = Region)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Average Commercial Ratio: Virginia vs Other States (2015–2024)",
+    x = "Year",
+    y = "Average Commercial Ratio",
+    color = "Region"
+  ) +
+  scale_color_manual(values = c("Virginia" = "red", "Other States" = "gray40"))
+```
+
 
 ## Research Questions 
 
