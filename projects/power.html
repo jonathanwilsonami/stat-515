@@ -91,6 +91,35 @@ div.csl-indent {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
       
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -174,7 +203,7 @@ div.csl-indent {
   <li><a href="#dataset-overview" id="toc-dataset-overview" class="nav-link" data-scroll-target="#dataset-overview">Dataset Overview</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   <li><a href="#data-cleaning-processing-assumptions" id="toc-data-cleaning-processing-assumptions" class="nav-link" data-scroll-target="#data-cleaning-processing-assumptions">Data Cleaning, Processing &amp; Assumptions</a></li>
-  <li><a href="#derived-featurs" id="toc-derived-featurs" class="nav-link" data-scroll-target="#derived-featurs">Derived Featurs</a></li>
+  <li><a href="#derived-featurs---feature-engineering" id="toc-derived-featurs---feature-engineering" class="nav-link" data-scroll-target="#derived-featurs---feature-engineering">Derived Featurs - Feature Engineering</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
   </ul></li>
   <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions">Research Questions</a></li>
@@ -291,15 +320,16 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is generated compiled by the EIA contains the main companies we are interested in at least their bulk aggregated numbers which will be discussed later. For example, doing a little research on line revealed that the utility named Virginia Electric &amp; Power Co whcih is found in the data is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
 <ul>
 <li>High commercial load</li>
-<li>Rapid growth</li>
-<li>High purchased-power dependency</li>
-<li>High demand intensity (kWh/customer)</li>
+<li>Very high commercial electricity sales</li>
+<li>Large sales per customer</li>
+<li>High commercial sales per commercial customer</li>
 </ul>
+<p>These variables become proxies for “data-center–like” behavior.</p>
 <p>A data dictionary<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> of the various data elements used in this analysis can also be referenced.</p>
 </section>
 <section id="limitations" class="level3">
 <h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
-<p>The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which masks some of the. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid.</p>
+<p>The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which provides a very course view of the data. This limitation does now allow us to view individual data centers or even the break down of the individual contributors of what make up a utility. There might be some missing data points as well. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our model’s predictions. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. Later on in the analysis section we will construct various methods of overcoming these limitations however crude they might be.</p>
 </section>
 <section id="data-cleaning-processing-assumptions" class="level3">
 <h3 class="anchored" data-anchor-id="data-cleaning-processing-assumptions">Data Cleaning, Processing &amp; Assumptions</h3>
@@ -315,31 +345,91 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <li>We found only a handful of empty values in the state field. We dropped these rows as knowing where the utility is located was critical to the analysis.</li>
 </ul>
 </section>
-<section id="derived-featurs" class="level3">
-<h3 class="anchored" data-anchor-id="derived-featurs">Derived Featurs</h3>
-<p>Add description on any derived features for this analysis</p>
+<section id="derived-featurs---feature-engineering" class="level3">
+<h3 class="anchored" data-anchor-id="derived-featurs---feature-engineering">Derived Featurs - Feature Engineering</h3>
+<p>We define the following engineered variables used throughout the analysis. Much of these variables are based on potentially biased opinions of what we might expect a data center like conditons to look like.</p>
+<section id="commercial-ratio" class="level4">
+<h4 class="anchored" data-anchor-id="commercial-ratio">Commercial Ratio</h4>
+<p>Measures how much of a utility’s total load comes from the commercial sector. High ratios suggest large commercial customers such as data centers. <span class="math display">\[
+\text{Commercial\_Ratio}
+\;=\;
+\frac{\text{Commercial Sales}}{\text{Total Sales}}
+\]</span></p>
+</section>
+<section id="sales-per-customer" class="level4">
+<h4 class="anchored" data-anchor-id="sales-per-customer">Sales per Customer</h4>
+<p>Captures average consumption intensity across all customers. We would expect data centers to produce extremely high sales relative to customer count, making this a strong signal. <span class="math display">\[
+\text{SalesPerCustomer}
+\;=\;
+\frac{\text{Total Sales}}{\text{Total Customers}}
+\]</span></p>
+</section>
+<section id="commercial-sales-per-commercial-customer-spc" class="level4">
+<h4 class="anchored" data-anchor-id="commercial-sales-per-commercial-customer-spc">Commercial Sales per Commercial Customer (SPC)</h4>
+<p>Measures electricity use per commercial customer. Data centers typically appear as a small number of commercial customers with very high consumption, pushing this metric upward. <span class="math display">\[
+\text{Commercial\_SPC}
+\;=\;
+\frac{\text{Commercial Sales}}{\text{Commercial Customers}}
+\]</span></p>
+</section>
+<section id="losses-ratio" class="level4">
+<h4 class="anchored" data-anchor-id="losses-ratio">Losses Ratio</h4>
+<p>Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> patterns on the grid. <span class="math display">\[
+\text{Losses\_Ratio}
+\;=\;
+\frac{\text{Losses}}{\text{Total Uses}}
+\]</span></p>
+</section>
+<section id="log-transformed-size-features" class="level4">
+<h4 class="anchored" data-anchor-id="log-transformed-size-features">Log-Transformed Size Features</h4>
+<p>Log transforms stabilize variance and capture utility scale without being dominated by extreme outliers. During our EDA we discovered some issues with the data. Total customers and total sales vary by several orders of magnitude across U.S. utilities. Some are tiny rural co-ops; others (like Dominion) serve millions. The log transformation helps to mitigate these skewness issues and improves stablity in our modeling. In this study, logging these variables prevents large utilities from overwhelming the models and provides more interpretable patterns across the full national dataset. <span class="math display">\[
+\log(\text{Total\_Customers}),
+\qquad
+\log(\text{Total\_Sales})
+\]</span></p>
+<hr>
+</section>
+<section id="composite-intensity-score" class="level4">
+<h4 class="anchored" data-anchor-id="composite-intensity-score">Composite Intensity Score</h4>
+<p>Combines three load-intensity metrics (Commercial Ratio, SPC, SalesPerCustomer) into a single standardized indicator of “data-center–like” consumption profiles.</p>
+<p>Each variable above is standardized to a z-score. The composite <em>Intensity Score</em> is then defined as:</p>
+<p><span class="math display">\[
+\text{IntensityScore}
+\;=\;
+z(\text{Commercial\_Ratio})
+\;+\;
+z(\text{SalesPerCustomer})
+\;+\;
+z(\text{Commercial\_SPC})
+\]</span></p>
+<hr>
+</section>
+<section id="high-demand-label" class="level4">
+<h4 class="anchored" data-anchor-id="high-demand-label">High-Demand Label</h4>
+<p>Identifies the top decile of utilities exhibiting exceptionally intense commercial electricity use those most likely associated with data center load characteristics.</p>
+<p>Utilities falling in the <strong>top 10%</strong> of the Intensity Score distribution are classified as high-demand:</p>
+<p><span class="math display">\[
+\text{HighDemand} = 1
+\quad\text{if}\quad
+\text{IntensityScore} \ge Q_{0.90}(\text{IntensityScore})
+\]</span></p>
+<p>and otherwise:</p>
+<p><span class="math display">\[
+\text{HighDemand} = 0
+\]</span></p>
+</section>
 </section>
 <section id="exploratory-data-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h3>
-<p>Checklist</p>
-<ul>
-<li>Summary stats such as national averages, totals, state by state comparisons, etc.</li>
-<li>plots showing spreads</li>
-</ul>
-<p>short exploratory analysis (summary statistics, histogram/density plot) before fitting a statistical model. Your model may be guided by this. For example a skewed density plot may suggest you should transform a variable.</p>
 </section>
 </section>
 <section id="research-questions" class="level2">
 <h2 class="anchored" data-anchor-id="research-questions">Research Questions</h2>
+<p>For this analysis we wanted to be able to answer the following questions:</p>
 <ol type="1">
-<li>Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?</li>
-<li>Do utilities with “data-center-like” characteristics exhibit higher energy losses or operational stress compared to typical utilities?
-<ol type="a">
-<li>Are data-center-heavy utilities operating closer to their physical limits?</li>
-<li>Do they buy more power because their infrastructure is strained?</li>
-<li>Do they exhibit more losses?</li>
-</ol></li>
-<li>Another question</li>
+<li><p>Can we classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage?</p></li>
+<li><p>How does Virginia compare nationally in the proportion and concentration of high-demand utilities?</p></li>
+<li><p>Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?</p></li>
 </ol>
 </section>
 <section id="question-1" class="level2">
@@ -371,7 +461,8 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>The conclusion….</p>
+<p>This study demonstrates that utility level EIA 861 data despite lacking explicit data-center identifiers can successfully reveal data-center–like electricity demand patterns using structural load metrics, machine learning classification, and weighted dominance indices.</p>
+<p>Key insights gained from this study:</p>
 </section>
 <section id="references" class="level2">
 
@@ -408,6 +499,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <ol>
 <li id="fn1"><p>A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>https://corgis-edu.github.io/corgis/csv/electricity/<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Transmission and distribution losses represent the electricity that is generated but never reaches customers. This energy is lost as heat in power lines and transformers as it travels across the grid.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
