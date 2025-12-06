@@ -37,3 +37,6 @@ renv/library/
 
 # Lock files 
 *.~lock.*
+
+
+utils/code_store.R

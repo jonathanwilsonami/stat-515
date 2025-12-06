@@ -56,15 +56,17 @@ For this analysis we used the Annual Electric Power Industry Report (Form EIA-86
 Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is generated compiled by the EIA contains the main companies we are interested in at least their bulk aggregated numbers which will be discussed later. For example, doing a little research on line revealed that the utility named Virginia Electric & Power Co whcih is found in the data is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:
 
 - High commercial load
-- Rapid growth
-- High purchased-power dependency
-- High demand intensity (kWh/customer)
+- Very high commercial electricity sales
+- Large sales per customer
+- High commercial sales per commercial customer
+
+These variables become proxies for “data-center–like” behavior. 
 
 A data dictionary^[https://corgis-edu.github.io/corgis/csv/electricity/] of the various data elements used in this analysis can also be referenced. 
 
 ### Limitations 
 
-The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which masks some of the. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our models. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. 
+The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which provides a very course view of the data. This limitation does now allow us to view individual data centers or even the break down of the individual contributors of what make up a utility. There might be some missing data points as well. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our model's predictions. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. Later on in the analysis section we will construct various methods of overcoming these limitations however crude they might be. 
 
 ### Data Cleaning, Processing & Assumptions 
 
@@ -79,38 +81,563 @@ When it comes to data cleaning we had to handle the following and make some assu
 - In EIA-861 spreadsheets a dot (.) could represent data that was suppressed (as mentioned before with private companies), not available, or did not meet a certain threshold value. For these values we decided to make zero but might use soem form of data imputation to fill these in. 
 - We found only a handful of empty values in the state field. We dropped these rows as knowing where the utility is located was critical to the analysis.  
 
-### Derived Featurs 
-Add description on any derived features for this analysis 
+### Derived Featurs - Feature Engineering
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+We define the following engineered variables used throughout the analysis. Much of these variables are based on potentially biased opinions of what we might expect a data center like conditons to look like. 
 
-##################################
-# Data Sources 
-##################################
-power_2025 <- read.csv("data/power/electricity_2024.csv")
+#### Commercial Ratio
+Measures how much of a utility’s total load comes from the commercial sector. High ratios suggest large commercial customers such as data centers.
+$$
+\text{Commercial\_Ratio}
+\;=\;
+\frac{\text{Commercial Sales}}{\text{Total Sales}}
+$$
 
-```
+#### Sales per Customer
+Captures average consumption intensity across all customers. We would expect data centers to produce extremely high sales relative to customer count, making this a strong signal.
+$$
+\text{SalesPerCustomer}
+\;=\;
+\frac{\text{Total Sales}}{\text{Total Customers}}
+$$
+
+#### Commercial Sales per Commercial Customer (SPC)
+Measures electricity use per commercial customer. Data centers typically appear as a small number of commercial customers with very high consumption, pushing this metric upward.
+$$
+\text{Commercial\_SPC}
+\;=\;
+\frac{\text{Commercial Sales}}{\text{Commercial Customers}}
+$$
+
+#### Losses Ratio
+Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss^[Transmission and distribution losses represent the electricity that is generated but never reaches customers. This energy is lost as heat in power lines and transformers as it travels across the grid.] patterns on the grid. 
+$$
+\text{Losses\_Ratio}
+\;=\;
+\frac{\text{Losses}}{\text{Total Uses}}
+$$
+
+#### Log-Transformed Size Features
+Log transforms stabilize variance and capture utility scale without being dominated by extreme outliers. During our EDA we discovered some issues with the data. Total customers and total sales vary by several orders of magnitude across U.S. utilities. Some are tiny rural co-ops; others (like Dominion) serve millions. The log transformation helps to mitigate these skewness issues and improves stablity in our modeling. In this study, logging these variables prevents large utilities from overwhelming the models and provides more interpretable patterns across the full national dataset.
+$$
+\log(\text{Total\_Customers}),
+\qquad
+\log(\text{Total\_Sales})
+$$
+
+---
+
+#### Composite Intensity Score
+Combines three load-intensity metrics (Commercial Ratio, SPC, SalesPerCustomer) into a single standardized indicator of "data-center–like" consumption profiles.
+
+Each variable above is standardized to a z-score. The composite *Intensity Score* is then defined as:
+
+$$
+\text{IntensityScore}
+\;=\;
+z(\text{Commercial\_Ratio})
+\;+\;
+z(\text{SalesPerCustomer})
+\;+\;
+z(\text{Commercial\_SPC})
+$$
+
+---
+
+#### High-Demand Label
+Identifies the top decile of utilities exhibiting exceptionally intense commercial electricity use those most likely associated with data center load characteristics.
+
+Utilities falling in the **top 10%** of the Intensity Score distribution are classified as high-demand:
+
+$$
+\text{HighDemand} = 1
+\quad\text{if}\quad
+\text{IntensityScore} \ge Q_{0.90}(\text{IntensityScore})
+$$
+
+and otherwise:
+
+$$
+\text{HighDemand} = 0
+$$
+
+
+
 
 ### Exploratory Data Analysis 
 
-Checklist 
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+library(stringr)
+library(reshape2)
 
-- Summary stats such as national averages, totals, state by state comparisons, etc. 
-- plots showing spreads 
+theme_set(theme_minimal())
 
-short exploratory analysis (summary statistics, histogram/density plot)
-before fitting a statistical model. Your model may be guided by this. For example a skewed
-density plot may suggest you should transform a variable.
+elec_2023 <- read_csv("data/power/electricity_2023.csv")
+elec_all  <- read_csv("data/power/electricity_2015_to_2024.csv")
+
+# glimpse(elec_2023)
+# glimpse(elec_all)
+
+# ############################################################
+# ## 2. Basic Cleaning & Utility Feature Engineering
+# ############################################################
+# 
+# featurize_utilities_raw <- function(df) {
+#   df %>%
+#     mutate(
+#       is_VA = if_else(Utility.State == "VA", 1L, 0L)
+#     ) %>%
+#     filter(
+#       Retail.Total.Customers > 0,
+#       Retail.Total.Sales > 0,
+#       Uses.Total > 0
+#     ) %>%
+#     mutate(
+#       Commercial_Ratio    = Retail.Commercial.Sales / Retail.Total.Sales,
+#       Residential_Ratio   = Retail.Residential.Sales / Retail.Total.Sales,
+#       Industrial_Ratio    = Retail.Industrial.Sales / Retail.Total.Sales,
+#       SalesPerCustomer    = Retail.Total.Sales / Retail.Total.Customers,
+#       Commercial_SPC      = if_else(Retail.Commercial.Customers > 0,
+#                                     Retail.Commercial.Sales / Retail.Commercial.Customers,
+#                                     NA_real_),
+#       Residential_SPC     = if_else(Retail.Residential.Customers > 0,
+#                                     Retail.Residential.Sales / Retail.Residential.Customers,
+#                                     NA_real_),
+#       Losses_Ratio        = Uses.Losses / Uses.Total,
+#       log_Total_Sales     = log(Retail.Total.Sales),
+#       log_Total_Customers = log(Retail.Total.Customers)
+#     )
+# }
+# 
+# elec_2023_fe <- featurize_utilities_raw(elec_2023)
+# elec_all_fe  <- featurize_utilities_raw(elec_all)
+# 
+# ############################################################
+# ## 3. Missingness & Basic Counts (2023)
+# ############################################################
+# 
+# na_summary_2023 <- elec_2023 %>%
+#   summarise(across(everything(), ~ sum(is.na(.)))) %>%
+#   pivot_longer(everything(), names_to = "variable", values_to = "n_na") %>%
+#   arrange(desc(n_na))
+# 
+# na_summary_2023
+# 
+# ggplot(na_summary_2023, aes(x = reorder(variable, n_na), y = n_na)) +
+#   geom_col() +
+#   coord_flip() +
+#   labs(
+#     title = "Number of Missing Values per Variable (2023)",
+#     x = "Variable",
+#     y = "Count of NAs"
+#   )
+# 
+# state_counts_2023 <- elec_2023_fe %>%
+#   count(Utility.State, sort = TRUE)
+# 
+# state_counts_2023 %>% head(10)
+# 
+# ggplot(state_counts_2023,
+#        aes(x = reorder(Utility.State, n), y = n)) +
+#   geom_col() +
+#   coord_flip() +
+#   labs(
+#     title = "Number of Utilities per State (2023)",
+#     x = "State",
+#     y = "Number of Utilities"
+#   )
+# 
+# type_counts_2023 <- elec_2023_fe %>%
+#   count(Utility.Type, sort = TRUE)
+# 
+# type_counts_2023
+# 
+# ggplot(type_counts_2023,
+#        aes(x = reorder(Utility.Type, n), y = n)) +
+#   geom_col() +
+#   coord_flip() +
+#   labs(
+#     title = "Number of Utilities by Type (2023)",
+#     x = "Utility Type",
+#     y = "Count"
+#   )
+# 
+# ############################################################
+# ## 4. Distribution Plots for Key Numeric Variables (2023)
+# ############################################################
+# 
+# # We’ll try to select specific meaningful numeric variables if they exist,
+# # but do it safely using any_of() so missing columns don't error.
+# 
+# candidate_numeric_cols <- c(
+#   "Demand.Summer.Peak",
+#   "Demand.Winter.Peak",
+#   "Sources.Generation",
+#   "Sources.Purchased",
+#   "Uses.Total",
+#   "Retail.Residential.Sales",
+#   "Retail.Commercial.Sales",
+#   "Retail.Industrial.Sales",
+#   "Retail.Total.Sales",
+#   "Retail.Total.Customers"
+# )
+# 
+# num_vars_2023 <- elec_2023_fe %>%
+#   select(any_of(candidate_numeric_cols))
+# 
+# # If some of those don't exist, num_vars_2023 will just have the ones that do.
+# 
+# num_long_2023 <- num_vars_2023 %>%
+#   pivot_longer(everything(),
+#                names_to = "variable",
+#                values_to = "value")
+# 
+# if (ncol(num_vars_2023) > 0) {
+#   # Histograms in original scale
+#   ggplot(num_long_2023, aes(x = value)) +
+#     geom_histogram(bins = 50) +
+#     facet_wrap(~ variable, scales = "free") +
+#     labs(
+#       title = "Distributions of Key Electricity Variables (2023, original scale)",
+#       x = "Value",
+#       y = "Count"
+#     )
+#   
+#   # Histograms in log10 scale
+#   ggplot(num_long_2023, aes(x = value)) +
+#     geom_histogram(bins = 50) +
+#     facet_wrap(~ variable, scales = "free") +
+#     scale_x_log10() +
+#     labs(
+#       title = "Distributions of Key Electricity Variables (2023, log10 scale)",
+#       x = "Value (log10)",
+#       y = "Count"
+#     )
+# }
+# 
+# # Optional: generic EDA of ALL numeric variables (for completeness)
+# num_all_2023 <- elec_2023_fe %>%
+#   select(where(is.numeric))
+# 
+# num_all_long_2023 <- num_all_2023 %>%
+#   pivot_longer(everything(),
+#                names_to = "variable",
+#                values_to = "value")
+# 
+# ggplot(num_all_long_2023, aes(x = value)) +
+#   geom_histogram(bins = 40) +
+#   facet_wrap(~ variable, scales = "free") +
+#   labs(
+#     title = "Distributions of All Numeric Variables (2023)",
+#     x = "Value",
+#     y = "Count"
+#   )
+# 
+# ############################################################
+# ## 5. Sector Mix & Ratios (2023, incl. Virginia vs Others)
+# ############################################################
+# 
+# ratio_long_2023 <- elec_2023_fe %>%
+#   select(
+#     Utility.State, is_VA,
+#     Commercial_Ratio, Residential_Ratio,
+#     Industrial_Ratio, Losses_Ratio
+#   ) %>%
+#   pivot_longer(
+#     cols = c(Commercial_Ratio, Residential_Ratio, Industrial_Ratio, Losses_Ratio),
+#     names_to = "ratio_type",
+#     values_to = "value"
+#   )
+# 
+# ggplot(ratio_long_2023,
+#        aes(x = value)) +
+#   geom_histogram(bins = 50) +
+#   facet_wrap(~ ratio_type, scales = "free") +
+#   labs(
+#     title = "Distribution of Sector Ratios (2023)",
+#     x = "Ratio",
+#     y = "Count"
+#   )
+# 
+# ratio_long_2023_va <- ratio_long_2023 %>%
+#   mutate(Region = if_else(is_VA == 1L, "Virginia", "Other States"))
+# 
+# ggplot(ratio_long_2023_va,
+#        aes(x = value, fill = Region)) +
+#   geom_density(alpha = 0.4) +
+#   facet_wrap(~ ratio_type, scales = "free") +
+#   labs(
+#     title = "Sector Ratios: Virginia vs Other States (2023)",
+#     x = "Ratio",
+#     y = "Density"
+#   )
+# 
+# ############################################################
+# ## 6. Per-Customer Intensities (2023)
+# ############################################################
+# 
+# spc_long_2023 <- elec_2023_fe %>%
+#   select(
+#     is_VA,
+#     SalesPerCustomer,
+#     Commercial_SPC,
+#     Residential_SPC
+#   ) %>%
+#   pivot_longer(
+#     cols = c(SalesPerCustomer, Commercial_SPC, Residential_SPC),
+#     names_to = "metric",
+#     values_to = "value"
+#   ) %>%
+#   mutate(Region = if_else(is_VA == 1L, "Virginia", "Other States"))
+# 
+# ggplot(spc_long_2023,
+#        aes(x = Region, y = value)) +
+#   geom_boxplot(outlier.alpha = 0.4) +
+#   facet_wrap(~ metric, scales = "free_y") +
+#   scale_y_log10() +
+#   labs(
+#     title = "Per-Customer Electricity Intensities (2023, log scale)",
+#     x = "",
+#     y = "Value (log10)"
+#   )
+# 
+# ############################################################
+# ## 7. Scatterplots: Structure of Load (2023)
+# ############################################################
+# 
+# ggplot(elec_2023_fe,
+#        aes(x = Retail.Total.Customers,
+#            y = Retail.Total.Sales,
+#            color = factor(is_VA))) +
+#   geom_point(alpha = 0.6) +
+#   scale_x_log10() +
+#   scale_y_log10() +
+#   labs(
+#     title = "Total Sales vs Total Customers (2023)",
+#     x = "Total Customers (log10)",
+#     y = "Total Sales (log10)",
+#     color = "Virginia (1 = VA)"
+#   )
+# 
+# ggplot(elec_2023_fe,
+#        aes(x = Commercial_Ratio,
+#            y = Commercial_SPC,
+#            color = factor(is_VA))) +
+#   geom_point(alpha = 0.6) +
+#   scale_y_log10() +
+#   labs(
+#     title = "Commercial Ratio vs Commercial Sales per Customer (2023)",
+#     x = "Commercial Ratio",
+#     y = "Commercial Sales per Commercial Customer (log10)",
+#     color = "Virginia (1 = VA)"
+#   )
+# 
+# ############################################################
+# ## 8. Correlation Heatmap (2023, Engineered Vars)
+# ############################################################
+# 
+# corr_vars_2023 <- elec_2023_fe %>%
+#   select(
+#     Commercial_Ratio,
+#     Residential_Ratio,
+#     Industrial_Ratio,
+#     SalesPerCustomer,
+#     Commercial_SPC,
+#     Residential_SPC,
+#     Losses_Ratio,
+#     log_Total_Sales,
+#     log_Total_Customers
+#   )
+# 
+# corr_mat_2023 <- cor(corr_vars_2023, use = "pairwise.complete.obs")
+# corr_df_2023  <- melt(corr_mat_2023, varnames = c("Var1", "Var2"),
+#                       value.name = "Correlation")
+# 
+# ggplot(corr_df_2023,
+#        aes(x = Var1, y = Var2, fill = Correlation)) +
+#   geom_tile() +
+#   scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+#                        midpoint = 0, limits = c(-1, 1)) +
+#   coord_fixed() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   labs(
+#     title = "Correlation Heatmap of Key Structural Variables (2023)",
+#     x = "",
+#     y = ""
+#   )
+# 
+# ############################################################
+# ## 9. Multi-Year EDA: National Trends (2015–2024)
+# ############################################################
+# 
+# national_by_year <- elec_all_fe %>%
+#   group_by(Year) %>%
+#   summarise(
+#     total_sales       = sum(Retail.Total.Sales, na.rm = TRUE),
+#     total_res_sales   = sum(Retail.Residential.Sales, na.rm = TRUE),
+#     total_comm_sales  = sum(Retail.Commercial.Sales, na.rm = TRUE),
+#     total_ind_sales   = sum(Retail.Industrial.Sales, na.rm = TRUE),
+#     total_customers   = sum(Retail.Total.Customers, na.rm = TRUE),
+#     .groups = "drop"
+#   )
+# 
+# national_long <- national_by_year %>%
+#   select(Year, total_res_sales, total_comm_sales, total_ind_sales) %>%
+#   pivot_longer(
+#     cols = -Year,
+#     names_to = "sector",
+#     values_to = "sales"
+#   )
+# 
+# ggplot(national_long,
+#        aes(x = Year, y = sales, color = sector)) +
+#   geom_line(size = 1) +
+#   labs(
+#     title = "National Sectoral Electricity Sales Over Time",
+#     x = "Year",
+#     y = "Sales (MWh, as reported)",
+#     color = "Sector"
+#   )
+# 
+# national_ratio_year <- elec_all_fe %>%
+#   group_by(Year) %>%
+#   summarise(
+#     avg_comm_ratio = mean(Commercial_Ratio, na.rm = TRUE),
+#     avg_res_ratio  = mean(Residential_Ratio, na.rm = TRUE),
+#     avg_ind_ratio  = mean(Industrial_Ratio, na.rm = TRUE),
+#     .groups = "drop"
+#   ) %>%
+#   pivot_longer(
+#     cols = starts_with("avg_"),
+#     names_to = "ratio_type",
+#     values_to = "value"
+#   )
+# 
+# ggplot(national_ratio_year,
+#        aes(x = Year, y = value, color = ratio_type)) +
+#   geom_line(size = 1) +
+#   labs(
+#     title = "Average Sector Ratios Across Utilities Over Time (National)",
+#     x = "Year",
+#     y = "Average Ratio",
+#     color = "Ratio Type"
+#   )
+# 
+# ############################################################
+# ## 10. Multi-Year: Virginia vs Other States
+# ############################################################
+# 
+# va_vs_us_year <- elec_all_fe %>%
+#   mutate(Region = if_else(Utility.State == "VA", "Virginia", "Other States")) %>%
+#   group_by(Year, Region) %>%
+#   summarise(
+#     total_sales          = sum(Retail.Total.Sales, na.rm = TRUE),
+#     total_customers      = sum(Retail.Total.Customers, na.rm = TRUE),
+#     avg_SalesPerCustomer = mean(SalesPerCustomer, na.rm = TRUE),
+#     avg_Commercial_Ratio = mean(Commercial_Ratio, na.rm = TRUE),
+#     .groups = "drop"
+#   )
+# 
+# ggplot(va_vs_us_year,
+#        aes(x = Year, y = total_sales, color = Region)) +
+#   geom_line(size = 1) +
+#   labs(
+#     title = "Total Retail Electricity Sales: Virginia vs Other States",
+#     x = "Year",
+#     y = "Total Sales",
+#     color = "Region"
+#   )
+# 
+# ggplot(va_vs_us_year,
+#        aes(x = Year, y = avg_SalesPerCustomer, color = Region)) +
+#   geom_line(size = 1) +
+#   labs(
+#     title = "Average Sales per Customer: Virginia vs Other States",
+#     x = "Year",
+#     y = "Average Sales per Customer",
+#     color = "Region"
+#   )
+# 
+# ggplot(va_vs_us_year,
+#        aes(x = Year, y = avg_Commercial_Ratio, color = Region)) +
+#   geom_line(size = 1) +
+#   labs(
+#     title = "Average Commercial Ratio: Virginia vs Other States",
+#     x = "Year",
+#     y = "Average Commercial Ratio",
+#     color = "Region"
+#   )
+# 
+# ############################################################
+# ## 11. Multi-Year: Commercial Ratio by Year
+# ############################################################
+# 
+# ggplot(elec_all_fe,
+#        aes(x = factor(Year), y = Commercial_Ratio)) +
+#   geom_boxplot(outlier.alpha = 0.3) +
+#   labs(
+#     title = "Distribution of Commercial Ratio by Year (All States)",
+#     x = "Year",
+#     y = "Commercial Ratio"
+#   )
+# 
+# ggplot(elec_all_fe %>% filter(Utility.State == "VA"),
+#        aes(x = factor(Year), y = Commercial_Ratio)) +
+#   geom_boxplot(outlier.alpha = 0.4, fill = "steelblue") +
+#   labs(
+#     title = "Distribution of Commercial Ratio by Year (Virginia Utilities)",
+#     x = "Year",
+#     y = "Commercial Ratio"
+#   )
+# 
+# ############################################################
+# ## 12. Structural Position of Virginia Utilities (All Years)
+# ############################################################
+# 
+# ggplot(elec_all_fe,
+#        aes(x = SalesPerCustomer,
+#            y = Commercial_SPC,
+#            color = if_else(Utility.State == "VA", "Virginia", "Other States"))) +
+#   geom_point(alpha = 0.4) +
+#   scale_x_log10() +
+#   scale_y_log10() +
+#   labs(
+#     title = "Utility Structural Load: Virginia vs Other States (All Years)",
+#     x = "Sales per Customer (log10)",
+#     y = "Commercial Sales per Commercial Customer (log10)",
+#     color = "Region"
+#   )
+# 
+# ggplot(elec_2023_fe,
+#        aes(x = SalesPerCustomer,
+#            y = Commercial_SPC,
+#            color = if_else(Utility.State == "VA", "Virginia", "Other States"))) +
+#   geom_point(alpha = 0.6) +
+#   scale_x_log10() +
+#   scale_y_log10() +
+#   labs(
+#     title = "Utility Structural Load: Virginia vs Other States (2023)",
+#     x = "Sales per Customer (log10)",
+#     y = "Commercial Sales per Commercial Customer (log10)",
+#     color = "Region"
+#   )
+
+
+```
 
 ## Research Questions 
 
-1. Can we classify Virginia utilities as “high-demand” vs “normal-demand” based on sales and customer structure? How does this compare across the country?
-2. Do utilities with “data-center-like” characteristics exhibit higher energy losses or operational stress compared to typical utilities? 
-    a. Are data-center-heavy utilities operating closer to their physical limits?
-    b. Do they buy more power because their infrastructure is strained?
-    c. Do they exhibit more losses?
-3. Another question 
+For this analysis we wanted to be able to answer the following questions:
 
+1. Can we classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage?
+
+2. How does Virginia compare nationally in the proportion and concentration of high-demand utilities?
+
+3. Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?
 
 ## Question 1
 
@@ -131,8 +658,773 @@ density plot may suggest you should transform a variable.
 
 ### Results 
 
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+# ############################################################
+# ## 0. Libraries & Setup
+# ############################################################
+# 
+# library(dplyr)
+# library(tidyr)
+# library(ggplot2)
+# library(glmnet)       # ridge logistic
+# library(rpart)        # classification tree
+# library(rpart.plot)   # tree plot
+# library(randomForest) # random forest
+# library(class)        # KNN
+# 
+# set.seed(123)
+# 
+# ############################################################
+# ## 1. Load Data
+# ############################################################
+# 
+# power_combined <- read.csv("data/power/electricity_2015_to_2024.csv")
+# 
+# ############################################################
+# ## 2. Helper: Feature Engineering for ANY Data Frame
+# ############################################################
+# 
+# featurize_utilities <- function(df_raw) {
+#   df_raw %>%
+#     filter(
+#       Retail.Total.Customers > 0,
+#       Retail.Total.Sales > 0,
+#       Retail.Commercial.Customers > 0,
+#       Retail.Commercial.Sales > 0,
+#       Uses.Total > 0
+#     ) %>%
+#     # Drop retail power marketers to avoid distorting commercial ratio
+#     filter(Utility.Type != "Retail Power Marketer") %>%
+#     mutate(
+#       Commercial_Ratio    = Retail.Commercial.Sales / Retail.Total.Sales,
+#       SalesPerCustomer    = Retail.Total.Sales / Retail.Total.Customers,
+#       Commercial_SPC      = Retail.Commercial.Sales / Retail.Commercial.Customers,
+#       Losses_Ratio        = Uses.Losses / Uses.Total,
+#       log_Total_Sales     = log(Retail.Total.Sales),
+#       log_Total_Customers = log(Retail.Total.Customers),
+#       is_VA               = if_else(Utility.State == "VA", 1L, 0L)
+#     )
+# }
+# 
+# ############################################################
+# ## 3. Choose Training Year and Build Label
+# ############################################################
+# 
+# train_year <- 2023
+# 
+# df_year <- power_combined %>%
+#   filter(Year == train_year) %>%
+#   featurize_utilities()
+# 
+# # Create z-scores and composite IntensityScore
+# df_year <- df_year %>%
+#   mutate(
+#     z_Commercial_Ratio = as.numeric(scale(Commercial_Ratio)),
+#     z_SalesPerCustomer = as.numeric(scale(SalesPerCustomer)),
+#     z_Commercial_SPC   = as.numeric(scale(Commercial_SPC))
+#   ) %>%
+#   mutate(
+#     IntensityScore = z_Commercial_Ratio +
+#                      z_SalesPerCustomer +
+#                      z_Commercial_SPC
+#   )
+# 
+# # High-demand = top 10% of intensity
+# cutoff <- quantile(df_year$IntensityScore, 0.90, na.rm = TRUE)
+# 
+# df_year <- df_year %>%
+#   mutate(
+#     HighDemand_intensity = if_else(IntensityScore >= cutoff, 1L, 0L)
+#   )
+# 
+# table(df_year$HighDemand_intensity)
+# 
+# ############################################################
+# ## 4. EDA: Skew / Exploding Variables
+# ############################################################
+# 
+# eda_vars <- c(
+#   "Commercial_Ratio",
+#   "SalesPerCustomer",
+#   "Commercial_SPC",
+#   "Losses_Ratio",
+#   "log_Total_Customers"
+# )
+# 
+# df_long <- df_year %>%
+#   select(all_of(eda_vars), HighDemand_intensity) %>%
+#   pivot_longer(cols = all_of(eda_vars),
+#                names_to = "variable",
+#                values_to = "value")
+# 
+# # Histograms (original scale)
+# ggplot(df_long, aes(x = value)) +
+#   geom_histogram(bins = 50) +
+#   facet_wrap(~ variable, scales = "free") +
+#   theme_minimal() +
+#   labs(title = "Distributions of Predictors (original scale)")
+# 
+# # Histograms (log scale) to show skew
+# ggplot(df_long, aes(x = value)) +
+#   geom_histogram(bins = 50) +
+#   facet_wrap(~ variable, scales = "free") +
+#   scale_x_log10() +
+#   theme_minimal() +
+#   labs(title = "Distributions of Predictors (log10 scale)")
+# 
+# # Boxplots by high-demand class
+# ggplot(df_long,
+#        aes(x = factor(HighDemand_intensity), y = value)) +
+#   geom_boxplot(outlier.alpha = 0.5) +
+#   facet_wrap(~ variable, scales = "free_y") +
+#   theme_minimal() +
+#   labs(
+#     x = "HighDemand_intensity (0 = normal, 1 = high)",
+#     y = "Value",
+#     title = "Boxplots of Predictors by High-Demand Class (2023)"
+#   )
+# 
+# ############################################################
+# ## 5. Train/Test Split (for 2023 models)
+# ############################################################
+# 
+# n <- nrow(df_year)
+# set.seed(123)
+# train_idx <- sample(seq_len(n), size = 0.8 * n)
+# 
+# train <- df_year[train_idx, ]
+# test  <- df_year[-train_idx, ]
+# 
+# train$Utility.Type <- factor(train$Utility.Type)
+# test$Utility.Type  <- factor(test$Utility.Type)
+# 
+# ############################################################
+# ## 6. Logistic Regression (Unpenalized, Option A)
+# ############################################################
+# 
+# model_raw <- glm(
+#   HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
+#     Commercial_SPC + Losses_Ratio + log_Total_Customers +
+#     is_VA + Utility.Type,
+#   data = train,
+#   family = binomial
+# )
+# 
+# summary(model_raw)  # shows separation / huge coefficients
+# 
+# test$pred_prob_raw <- predict(model_raw, newdata = test, type = "response")
+# test$pred_class_raw <- ifelse(test$pred_prob_raw >= 0.5, 1L, 0L)
+# 
+# confusion_raw <- table(Predicted = test$pred_class_raw,
+#                        Actual    = test$HighDemand_intensity)
+# confusion_raw
+# accuracy_raw <- mean(test$pred_class_raw == test$HighDemand_intensity)
+# accuracy_raw
+# 
+# ############################################################
+# ## 7. Standardized Logistic (still separated, for comparison)
+# ############################################################
+# 
+# scale_vars <- c(
+#   "Commercial_Ratio",
+#   "SalesPerCustomer",
+#   "Commercial_SPC",
+#   "Losses_Ratio",
+#   "log_Total_Customers"
+# )
+# 
+# df_year_std <- df_year %>%
+#   mutate(across(
+#     all_of(scale_vars),
+#     ~ as.numeric(scale(.x)),
+#     .names = "s_{.col}"
+#   ))
+# 
+# train_std <- df_year_std[train_idx, ]
+# test_std  <- df_year_std[-train_idx, ]
+# 
+# train_std$Utility.Type <- factor(train_std$Utility.Type)
+# test_std$Utility.Type  <- factor(test_std$Utility.Type)
+# 
+# model_std <- glm(
+#   HighDemand_intensity ~ s_Commercial_Ratio + s_SalesPerCustomer +
+#     s_Commercial_SPC + s_Losses_Ratio + s_log_Total_Customers +
+#     is_VA + Utility.Type,
+#   data = train_std,
+#   family = binomial
+# )
+# 
+# summary(model_std)
+# 
+# test_std$pred_prob_std <- predict(model_std, newdata = test_std, type = "response")
+# test_std$pred_class_std <- ifelse(test_std$pred_prob_std >= 0.5, 1L, 0L)
+# 
+# confusion_std <- table(Predicted = test_std$pred_class_std,
+#                        Actual    = test_std$HighDemand_intensity)
+# confusion_std
+# accuracy_std <- mean(test_std$pred_class_std == test_std$HighDemand_intensity)
+# accuracy_std
+# 
+# ############################################################
+# ## 8. Ridge Logistic Regression (Option B)
+# ############################################################
+# 
+# formula_all <- HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
+#   Commercial_SPC + Losses_Ratio + log_Total_Customers +
+#   is_VA + Utility.Type
+# 
+# x_train <- model.matrix(formula_all, data = train)[, -1]
+# y_train <- train$HighDemand_intensity
+# 
+# x_test  <- model.matrix(formula_all, data = test)[, -1]
+# y_test  <- test$HighDemand_intensity
+# 
+# ridge_cv <- cv.glmnet(
+#   x_train,
+#   y_train,
+#   family = "binomial",
+#   alpha = 0
+# )
+# 
+# plot(ridge_cv, main = "Ridge Logistic: CV Error vs Lambda")
+# best_lambda <- ridge_cv$lambda.min
+# best_lambda
+# 
+# pred_prob_ridge_test <- predict(ridge_cv, newx = x_test,
+#                                 s = "lambda.min", type = "response")
+# pred_class_ridge_test <- ifelse(pred_prob_ridge_test >= 0.5, 1L, 0L)
+# 
+# confusion_ridge <- table(Predicted = pred_class_ridge_test,
+#                          Actual    = y_test)
+# confusion_ridge
+# accuracy_ridge <- mean(pred_class_ridge_test == y_test)
+# accuracy_ridge
+# 
+# ############################################################
+# ## 9. Classification Tree & Random Forest (Option C)
+# ############################################################
+# 
+# # Tree
+# tree_model <- rpart(
+#   HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
+#     Commercial_SPC + Losses_Ratio + log_Total_Customers +
+#     is_VA + Utility.Type,
+#   data = train,
+#   method = "class"
+# )
+# 
+# rpart.plot(tree_model, main = "Classification Tree for High-Demand Utilities")
+# print(tree_model)
+# 
+# tree_pred <- predict(tree_model, newdata = test, type = "class")
+# confusion_tree <- table(Predicted = tree_pred,
+#                         Actual    = test$HighDemand_intensity)
+# confusion_tree
+# accuracy_tree <- mean(tree_pred == test$HighDemand_intensity)
+# accuracy_tree
+# 
+# # Random forest
+# rf_model <- randomForest(
+#   factor(HighDemand_intensity) ~ Commercial_Ratio + SalesPerCustomer +
+#     Commercial_SPC + Losses_Ratio + log_Total_Customers +
+#     is_VA + Utility.Type,
+#   data = train,
+#   ntree = 500,
+#   importance = TRUE
+# )
+# 
+# print(rf_model)
+# varImpPlot(rf_model, main = "Random Forest Variable Importance")
+# 
+# rf_pred <- predict(rf_model, newdata = test)
+# confusion_rf <- table(Predicted = rf_pred,
+#                       Actual    = test$HighDemand_intensity)
+# confusion_rf
+# accuracy_rf <- mean(rf_pred == test$HighDemand_intensity)
+# accuracy_rf
+# 
+# ############################################################
+# ## 10. KNN (on training year only, for comparison)
+# ############################################################
+# 
+# knn_vars <- c(
+#   "Commercial_Ratio",
+#   "SalesPerCustomer",
+#   "Commercial_SPC",
+#   "Losses_Ratio",
+#   "log_Total_Customers"
+# )
+# 
+# train_means <- sapply(train[, knn_vars], mean, na.rm = TRUE)
+# train_sds   <- sapply(train[, knn_vars], sd,   na.rm = TRUE)
+# 
+# scale_with_train <- function(df_num) {
+#   as.data.frame(
+#     sweep(
+#       sweep(as.matrix(df_num), 2, train_means, "-"),
+#       2, train_sds, "/"
+#     )
+#   )
+# }
+# 
+# knn_train_X <- scale_with_train(train[, knn_vars])
+# knn_test_X  <- scale_with_train(test[, knn_vars])
+# 
+# knn_train_y <- train$HighDemand_intensity
+# knn_test_y  <- test$HighDemand_intensity
+# 
+# k_val <- 5
+# 
+# knn_pred_test <- class::knn(
+#   train = knn_train_X,
+#   test  = knn_test_X,
+#   cl    = knn_train_y,
+#   k     = k_val
+# )
+# 
+# confusion_knn <- table(Predicted = knn_pred_test,
+#                        Actual    = knn_test_y)
+# confusion_knn
+# accuracy_knn <- mean(knn_pred_test == knn_test_y)
+# accuracy_knn
+# 
+# ############################################################
+# ## 11. PCA + K-means (Unsupervised structure)
+# ############################################################
+# 
+# pca_vars <- c(
+#   "Commercial_Ratio",
+#   "SalesPerCustomer",
+#   "Commercial_SPC",
+#   "Losses_Ratio",
+#   "log_Total_Customers"
+# )
+# 
+# X_pca <- df_year %>%
+#   select(all_of(pca_vars)) %>%
+#   scale() %>%
+#   as.matrix()
+# 
+# pca_res <- prcomp(X_pca, center = FALSE, scale. = FALSE)
+# 
+# pca_var <- pca_res$sdev^2
+# pca_var <- pca_var / sum(pca_var)
+# 
+# scree_df <- data.frame(
+#   PC = seq_along(pca_var),
+#   VarExplained = pca_var
+# )
+# 
+# ggplot(scree_df, aes(x = PC, y = VarExplained)) +
+#   geom_point() +
+#   geom_line() +
+#   scale_x_continuous(breaks = scree_df$PC) +
+#   theme_minimal() +
+#   labs(title = "PCA Scree Plot", y = "Proportion of Variance Explained")
+# 
+# df_pca <- cbind(df_year, as.data.frame(pca_res$x))
+# 
+# ggplot(df_pca,
+#        aes(x = PC1, y = PC2,
+#            color = factor(HighDemand_intensity),
+#            shape = factor(is_VA))) +
+#   geom_point(alpha = 0.7) +
+#   theme_minimal() +
+#   labs(
+#     color = "HighDemand",
+#     shape = "Virginia (1 = VA)",
+#     title = "PCA: PC1 vs PC2 (2023)"
+#   )
+# 
+# # K-means on first 3 PCs
+# X_cluster <- df_pca %>%
+#   select(PC1, PC2, PC3) %>%
+#   as.matrix()
+# 
+# set.seed(123)
+# k <- 3
+# km_res <- kmeans(X_cluster, centers = k, nstart = 25)
+# 
+# df_pca$cluster_km <- factor(km_res$cluster)
+# 
+# table(df_pca$cluster_km, df_pca$HighDemand_intensity)
+# table(df_pca$cluster_km, df_pca$is_VA)
+# 
+# ggplot(df_pca,
+#        aes(x = PC1, y = PC2,
+#            color = cluster_km,
+#            shape = factor(is_VA))) +
+#   geom_point(alpha = 0.7) +
+#   theme_minimal() +
+#   labs(
+#     color = "K-means Cluster",
+#     shape = "Virginia (1 = VA)",
+#     title = "K-means Clusters in PCA Space (2023)"
+#   )
+# 
+# ############################################################
+# ## 12. Model Comparison Summary (2023)
+# ############################################################
+# 
+# model_compare <- data.frame(
+#   Model = c(
+#     "Logistic (raw)",
+#     "Logistic (scaled)",
+#     "Ridge Logistic",
+#     "Classification Tree",
+#     "Random Forest",
+#     "KNN (k=5)"
+#   ),
+#   Accuracy = c(
+#     accuracy_raw,
+#     accuracy_std,
+#     accuracy_ridge,
+#     accuracy_tree,
+#     accuracy_rf,
+#     accuracy_knn
+#   )
+# )
+# 
+# model_compare
+# 
+# ############################################################
+# ## 13. Apply Trained Ridge + RF Models to ANY YEAR
+# ############################################################
+# 
+# featurize_year <- function(df_year) {
+#   featurize_utilities(df_year)
+# }
+# 
+# classify_year_with_trained_models <- function(target_year) {
+#   
+#   df_year_new <- power_combined %>%
+#     filter(Year == target_year) %>%
+#     featurize_year()
+#   
+#   if (nrow(df_year_new) == 0) {
+#     stop(paste("No valid rows for year", target_year))
+#   }
+#   
+#   # Align Utility.Type with training levels
+#   df_year_new$Utility.Type <- factor(df_year_new$Utility.Type,
+#                                      levels = levels(train$Utility.Type))
+#   
+#   # Build design matrix for ridge to match x_train
+#   rhs_formula <- as.formula(
+#     "~ Commercial_Ratio + SalesPerCustomer +
+#        Commercial_SPC + Losses_Ratio + log_Total_Customers +
+#        is_VA + Utility.Type"
+#   )
+#   
+#   x_year <- model.matrix(rhs_formula, data = df_year_new)[, -1, drop = FALSE]
+#   
+#   train_cols <- colnames(x_train)
+#   year_cols  <- colnames(x_year)
+#   
+#   # Add missing columns
+#   missing_cols <- setdiff(train_cols, year_cols)
+#   if (length(missing_cols) > 0) {
+#     for (mc in missing_cols) {
+#       x_year <- cbind(x_year, 0)
+#       colnames(x_year)[ncol(x_year)] <- mc
+#     }
+#   }
+#   
+#   # Drop extra columns
+#   extra_cols <- setdiff(colnames(x_year), train_cols)
+#   if (length(extra_cols) > 0) {
+#     x_year <- x_year[, !(colnames(x_year) %in% extra_cols), drop = FALSE]
+#   }
+#   
+#   # Reorder
+#   x_year <- x_year[, train_cols, drop = FALSE]
+#   
+#   # Ridge predictions
+#   df_year_new$pred_ridge_prob  <- as.numeric(
+#     predict(ridge_cv, newx = x_year, s = "lambda.min", type = "response")
+#   )
+#   df_year_new$pred_ridge_class <- ifelse(df_year_new$pred_ridge_prob >= 0.5, 1L, 0L)
+#   
+#   # Random forest predictions
+#   rf_pred <- predict(rf_model, newdata = df_year_new)
+#   df_year_new$pred_rf_class <- as.integer(as.character(rf_pred))
+#   
+#   df_year_new
+# }
+# 
+# ############################################################
+# ## 14. Example: Classify 2023 for State Comparisons
+# ############################################################
+# 
+# results_2023 <- classify_year_with_trained_models(2023)
+# 
+# # State-level summary (count-based)
+# state_summary_2023 <- results_2023 %>%
+#   group_by(Utility.State) %>%
+#   summarise(
+#     n_util          = n(),
+#     n_high_ridge    = sum(pred_ridge_class == 1, na.rm = TRUE),
+#     prop_high_ridge = n_high_ridge / n_util,
+#     n_high_rf       = sum(pred_rf_class == 1, na.rm = TRUE),
+#     prop_high_rf    = n_high_rf / n_util
+#   ) %>%
+#   filter(n_util >= 5)
+# 
+# state_summary_2023 %>%
+#   arrange(desc(prop_high_ridge)) %>%
+#   head(10)
+# 
+# ############################################################
+# ## 15. Plots for Report: State Comparisons (Count-Based)
+# ############################################################
+# 
+# # Plot 1: Bar chart of proportion high-demand by state (ridge)
+# ggplot(state_summary_2023,
+#        aes(x = reorder(Utility.State, prop_high_ridge),
+#            y = prop_high_ridge,
+#            fill = Utility.State == "VA")) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_manual(values = c("grey70", "steelblue"),
+#                     guide = "none") +
+#   theme_minimal() +
+#   labs(
+#     title   = "Share of Utilities Classified as High-Demand (Ridge Model, 2023)",
+#     x       = "State",
+#     y       = "Proportion High-Demand Utilities",
+#     caption = "High-demand inferred from 2023 structural commercial-load model"
+#   )
+# 
+# # Plot 2: Virginia vs other states in load space (ridge predictions)
+# results_2023 <- results_2023 %>%
+#   mutate(
+#     Region = if_else(Utility.State == "VA", "Virginia", "Other States")
+#   )
+# 
+# ggplot(results_2023,
+#        aes(x = SalesPerCustomer,
+#            y = Commercial_SPC,
+#            color = factor(pred_ridge_class))) +
+#   geom_point(alpha = 0.6) +
+#   scale_x_log10() +
+#   scale_y_log10() +
+#   facet_wrap(~ Region) +
+#   theme_minimal() +
+#   labs(
+#     title  = "Utility Load Structure: Virginia vs Other States (2023)",
+#     x      = "Sales per Customer (log scale)",
+#     y      = "Commercial Sales per Commercial Customer (log scale)",
+#     color  = "Predicted High-Demand\n(Ridge Model)"
+#   )
+# 
+# # Plot 3: Heatmap of high-demand share by state (RF)
+# ggplot(state_summary_2023,
+#        aes(x = Utility.State, y = 1, fill = prop_high_rf)) +
+#   geom_tile() +
+#   coord_flip() +
+#   scale_fill_gradient(low = "white", high = "darkred") +
+#   theme_minimal() +
+#   labs(
+#     title = "Proportion of High-Demand Utilities by State (RF Model, 2023)",
+#     x     = "State",
+#     y     = NULL,
+#     fill  = "Prop High-Demand"
+#   ) +
+#   theme(
+#     axis.text.y  = element_text(size = 6),
+#     axis.text.x  = element_blank(),
+#     axis.ticks.x = element_blank()
+#   )
+# 
+# ############################################################
+# ## 16. Load-Weighted, Customer-Weighted, Commercial-Weighted Indices
+# ##     + Composite Data Center Load Index (DCLI)
+# ############################################################
+# 
+# # Helper to normalize to [0,1]
+# normalize_01 <- function(x) {
+#   rng <- range(x, na.rm = TRUE)
+#   if (diff(rng) == 0) {
+#     return(rep(0.5, length(x)))
+#   } else {
+#     (x - rng[1]) / (rng[2] - rng[1])
+#   }
+# }
+# 
+# state_indices_2023 <- results_2023 %>%
+#   group_by(Utility.State) %>%
+#   summarise(
+#     n_util             = n(),
+#     total_retail_sales = sum(Retail.Total.Sales, na.rm = TRUE),
+#     total_customers    = sum(Retail.Total.Customers, na.rm = TRUE),
+#     total_comm_sales   = sum(Retail.Commercial.Sales, na.rm = TRUE),
+# 
+#     high_sales_ridge = sum(ifelse(pred_ridge_class == 1,
+#                                   Retail.Total.Sales, 0), na.rm = TRUE),
+#     high_cust_ridge  = sum(ifelse(pred_ridge_class == 1,
+#                                   Retail.Total.Customers, 0), na.rm = TRUE),
+#     high_comm_sales_ridge = sum(ifelse(pred_ridge_class == 1,
+#                                        Retail.Commercial.Sales, 0), na.rm = TRUE),
+# 
+#     high_sales_rf = sum(ifelse(pred_rf_class == 1,
+#                                Retail.Total.Sales, 0), na.rm = TRUE),
+#     high_comm_sales_rf = sum(ifelse(pred_rf_class == 1,
+#                                     Retail.Commercial.Sales, 0), na.rm = TRUE)
+#   ) %>%
+#   filter(total_retail_sales > 0,
+#          total_customers > 0) %>%
+#   mutate(
+#     # Load-weighted index (what you already had)
+#     prop_sales_high_ridge = high_sales_ridge / total_retail_sales,
+#     prop_sales_high_rf    = high_sales_rf   / total_retail_sales,
+# 
+#     # NEW: customer-weighted index
+#     prop_customers_high_ridge = high_cust_ridge / total_customers,
+# 
+#     # NEW: commercial-sales-weighted index
+#     prop_comm_high_ridge = if_else(
+#       total_comm_sales > 0,
+#       high_comm_sales_ridge / total_comm_sales,
+#       NA_real_
+#     ),
+# 
+#     # Normalized versions on [0,1] for composite index
+#     idx_load_n = normalize_01(prop_sales_high_ridge),
+#     idx_cust_n = normalize_01(prop_customers_high_ridge),
+#     idx_comm_n = normalize_01(prop_comm_high_ridge),
+# 
+#     # Composite Data Center Load Index (DCLI)
+#     DCLI = rowMeans(
+#       cbind(idx_load_n, idx_cust_n, idx_comm_n),
+#       na.rm = TRUE
+#     )
+#   )
+# 
+# # Inspect top 10 states by DCLI
+# state_indices_2023 %>%
+#   arrange(desc(DCLI)) %>%
+#   head(10)
+# 
+# ############################################################
+# ## 17. Calibrate Dominance Thresholds from DCLI
+# ############################################################
+# 
+# dcli_quants <- quantile(state_indices_2023$DCLI,
+#                         probs = c(0.50, 0.75, 0.90),
+#                         na.rm = TRUE)
+# 
+# dcli_quants
+# 
+# state_indices_2023 <- state_indices_2023 %>%
+#   mutate(
+#     dominance_class = case_when(
+#       DCLI >= dcli_quants[3] ~ "Extreme",
+#       DCLI >= dcli_quants[2] ~ "High",
+#       DCLI >= dcli_quants[1] ~ "Moderate",
+#       TRUE                   ~ "Low"
+#     ),
+#     dominance_class = factor(
+#       dominance_class,
+#       levels = c("Low", "Moderate", "High", "Extreme")
+#     )
+#   )
+# 
+# # See where VA lands
+# state_indices_2023 %>%
+#   filter(Utility.State == "VA")
+# 
+# ############################################################
+# ## 18. Plots: Load-Weighted Index and DCLI
+# ############################################################
+# 
+# # Plot 4: Load-weighted high-demand index (ridge), VA highlighted
+# ggplot(state_indices_2023,
+#        aes(x = reorder(Utility.State, prop_sales_high_ridge),
+#            y = prop_sales_high_ridge,
+#            fill = Utility.State == "VA")) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_manual(values = c("grey70", "darkorange"),
+#                     guide = "none") +
+#   theme_minimal() +
+#   labs(
+#     title = "Load-Weighted High-Demand Index by State (Ridge Model, 2023)",
+#     x     = "State",
+#     y     = "Share of Retail Sales from High-Demand Utilities",
+#     caption = "Weights each utility by total retail sales; highlights states dominated by a few massive utilities."
+#   )
+# 
+# # Plot 5: Compare count-based vs load-weighted for selected states
+# focus_states <- c("VA", "NY", "NJ", "CA", "MD", "TX", "CO")
+# 
+# state_compare_2023 <- state_summary_2023 %>%
+#   inner_join(state_indices_2023,
+#              by = c("Utility.State", "n_util")) %>%
+#   filter(Utility.State %in% focus_states) %>%
+#   select(Utility.State,
+#          prop_high_ridge,
+#          prop_sales_high_ridge) %>%
+#   pivot_longer(
+#     cols = c(prop_high_ridge, prop_sales_high_ridge),
+#     names_to = "Metric",
+#     values_to = "Value"
+#   )
+# 
+# ggplot(state_compare_2023,
+#        aes(x = Utility.State, y = Value,
+#            fill = Metric)) +
+#   geom_col(position = "dodge") +
+#   theme_minimal() +
+#   labs(
+#     title = "Count-Based vs Load-Weighted High-Demand Share (Ridge, 2023)",
+#     x     = "State",
+#     y     = "Proportion",
+#     fill  = "Metric"
+#   )
+# 
+# # Plot 6: DCLI by state with dominance classes, VA highlighted
+# ggplot(state_indices_2023,
+#        aes(x = reorder(Utility.State, DCLI),
+#            y = DCLI,
+#            fill = dominance_class)) +
+#   geom_col() +
+#   coord_flip() +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "RdYlGn", direction = -1) +
+#   labs(
+#     title = "Composite Data Center Load Index (DCLI) by State (2023)",
+#     x     = "State",
+#     y     = "DCLI (0–1, higher = more DC-like load concentration)",
+#     fill  = "Dominance Class"
+#   )
+# 
+# # Optional: zoom in on top 10 DCLI states
+# top10_dcli <- state_indices_2023 %>%
+#   arrange(desc(DCLI)) %>%
+#   slice(1:10)
+# 
+# ggplot(top10_dcli,
+#        aes(x = reorder(Utility.State, DCLI),
+#            y = DCLI,
+#            fill = dominance_class)) +
+#   geom_col() +
+#   coord_flip() +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "RdYlGn", direction = -1) +
+#   labs(
+#     title = "Top 10 States by Composite Data Center Load Index (DCLI)",
+#     x     = "State",
+#     y     = "DCLI"
+#   )
+
+
+
+```
+
 ## Conclusion
 
-The conclusion....
+This study demonstrates that utility level EIA 861 data despite lacking explicit data-center identifiers can successfully reveal data-center–like electricity demand patterns using structural load metrics, machine learning classification, and weighted dominance indices.
+
+Key insights gained from this study:
 
 ## References 
