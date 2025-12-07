@@ -3,7 +3,11 @@ title: "Modeling and Predicting Virginia’s Electricity Usage in the Era of Dat
 date: 2025-12-10
 categories: [Data Centers, Power Grid]
 repo-url: https://github.com/jonathanwilsonami/stat-515
-format: html
+format:
+  html:
+    number-sections: true
+    math:
+      eq-prefix: "Model"
 authors: 
   - "Jonathan Wilson"
   - "Sean Reilly"
@@ -224,7 +228,7 @@ elec_all_fe  <- featurize_utilities_raw(elec_all)
 ```
 
 The number of reporting utilities varies substantially by state.  
-Figure @fig-state-utilities shows the distribution of utilities across states in 2023, with **Virginia highlighted** for comparison.
+Figure @fig-state-utilities shows the distribution of utilities across states in 2023, with **Virginia highlighted** for comparison. As you can see, Texas, California and New York are highly skewed and represent the vast majority of the number of utilities. In order to compare Virginia to the rest of the states we will need to handle this. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 #| label: fig-state-utilities
@@ -253,7 +257,7 @@ ggplot(state_counts_2023,
 
 
 We also examine the mix of utility business types (investor-owned, municipal, cooperative, etc.).  
-Figure @fig-utility-types summarizes the **count of utilities by type** in 2023.
+Figure @fig-utility-types summarizes the **count of utilities by type** in 2023. For this particular study we are interested mostly in Investor Owned, Cooperative and Retail Power Marketers but we will consider all utilities. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, results='hide'}
 #| label: fig-utility-types
@@ -584,188 +588,255 @@ For this analysis we wanted to be able to answer the following questions:
 
 3. Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?
 
-## Question 1
-
-### Methods
-
-### Results 
-
-## Question 2
-
-### Methods
-
-### Results 
-
-
-## Question 3
-
-### Methods
-
-### Results 
+Figure @fig-high-demand-distribution shows the distribution of high demand utilities across the country for 2023. This is after we do feature engineering on our data set. As you can see there are a very small number of high demand utilities. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-# ############################################################
-# ## 0. Libraries & Setup
-# ############################################################
-# 
-# library(dplyr)
-# library(tidyr)
-# library(ggplot2)
-# library(glmnet)       # ridge logistic
-# library(rpart)        # classification tree
-# library(rpart.plot)   # tree plot
-# library(randomForest) # random forest
-# library(class)        # KNN
-# 
-# set.seed(123)
-# 
-# ############################################################
-# ## 1. Load Data
-# ############################################################
-# 
-# power_combined <- read.csv("data/power/electricity_2015_to_2024.csv")
-# 
-# ############################################################
-# ## 2. Helper: Feature Engineering for ANY Data Frame
-# ############################################################
-# 
-# featurize_utilities <- function(df_raw) {
-#   df_raw %>%
-#     filter(
-#       Retail.Total.Customers > 0,
-#       Retail.Total.Sales > 0,
-#       Retail.Commercial.Customers > 0,
-#       Retail.Commercial.Sales > 0,
-#       Uses.Total > 0
-#     ) %>%
-#     # Drop retail power marketers to avoid distorting commercial ratio
-#     filter(Utility.Type != "Retail Power Marketer") %>%
-#     mutate(
-#       Commercial_Ratio    = Retail.Commercial.Sales / Retail.Total.Sales,
-#       SalesPerCustomer    = Retail.Total.Sales / Retail.Total.Customers,
-#       Commercial_SPC      = Retail.Commercial.Sales / Retail.Commercial.Customers,
-#       Losses_Ratio        = Uses.Losses / Uses.Total,
-#       log_Total_Sales     = log(Retail.Total.Sales),
-#       log_Total_Customers = log(Retail.Total.Customers),
-#       is_VA               = if_else(Utility.State == "VA", 1L, 0L)
-#     )
-# }
-# 
-# ############################################################
-# ## 3. Choose Training Year and Build Label
-# ############################################################
-# 
-# train_year <- 2023
-# 
-# df_year <- power_combined %>%
-#   filter(Year == train_year) %>%
-#   featurize_utilities()
-# 
-# # Create z-scores and composite IntensityScore
-# df_year <- df_year %>%
-#   mutate(
-#     z_Commercial_Ratio = as.numeric(scale(Commercial_Ratio)),
-#     z_SalesPerCustomer = as.numeric(scale(SalesPerCustomer)),
-#     z_Commercial_SPC   = as.numeric(scale(Commercial_SPC))
-#   ) %>%
-#   mutate(
-#     IntensityScore = z_Commercial_Ratio +
-#                      z_SalesPerCustomer +
-#                      z_Commercial_SPC
-#   )
-# 
-# # High-demand = top 10% of intensity
-# cutoff <- quantile(df_year$IntensityScore, 0.90, na.rm = TRUE)
-# 
-# df_year <- df_year %>%
-#   mutate(
-#     HighDemand_intensity = if_else(IntensityScore >= cutoff, 1L, 0L)
-#   )
-# 
-# table(df_year$HighDemand_intensity)
-# 
-# ############################################################
-# ## 4. EDA: Skew / Exploding Variables
-# ############################################################
-# 
-# eda_vars <- c(
-#   "Commercial_Ratio",
-#   "SalesPerCustomer",
-#   "Commercial_SPC",
-#   "Losses_Ratio",
-#   "log_Total_Customers"
-# )
-# 
-# df_long <- df_year %>%
-#   select(all_of(eda_vars), HighDemand_intensity) %>%
-#   pivot_longer(cols = all_of(eda_vars),
-#                names_to = "variable",
-#                values_to = "value")
-# 
-# # Histograms (original scale)
-# ggplot(df_long, aes(x = value)) +
-#   geom_histogram(bins = 50) +
-#   facet_wrap(~ variable, scales = "free") +
-#   theme_minimal() +
-#   labs(title = "Distributions of Predictors (original scale)")
-# 
-# # Histograms (log scale) to show skew
-# ggplot(df_long, aes(x = value)) +
-#   geom_histogram(bins = 50) +
-#   facet_wrap(~ variable, scales = "free") +
-#   scale_x_log10() +
-#   theme_minimal() +
-#   labs(title = "Distributions of Predictors (log10 scale)")
-# 
-# # Boxplots by high-demand class
-# ggplot(df_long,
-#        aes(x = factor(HighDemand_intensity), y = value)) +
-#   geom_boxplot(outlier.alpha = 0.5) +
-#   facet_wrap(~ variable, scales = "free_y") +
-#   theme_minimal() +
-#   labs(
-#     x = "HighDemand_intensity (0 = normal, 1 = high)",
-#     y = "Value",
-#     title = "Boxplots of Predictors by High-Demand Class (2023)"
-#   )
-# 
-# ############################################################
-# ## 5. Train/Test Split (for 2023 models)
-# ############################################################
-# 
-# n <- nrow(df_year)
-# set.seed(123)
-# train_idx <- sample(seq_len(n), size = 0.8 * n)
-# 
-# train <- df_year[train_idx, ]
-# test  <- df_year[-train_idx, ]
-# 
-# train$Utility.Type <- factor(train$Utility.Type)
-# test$Utility.Type  <- factor(test$Utility.Type)
-# 
-# ############################################################
-# ## 6. Logistic Regression (Unpenalized, Option A)
-# ############################################################
-# 
-# model_raw <- glm(
-#   HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
-#     Commercial_SPC + Losses_Ratio + log_Total_Customers +
-#     is_VA + Utility.Type,
-#   data = train,
-#   family = binomial
-# )
-# 
+#| label: fig-high-demand-distribution
+#| fig-cap: "Distribution of high demand utilities for (2023)"
+#| fig-width: 9
+#| fig-height: 6
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+
+library(glmnet) # ridge logistic
+library(rpart) # classification tree
+library(rpart.plot) # tree plot
+library(randomForest) # random forest
+library(class) # KNN
+library(knitr)
+library(kableExtra)
+
+set.seed(123)
+
+power_combined <- read.csv("data/power/electricity_2015_to_2024.csv")
+
+featurize_utilities <- function(df_raw) {
+  df_raw %>%
+    filter(
+      Retail.Total.Customers > 0,
+      Retail.Total.Sales > 0,
+      Retail.Commercial.Customers > 0,
+      Retail.Commercial.Sales > 0,
+      Uses.Total > 0
+    ) %>%
+    # Drop retail power marketers to avoid distorting commercial ratio
+    filter(Utility.Type != "Retail Power Marketer") %>%
+    mutate(
+      Commercial_Ratio = Retail.Commercial.Sales / Retail.Total.Sales,
+      SalesPerCustomer = Retail.Total.Sales / Retail.Total.Customers,
+      Commercial_SPC = Retail.Commercial.Sales / Retail.Commercial.Customers,
+      Losses_Ratio = Uses.Losses / Uses.Total,
+      log_Total_Sales = log(Retail.Total.Sales),
+      log_Total_Customers = log(Retail.Total.Customers),
+      is_VA = if_else(Utility.State == "VA", 1L, 0L)
+    )
+}
+
+train_year <- 2023
+
+df_year <- power_combined %>%
+  filter(Year == train_year) %>%
+  featurize_utilities()
+
+# Create z-scores and composite IntensityScore
+df_year <- df_year %>%
+  mutate(
+    z_Commercial_Ratio = as.numeric(scale(Commercial_Ratio)),
+    z_SalesPerCustomer = as.numeric(scale(SalesPerCustomer)),
+    z_Commercial_SPC = as.numeric(scale(Commercial_SPC))
+  ) %>%
+  mutate(
+    IntensityScore = z_Commercial_Ratio +
+                     z_SalesPerCustomer +
+                     z_Commercial_SPC
+  )
+
+# High-demand = top 10% of intensity
+cutoff <- quantile(df_year$IntensityScore, 0.90, na.rm = TRUE)
+
+df_year <- df_year %>%
+  mutate(
+    HighDemand_intensity = if_else(IntensityScore >= cutoff, 1L, 0L)
+  )
+
+df_year %>%
+  count(HighDemand_intensity) %>%
+  ggplot(aes(x = factor(HighDemand_intensity),
+             y = n,
+             fill = factor(HighDemand_intensity))) +
+  geom_col() +
+  geom_text(aes(label = n),
+            vjust = -0.4,
+            size = 5,
+            fontface = "bold") +
+  scale_fill_manual(values = c("#4C78A8", "#F58518"),
+                    name = "High Demand",
+                    labels = c("0 = Normal Demand", "1 = High Demand")) +
+  labs(
+    title = "Counts of High-Demand vs Normal-Demand Utilities (2023)",
+    x = "High Demand Indicator",
+    y = "Count"
+  ) +
+  theme_minimal(base_size = 14)
+
+
+```
+
+Variables explod and are highly skewed. 
+
+Explain
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+eda_vars <- c(
+  "Commercial_Ratio",
+  "SalesPerCustomer",
+  "Commercial_SPC",
+  "Losses_Ratio",
+  "log_Total_Customers"
+)
+
+df_long <- df_year %>%
+  select(all_of(eda_vars), HighDemand_intensity) %>%
+  pivot_longer(cols = all_of(eda_vars),
+               names_to = "variable",
+               values_to = "value")
+
+# Histograms (original scale)
+ggplot(df_long, aes(x = value)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~ variable, scales = "free") +
+  theme_minimal() +
+  labs(title = "Distributions of Predictors (original scale)")
+
+```
+
+Explain
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+# Histograms (log scale) to show skew
+ggplot(df_long, aes(x = value)) +
+  geom_histogram(bins = 50) +
+  facet_wrap(~ variable, scales = "free") +
+  scale_x_log10() +
+  theme_minimal() +
+  labs(title = "Distributions of Predictors (log10 scale)")
+
+
+```
+
+Explain
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+# Boxplots by high-demand class
+ggplot(df_long,
+       aes(x = factor(HighDemand_intensity), y = value)) +
+  geom_boxplot(outlier.alpha = 0.5) +
+  facet_wrap(~ variable, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    x = "HighDemand_intensity (0 = normal, 1 = high)",
+    y = "Value",
+    title = "Boxplots of Predictors by High-Demand Class (2023)"
+  )
+
+
+```
+
+We first look at the unpenalized logistic regression model. This model attempted to estimate how well our utility characteristics predict whether a utility falls into the high demand or high intensity distribution (HighDemand = 1). Although the model achieved high classification accuracy, the coefficient estimates were extremely large, indicating numerical instability. This occurs when predictors nearly perfectly separate HighDemand from non-HighDemand utilities. In such cases, the logistic maximum likelihood estimator pushes coefficients toward infinity, producing inflated parameter estimates and artificially tiny p-values. This makes interpreting Model @eq-rawlogitmodel difficult. 
+
+Due to this instability, the individual coefficients cannot be interpreted in terms of effect sizes, odds ratios, or directionality. The model is useful only as a classifier but not as an explanatory model. The extreme magnitudes also reflect high multicollinearity among engineered intensity variables, differences in scale, and the presence of many dummy variables for utility type categories. These limitations motivate the use of penalized logistic regression or simpler composite scoring methods for more stable and interpretable results which we will explore later. 
+
+Here we split our data into train and test using a 20% hold out for testing. See the results of this model in @tbl-confusion-rawlogitmodel. 
+
+As shown in Model @eq-rawlogitmodel, the probability of a utility being classified as
+high-demand depends on several structural and commercial intensity features.
+
+$$
+\begin{aligned}
+\Pr(Y_i = 1 \mid X_i)
+&= \frac{1}{1 + \exp(-\eta_i)} \\
+\\
+\eta_i =\;
+&\beta_0
++ \beta_1\,\text{Commercial Ratio}_i \\
+&+ \beta_2\,\text{Sales per Customer}_i \\
+&+ \beta_3\,\text{Commercial SPC}_i \\
+&+ \beta_4\,\text{Losses Ratio}_i \\
+&+ \beta_5\,\log(\text{Total Customers}_i) \\
+&+ \beta_6\,\text{is VA}_i \\
+&+ \sum_k \gamma_k\,\text{Utility Type}_{ik}
+\end{aligned}
+$$ {#eq-rawlogitmodel}
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-confusion-rawlogitmodel
+#| tbl-cap: "Confusion Matrix for Unpenalized Logistic Regression Model (Test Set)"
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+############################################################
+## Train/Test Split (for 2023 models)
+############################################################
+
+n <- nrow(df_year)
+set.seed(123)
+train_idx <- sample(seq_len(n), size = 0.8 * n)
+
+train <- df_year[train_idx, ]
+test <- df_year[-train_idx, ]
+
+train$Utility.Type <- factor(train$Utility.Type)
+test$Utility.Type <- factor(test$Utility.Type)
+
+############################################################
+## Raw Logistic Regression Model
+############################################################
+
+model_raw <- glm(
+  HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
+    Commercial_SPC + Losses_Ratio + log_Total_Customers +
+    is_VA + Utility.Type,
+  data = train,
+  family = binomial
+)
+
 # summary(model_raw)  # shows separation / huge coefficients
-# 
-# test$pred_prob_raw <- predict(model_raw, newdata = test, type = "response")
-# test$pred_class_raw <- ifelse(test$pred_prob_raw >= 0.5, 1L, 0L)
-# 
-# confusion_raw <- table(Predicted = test$pred_class_raw,
-#                        Actual    = test$HighDemand_intensity)
-# confusion_raw
-# accuracy_raw <- mean(test$pred_class_raw == test$HighDemand_intensity)
-# accuracy_raw
-# 
+
+test$pred_prob_raw <- predict(model_raw, newdata = test, type = "response")
+test$pred_class_raw <- ifelse(test$pred_prob_raw >= 0.5, 1L, 0L)
+
+confusion_raw <- table(
+  Predicted = test$pred_class_raw,
+  Actual    = test$HighDemand_intensity
+)
+
+# Basic, theme-friendly table
+kable(
+  confusion_raw,
+  caption = "Confusion Matrix",
+  align = "c"
+)
+
+# Accuracy as a small table under it
+accuracy_raw <- mean(test$pred_class_raw == test$HighDemand_intensity)
+
+kable(
+  data.frame(`Classification Accuracy` = round(accuracy_raw, 4)),
+  align = "c"
+)
+
+```
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 # ############################################################
 # ## 7. Standardized Logistic (still separated, for comparison)
 # ############################################################
