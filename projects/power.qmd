@@ -588,6 +588,12 @@ For this analysis we wanted to be able to answer the following questions:
 
 3. Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?
 
+### Building a classifier 
+
+In this section we explore methods that will enable us to classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage. In particular we look at various logistic regression models that will later enable us to not only identify utilities for the year we trained on but also generalize to other years. 
+
+For all models we split our data into training and test sets using a 20% hold out for testing. We set a random seed of 123 which should allow us to have consistent results. We also use our featurize method to do feature engineering yielding out high demand characteristic features mentioned in the Data section.  
+
 Figure @fig-high-demand-distribution shows the distribution of high demand utilities across the country for 2023. This is after we do feature engineering on our data set. As you can see there are a very small number of high demand utilities. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
@@ -750,7 +756,7 @@ We first look at the unpenalized logistic regression model. This model attempted
 
 Due to this instability, the individual coefficients cannot be interpreted in terms of effect sizes, odds ratios, or directionality. The model is useful only as a classifier but not as an explanatory model. The extreme magnitudes also reflect high multicollinearity among engineered intensity variables, differences in scale, and the presence of many dummy variables for utility type categories. These limitations motivate the use of penalized logistic regression or simpler composite scoring methods for more stable and interpretable results which we will explore later. 
 
-Here we split our data into train and test using a 20% hold out for testing. See the results of this model in @tbl-confusion-rawlogitmodel. 
+See the results of this model in @tbl-confusion-rawlogitmodel. 
 
 As shown in Model @eq-rawlogitmodel, the probability of a utility being classified as
 high-demand depends on several structural and commercial intensity features.
@@ -835,87 +841,218 @@ kable(
 ```
 
 
+The standardized logistic regression model @eq-stdlogitmodel replaces the raw intensity variables with their z-scores while keeping the same outcome (HighDemand_intensity) and covariates (is_VA and Utility.Type). Standardization improves numerical conditioning and makes predictors comparable in principle, but in this case the fitted model still shows extremely large coefficient estimates (on the order of and tiny p-values for all terms. This indicates that the underlying problem has not been resolved.
+
+$$
+\Pr(Y_i = 1 \mid X_i)
+= \frac{1}{1 + \exp(-\eta_i)}
+$$
+
+$$
+\begin{aligned}
+\eta_i =\;
+&\beta_0
++ \beta_1\,z\!\left(\text{Commercial Ratio}_i\right)
++ \beta_2\,z\!\left(\text{Sales per Customer}_i\right) \\
+&+ \beta_3\,z\!\left(\text{Commercial SPC}_i\right)
++ \beta_4\,z\!\left(\text{Losses Ratio}_i\right)
++ \beta_5\,z\!\left(\log(\text{Total Customers}_i)\right) \\
+&+ \beta_6\,\text{is VA}_i
++ \sum_k \gamma_k\,\text{Utility Type}_{ik}
+\end{aligned}
+$$ {#eq-stdlogitmodel}
+
+As with the unstandardized model, this standardized specification achieves high classification accuracy on the test set (about 97.8% see @tbl-confusion-stdlogitmodel), but the individual coefficients cannot be interpreted as meaningful effect sizes or odds ratios. The model is functioning as an overfit classifier rather than a stable explanatory model. In practice, this motivates relying on penalized models, simpler composite indices, and descriptive comparisons.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-# ############################################################
-# ## 7. Standardized Logistic (still separated, for comparison)
-# ############################################################
-# 
-# scale_vars <- c(
-#   "Commercial_Ratio",
-#   "SalesPerCustomer",
-#   "Commercial_SPC",
-#   "Losses_Ratio",
-#   "log_Total_Customers"
-# )
-# 
-# df_year_std <- df_year %>%
-#   mutate(across(
-#     all_of(scale_vars),
-#     ~ as.numeric(scale(.x)),
-#     .names = "s_{.col}"
-#   ))
-# 
-# train_std <- df_year_std[train_idx, ]
-# test_std  <- df_year_std[-train_idx, ]
-# 
-# train_std$Utility.Type <- factor(train_std$Utility.Type)
-# test_std$Utility.Type  <- factor(test_std$Utility.Type)
-# 
-# model_std <- glm(
-#   HighDemand_intensity ~ s_Commercial_Ratio + s_SalesPerCustomer +
-#     s_Commercial_SPC + s_Losses_Ratio + s_log_Total_Customers +
-#     is_VA + Utility.Type,
-#   data = train_std,
-#   family = binomial
-# )
-# 
+#| label: tbl-confusion-stdlogitmodel
+#| tbl-cap: "Confusion Matrix for Standardized Logistic Regression Model (Test Set)"
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+############################################################
+# Standardized Logistic Model
+############################################################
+
+scale_vars <- c(
+  "Commercial_Ratio",
+  "SalesPerCustomer",
+  "Commercial_SPC",
+  "Losses_Ratio",
+  "log_Total_Customers"
+)
+
+df_year_std <- df_year %>%
+  mutate(across(
+    all_of(scale_vars),
+    ~ as.numeric(scale(.x)),
+    .names = "s_{.col}"
+  ))
+
+train_std <- df_year_std[train_idx, ]
+test_std  <- df_year_std[-train_idx, ]
+
+train_std$Utility.Type <- factor(train_std$Utility.Type)
+test_std$Utility.Type  <- factor(test_std$Utility.Type)
+
+model_std <- glm(
+  HighDemand_intensity ~ s_Commercial_Ratio + s_SalesPerCustomer +
+    s_Commercial_SPC + s_Losses_Ratio + s_log_Total_Customers +
+    is_VA + Utility.Type,
+  data = train_std,
+  family = binomial
+)
+
 # summary(model_std)
-# 
-# test_std$pred_prob_std <- predict(model_std, newdata = test_std, type = "response")
-# test_std$pred_class_std <- ifelse(test_std$pred_prob_std >= 0.5, 1L, 0L)
-# 
-# confusion_std <- table(Predicted = test_std$pred_class_std,
-#                        Actual    = test_std$HighDemand_intensity)
-# confusion_std
-# accuracy_std <- mean(test_std$pred_class_std == test_std$HighDemand_intensity)
-# accuracy_std
-# 
-# ############################################################
-# ## 8. Ridge Logistic Regression (Option B)
-# ############################################################
-# 
-# formula_all <- HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
-#   Commercial_SPC + Losses_Ratio + log_Total_Customers +
-#   is_VA + Utility.Type
-# 
-# x_train <- model.matrix(formula_all, data = train)[, -1]
-# y_train <- train$HighDemand_intensity
-# 
-# x_test  <- model.matrix(formula_all, data = test)[, -1]
-# y_test  <- test$HighDemand_intensity
-# 
-# ridge_cv <- cv.glmnet(
-#   x_train,
-#   y_train,
-#   family = "binomial",
-#   alpha = 0
-# )
-# 
-# plot(ridge_cv, main = "Ridge Logistic: CV Error vs Lambda")
-# best_lambda <- ridge_cv$lambda.min
-# best_lambda
-# 
-# pred_prob_ridge_test <- predict(ridge_cv, newx = x_test,
-#                                 s = "lambda.min", type = "response")
-# pred_class_ridge_test <- ifelse(pred_prob_ridge_test >= 0.5, 1L, 0L)
-# 
-# confusion_ridge <- table(Predicted = pred_class_ridge_test,
-#                          Actual    = y_test)
-# confusion_ridge
-# accuracy_ridge <- mean(pred_class_ridge_test == y_test)
-# accuracy_ridge
-# 
+
+test_std$pred_prob_std <- predict(model_std, newdata = test_std, type = "response")
+test_std$pred_class_std <- ifelse(test_std$pred_prob_std >= 0.5, 1L, 0L)
+
+confusion_std <- table(
+  Predicted = test_std$pred_class_std,
+  Actual    = test_std$HighDemand_intensity
+)
+
+kable(
+  confusion_std,
+  caption = "Confusion Matrix (Standardized Logistic Model)",
+  align = "c"
+)
+
+# Classification accuracy
+accuracy_std <- mean(test_std$pred_class_std == test_std$HighDemand_intensity)
+
+kable(
+  data.frame(`Classification Accuracy` = round(accuracy_std, 4)),
+  align = "c"
+)
+
+```
+
+To address the instability observed in the unpenalized logistic regression models, we fit a Ridge-penalized logistic regression using cross-validation. Ridge regression introduces an L2 penalty on the magnitude of the coefficients, shrinking them toward zero and preventing the divergence that occurred in the raw and standardized models. We trained the model using 10-fold cross-validation, which automatically selects the value of the penalty parameter $\lambda$ that minimizes cross-validated deviance.
+
+The Ridge model produces well-behaved coefficients and yields more reliable out-of-sample predictions. Unlike the previous models, Ridge does not aim to provide easily interpretable coefficients penalization introduces bias in exchange for substantial variance reduction but it provides a more stable and generalizable classifier. See @tbl-confusion-ridgelogitmodel. 
+
+Classification performance on the test set remains very strong, with an accuracy near 97–98%, similar to the unpenalized models. However, because the coefficients are shrunk and closely correlated predictors share weight, Ridge should be interpreted as a predictive model, not an explanatory one.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-confusion-ridgelogitmodel
+#| tbl-cap: "Confusion Matrix for Ridge Logistic Regression Model (Test Set)"
+#| fig-width: 9
+#| fig-height: 6
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+############################################################
+# Ridge Logistic Regression
+############################################################
+
+formula_all <- HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
+  Commercial_SPC + Losses_Ratio + log_Total_Customers +
+  is_VA + Utility.Type
+
+x_train <- model.matrix(formula_all, data = train)[, -1]
+y_train <- train$HighDemand_intensity
+
+x_test  <- model.matrix(formula_all, data = test)[, -1]
+y_test  <- test$HighDemand_intensity
+
+ridge_cv <- cv.glmnet(
+  x_train,
+  y_train,
+  family = "binomial",
+  alpha = 0
+)
+
+# plot(ridge_cv, main = "Ridge Logistic: CV Error vs Lambda") -->
+# best_lambda <- ridge_cv$lambda.min -->
+# best_lambda -->
+
+pred_prob_ridge_test <- predict(ridge_cv, newx = x_test,
+                                s = "lambda.min", type = "response")
+pred_class_ridge_test <- ifelse(pred_prob_ridge_test >= 0.5, 1L, 0L)
+
+# Confusion matrix
+confusion_ridge <- table(
+  Predicted = pred_class_ridge_test,
+  Actual    = y_test
+)
+
+kable(
+  confusion_ridge,
+  caption = "Confusion Matrix (Ridge Logistic Model)",
+  align = "c"
+)
+
+# Accuracy table
+accuracy_ridge <- mean(pred_class_ridge_test == y_test)
+
+kable(
+  data.frame(`Classification Accuracy` = round(accuracy_ridge, 4)),
+  align = "c"
+)
+
+
+```
+
+The @tbl-logit-model-compare shows a comparison of the 3 different logistic classifier models. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-logit-model-compare
+#| tbl-cap: "Comparison of Logistic Regression Models for High-Demand Classification"
+#| echo: false
+#| message: false
+#| warning: false
+
+model_comparison <- data.frame(
+  Model = c(
+    "Raw Logistic Regression",
+    "Standardized Logistic Regression",
+    "Ridge Logistic Regression"
+  ),
+  `Training Issues` = c(
+    "Severe separation; coefficients explode",
+    "Still unstable; separation persists",
+    "Stable; L2 penalty prevents divergence"
+  ),
+  `Interpretability` = c(
+    "Poor (coefficients meaningless)",
+    "Poor (scaled version of same issue)",
+    "Moderate (penalized, but stable)"
+  ),
+  `AIC` = c(
+    604.7,
+    604.7,
+    NA   # glmnet does not compute AIC
+  ),
+  `Test Accuracy` = c(
+    round(accuracy_raw, 4),
+    round(accuracy_std, 4),
+    round(accuracy_ridge, 4)
+  ),
+  `Key Notes` = c(
+    "Not reliable for inference; unstable estimates",
+    "Standardization alone did not fix the problem",
+    "Best predictive model; generalizes well"
+  )
+)
+
+kable(model_comparison, align = "c")
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-for
+#| tbl-cap: "..."
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
 # ############################################################
 # ## 9. Classification Tree & Random Forest (Option C)
 # ############################################################
