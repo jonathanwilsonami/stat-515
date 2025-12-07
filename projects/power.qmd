@@ -365,7 +365,7 @@ Virginia’s utilities show distinct distributional patterns compared with the r
 #| error: false
 
 ############################################################
-## 5. Sector Mix & Ratios (2023, including Virginia vs Others)
+## Sector Mix & Ratios (2023, including Virginia vs Others)
 ############################################################
 
 ratio_long_2023 <- elec_2023_fe %>%
@@ -588,9 +588,9 @@ For this analysis we wanted to be able to answer the following questions:
 
 3. Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?
 
-### Building a classifier 
+### Building Classifiers 
 
-In this section we explore methods that will enable us to classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage. In particular we look at various logistic regression models that will later enable us to not only identify utilities for the year we trained on but also generalize to other years. 
+In this section we explore methods that will enable us to classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage. In particular we look at various models including logistic regression, KNN, trees and random forests that will later enable us to not only identify utilities for the year we trained on but also generalize to other years. And lastly we look at some clustering methods using PCA and K-means. 
 
 For all models we split our data into training and test sets using a 20% hold out for testing. We set a random seed of 123 which should allow us to have consistent results. We also use our featurize method to do feature engineering yielding out high demand characteristic features mentioned in the Data section.  
 
@@ -751,6 +751,8 @@ ggplot(df_long,
 
 
 ```
+
+#### Logistic Regression
 
 We first look at the unpenalized logistic regression model. This model attempted to estimate how well our utility characteristics predict whether a utility falls into the high demand or high intensity distribution (HighDemand = 1). Although the model achieved high classification accuracy, the coefficient estimates were extremely large, indicating numerical instability. This occurs when predictors nearly perfectly separate HighDemand from non-HighDemand utilities. In such cases, the logistic maximum likelihood estimator pushes coefficients toward infinity, producing inflated parameter estimates and artificially tiny p-values. This makes interpreting Model @eq-rawlogitmodel difficult. 
 
@@ -1045,59 +1047,88 @@ kable(model_comparison, align = "c")
 
 ```
 
+#### Tree Classifier
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-#| label: tbl-for
-#| tbl-cap: "..."
+#| label: tbl-confusion-treemodel
+#| tbl-cap: "Confusion Matrix for Tree Model (Test Set)"
 #| echo: false
 #| message: false
 #| warning: false
 #| error: false
 
+############################################################
+## Classification Tree 
+############################################################
+
+# Tree
+tree_model <- rpart(
+  HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
+    Commercial_SPC + Losses_Ratio + log_Total_Customers +
+    is_VA + Utility.Type,
+  data = train,
+  method = "class"
+)
+
+rpart.plot(tree_model, main = "Classification Tree for High-Demand Utilities")
+print(tree_model)
+
+tree_pred <- predict(tree_model, newdata = test, type = "class")
+confusion_tree <- table(Predicted = tree_pred,
+                        Actual    = test$HighDemand_intensity)
+confusion_tree
+accuracy_tree <- mean(tree_pred == test$HighDemand_intensity)
+accuracy_tree
+
+```
+
+#### Random Forest
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-confusion-randforestmodel
+#| tbl-cap: "Confusion Matrix for Random Forest Model (Test Set)"
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+############################################################
+## Random Forest
+############################################################
+
+rf_model <- randomForest(
+  factor(HighDemand_intensity) ~ Commercial_Ratio + SalesPerCustomer +
+    Commercial_SPC + Losses_Ratio + log_Total_Customers +
+    is_VA + Utility.Type,
+  data = train,
+  ntree = 500,
+  importance = TRUE
+)
+
+print(rf_model)
+varImpPlot(rf_model, main = "Random Forest Variable Importance")
+
+rf_pred <- predict(rf_model, newdata = test)
+confusion_rf <- table(Predicted = rf_pred,
+                      Actual    = test$HighDemand_intensity)
+confusion_rf
+accuracy_rf <- mean(rf_pred == test$HighDemand_intensity)
+accuracy_rf
+
+
+```
+
+#### KNN
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-for
+#| tbl-cap: "...."
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
 # ############################################################
-# ## 9. Classification Tree & Random Forest (Option C)
-# ############################################################
-# 
-# # Tree
-# tree_model <- rpart(
-#   HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
-#     Commercial_SPC + Losses_Ratio + log_Total_Customers +
-#     is_VA + Utility.Type,
-#   data = train,
-#   method = "class"
-# )
-# 
-# rpart.plot(tree_model, main = "Classification Tree for High-Demand Utilities")
-# print(tree_model)
-# 
-# tree_pred <- predict(tree_model, newdata = test, type = "class")
-# confusion_tree <- table(Predicted = tree_pred,
-#                         Actual    = test$HighDemand_intensity)
-# confusion_tree
-# accuracy_tree <- mean(tree_pred == test$HighDemand_intensity)
-# accuracy_tree
-# 
-# # Random forest
-# rf_model <- randomForest(
-#   factor(HighDemand_intensity) ~ Commercial_Ratio + SalesPerCustomer +
-#     Commercial_SPC + Losses_Ratio + log_Total_Customers +
-#     is_VA + Utility.Type,
-#   data = train,
-#   ntree = 500,
-#   importance = TRUE
-# )
-# 
-# print(rf_model)
-# varImpPlot(rf_model, main = "Random Forest Variable Importance")
-# 
-# rf_pred <- predict(rf_model, newdata = test)
-# confusion_rf <- table(Predicted = rf_pred,
-#                       Actual    = test$HighDemand_intensity)
-# confusion_rf
-# accuracy_rf <- mean(rf_pred == test$HighDemand_intensity)
-# accuracy_rf
-# 
-# ############################################################
-# ## 10. KNN (on training year only, for comparison)
+# KNN (on training year only, for comparison)
 # ############################################################
 # 
 # knn_vars <- c(
@@ -1140,7 +1171,13 @@ kable(model_comparison, align = "c")
 # confusion_knn
 # accuracy_knn <- mean(knn_pred_test == knn_test_y)
 # accuracy_knn
-# 
+
+
+```
+
+#### PCA and K-means Unsupervised Approach 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 # ############################################################
 # ## 11. PCA + K-means (Unsupervised structure)
 # ############################################################
@@ -1214,7 +1251,13 @@ kable(model_comparison, align = "c")
 #     shape = "Virginia (1 = VA)",
 #     title = "K-means Clusters in PCA Space (2023)"
 #   )
-# 
+
+
+```
+
+#### Model Comparison Summary 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 # ############################################################
 # ## 12. Model Comparison Summary (2023)
 # ############################################################
@@ -1239,7 +1282,19 @@ kable(model_comparison, align = "c")
 # )
 # 
 # model_compare
-# 
+
+
+```
+
+
+### Predictive Modeling of High-Load Utility Distribution and State-Level Dominance  
+
+Now that we have built several models we want to utilized those models we to answer our remaining research questions above:
+
+1. How does Virginia compare nationally in the proportion and concentration of high-demand utilities?
+2. Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 # ############################################################
 # ## 13. Apply Trained Ridge + RF Models to ANY YEAR
 # ############################################################
