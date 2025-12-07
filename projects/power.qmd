@@ -1,5 +1,5 @@
 ---
-title: "Modeling and Predicting Virginia’s Electricity Usage in the Era of Data Centers: A Statistical Learning Comparison with National Utility Trends"
+title: "Identifying High-Demand Utilities in Virginia: Statistical Learning and National Comparative Analysis in the Era of Data Centers"
 date: 2025-12-10
 categories: [Data Centers, Power Grid]
 repo-url: https://github.com/jonathanwilsonami/stat-515
@@ -14,7 +14,11 @@ authors:
 ---
 
 ## Abstract
-Do this at the end...Just a summary section on what this paper is about...
+The rapid expansion of data centers in Virginia has raised concerns about rising electricity consumption and shifting load patterns across the Commonwealth. This study develops a statistical learning framework to identify *high-demand* electric utilities and to compare Virginia’s demand characteristics with national trends. Using ten years of U.S. Energy Information Administration (EIA-861) data, we construct engineered features—such as commercial sales ratios, per-customer intensity metrics, and loss ratios—and compute a composite **Intensity Score** to classify utilities exhibiting unusually high load profiles.
+
+Multiple supervised models are evaluated, including logistic regression, standardized logistic regression, ridge-penalized logistic regression, classification trees, random forests, and K-nearest neighbors. Unsupervised methods (PCA and K-means) further reveal multivariate structure and clustering patterns among utilities. Findings show that while raw and standardized logistic models suffer from severe separation and unstable coefficient estimates, ridge logistic regression and tree-based models provide the most reliable predictive performance. When applied to 2023 data, the ridge model identifies Virginia as having a relatively high concentration of load-intensive utilities once weighted by retail sales and commercial activity, aligning with observed data center growth.
+
+The study demonstrates how statistically rigorous, machine-learning-based classification can quantify evolving electricity demand patterns and provide state-level comparisons relevant to infrastructure planning. Limitations include incomplete utility-level metadata, non-uniform reporting across states, and the inability to observe direct data center loads. Nevertheless, the results provide a replicable framework for evaluating future changes in grid demand as data center development continues.
 
 ## Introduction & Background
 
@@ -1120,168 +1124,260 @@ accuracy_rf
 
 #### KNN
 
+Take this out or write a very brief explanation on it. 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-#| label: tbl-for
-#| tbl-cap: "...."
+#| label: tbl-knn
+#| tbl-cap: "KNN"
 #| echo: false
 #| message: false
 #| warning: false
 #| error: false
-# ############################################################
-# KNN (on training year only, for comparison)
-# ############################################################
-# 
-# knn_vars <- c(
-#   "Commercial_Ratio",
-#   "SalesPerCustomer",
-#   "Commercial_SPC",
-#   "Losses_Ratio",
-#   "log_Total_Customers"
-# )
-# 
-# train_means <- sapply(train[, knn_vars], mean, na.rm = TRUE)
-# train_sds   <- sapply(train[, knn_vars], sd,   na.rm = TRUE)
-# 
-# scale_with_train <- function(df_num) {
-#   as.data.frame(
-#     sweep(
-#       sweep(as.matrix(df_num), 2, train_means, "-"),
-#       2, train_sds, "/"
-#     )
-#   )
-# }
-# 
-# knn_train_X <- scale_with_train(train[, knn_vars])
-# knn_test_X  <- scale_with_train(test[, knn_vars])
-# 
-# knn_train_y <- train$HighDemand_intensity
-# knn_test_y  <- test$HighDemand_intensity
-# 
-# k_val <- 5
-# 
-# knn_pred_test <- class::knn(
-#   train = knn_train_X,
-#   test  = knn_test_X,
-#   cl    = knn_train_y,
-#   k     = k_val
-# )
-# 
-# confusion_knn <- table(Predicted = knn_pred_test,
-#                        Actual    = knn_test_y)
-# confusion_knn
-# accuracy_knn <- mean(knn_pred_test == knn_test_y)
-# accuracy_knn
 
+# ############################################################
+# KNN 
+# ############################################################
+# 
+knn_vars <- c(
+  "Commercial_Ratio",
+  "SalesPerCustomer",
+  "Commercial_SPC",
+  "Losses_Ratio",
+  "log_Total_Customers"
+)
+
+train_means <- sapply(train[, knn_vars], mean, na.rm = TRUE)
+train_sds   <- sapply(train[, knn_vars], sd,   na.rm = TRUE)
+
+scale_with_train <- function(df_num) {
+  as.data.frame(
+    sweep(
+      sweep(as.matrix(df_num), 2, train_means, "-"),
+      2, train_sds, "/"
+    )
+  )
+}
+
+knn_train_X <- scale_with_train(train[, knn_vars])
+knn_test_X  <- scale_with_train(test[, knn_vars])
+
+knn_train_y <- train$HighDemand_intensity
+knn_test_y  <- test$HighDemand_intensity
+
+k_val <- 5
+
+knn_pred_test <- class::knn(
+  train = knn_train_X,
+  test  = knn_test_X,
+  cl    = knn_train_y,
+  k     = k_val
+)
+
+confusion_knn <- table(Predicted = knn_pred_test,
+                       Actual    = knn_test_y)
+confusion_knn
+accuracy_knn <- mean(knn_pred_test == knn_test_y)
+accuracy_knn
 
 ```
 
 #### PCA and K-means Unsupervised Approach 
 
+Principal Component Analysis (PCA) was used to identify the dominant structural patterns in the engineered utility features. This approach is non-parametric and unsupervised so cannot be compared to other models explored. However, it can give us more insight into various patterns within the data. 
+
+The first two principal components explained a large share of total variance, indicating that most variation in utility intensity can be summarized in two latent dimensions. See the PCA Scree Plot @tbl-pca-scree. 
+
+Just for reference: 
+
+**PC1** = Commercial intensity axis i.e. Commercial Ratio & Log(Total Customers)
+
+**PC2** = Customer scale axis i.e. SalesPerCustomer & Commercial SPC
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-# ############################################################
-# ## 11. PCA + K-means (Unsupervised structure)
-# ############################################################
-# 
-# pca_vars <- c(
-#   "Commercial_Ratio",
-#   "SalesPerCustomer",
-#   "Commercial_SPC",
-#   "Losses_Ratio",
-#   "log_Total_Customers"
-# )
-# 
-# X_pca <- df_year %>%
-#   select(all_of(pca_vars)) %>%
-#   scale() %>%
-#   as.matrix()
-# 
-# pca_res <- prcomp(X_pca, center = FALSE, scale. = FALSE)
-# 
-# pca_var <- pca_res$sdev^2
-# pca_var <- pca_var / sum(pca_var)
-# 
-# scree_df <- data.frame(
-#   PC = seq_along(pca_var),
-#   VarExplained = pca_var
-# )
-# 
-# ggplot(scree_df, aes(x = PC, y = VarExplained)) +
-#   geom_point() +
-#   geom_line() +
-#   scale_x_continuous(breaks = scree_df$PC) +
-#   theme_minimal() +
-#   labs(title = "PCA Scree Plot", y = "Proportion of Variance Explained")
-# 
-# df_pca <- cbind(df_year, as.data.frame(pca_res$x))
-# 
-# ggplot(df_pca,
-#        aes(x = PC1, y = PC2,
-#            color = factor(HighDemand_intensity),
-#            shape = factor(is_VA))) +
-#   geom_point(alpha = 0.7) +
-#   theme_minimal() +
-#   labs(
-#     color = "HighDemand",
-#     shape = "Virginia (1 = VA)",
-#     title = "PCA: PC1 vs PC2 (2023)"
-#   )
-# 
-# # K-means on first 3 PCs
-# X_cluster <- df_pca %>%
-#   select(PC1, PC2, PC3) %>%
-#   as.matrix()
-# 
-# set.seed(123)
-# k <- 3
-# km_res <- kmeans(X_cluster, centers = k, nstart = 25)
-# 
-# df_pca$cluster_km <- factor(km_res$cluster)
-# 
-# table(df_pca$cluster_km, df_pca$HighDemand_intensity)
-# table(df_pca$cluster_km, df_pca$is_VA)
-# 
-# ggplot(df_pca,
-#        aes(x = PC1, y = PC2,
-#            color = cluster_km,
-#            shape = factor(is_VA))) +
-#   geom_point(alpha = 0.7) +
-#   theme_minimal() +
-#   labs(
-#     color = "K-means Cluster",
-#     shape = "Virginia (1 = VA)",
-#     title = "K-means Clusters in PCA Space (2023)"
-#   )
+#| label: tbl-pca-scree
+#| tbl-cap: "PCA Scree Plot"
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+############################################################
+## PCA + K-means (Unsupervised)
+############################################################
+
+pca_vars <- c(
+  "Commercial_Ratio",
+  "SalesPerCustomer",
+  "Commercial_SPC",
+  "Losses_Ratio",
+  "log_Total_Customers"
+)
+
+X_pca <- df_year %>%
+  select(all_of(pca_vars)) %>%
+  scale() %>% # z-score standardization
+  as.matrix()
+
+pca_res <- prcomp(X_pca, center = FALSE, scale. = FALSE)
+
+# Proportion of variance explained
+pca_var <- pca_res$sdev^2
+pca_var <- pca_var / sum(pca_var)
+
+scree_df <- data.frame(
+  PC = seq_along(pca_var),
+  VarExplained = pca_var
+)
+
+loadings <- pca_res$rotation  # variable loadings for each PC
+
+label_pc <- function(pc_loadings, pc_name) {
+  top_vars <- sort(abs(pc_loadings), decreasing = TRUE)[1:2]
+  var_names <- names(top_vars)
+  
+  sprintf("%s: %s & %s",
+          pc_name,
+          gsub("_", " ", var_names[1]),
+          gsub("_", " ", var_names[2]))
+}
+
+pc1_label <- label_pc(loadings[, 1], "Component 1")
+pc2_label <- label_pc(loadings[, 2], "Component 2")
+pc3_label <- label_pc(loadings[, 3], "Component 3")
+
+# pc1_label
+# pc2_label
+# pc3_label
+
+ggplot(scree_df, aes(x = PC, y = VarExplained)) +
+  geom_point(size = 3) +
+  geom_line() +
+  scale_x_continuous(breaks = scree_df$PC) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Variance Explained by Principal Components",
+    x = "Principal Component",
+    y = "Proportion of Variance Explained"
+  )
+
+```
+
+In the PCA scatter plot @tbl-pca, high‐demand utilities tend to occupy distinct regions of PC space, demonstrating that the engineered ratios and per-customer metrics capture meaningful behavioral differences. The plot shows High-demand utilities are far right on PC1. Virginia utilities are spread out and not concentrated in the high-intensity clusters. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-pca
+#| tbl-cap: "PCA"
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+
+df_pca <- cbind(df_year, as.data.frame(pca_res$x))
+
+ggplot(df_pca,
+       aes(x = PC1, y = PC2,
+           color = factor(HighDemand_intensity),
+           shape = factor(is_VA))) +
+  geom_point(alpha = 0.75, size = 2.8) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Utility Structural Patterns in PCA Space",
+    x = pc1_label,
+    y = pc2_label,
+    color = "High-Demand (1 = High)",
+    shape = "Virginia (1 = VA)"
+  )
+
 
 
 ```
+
+K-means clustering (see @tbl-kemans) applied to the first three PCs further revealed that utilities naturally group into clusters corresponding to intensity characteristics. One cluster contained a disproportionate share of high-demand utilities, confirming that their behavior is structurally different from typical utilities. When examining Virginia utilities, several appear near the edges of clusters, suggesting that Virginia’s utilities exhibit more extreme or atypical load patterns relative to national norms. PCA + K-means shows Virginia does NOT cluster with high-intensity utilities. Only Dominion and NoVA co-ops show mild PC1 shifting — but not enough to enter the high-intensity group. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-kemans
+#| tbl-cap: "PCA and K-means Clustering"
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
+
+X_cluster <- df_pca %>%
+  select(PC1, PC2, PC3) %>%
+  as.matrix()
+
+set.seed(123)
+k <- 3
+km_res <- kmeans(X_cluster, centers = k, nstart = 25)
+
+df_pca$cluster_km <- factor(km_res$cluster)
+
+#table(df_pca$cluster_km, df_pca$HighDemand_intensity)
+#table(df_pca$cluster_km, df_pca$is_VA)
+
+ggplot(df_pca,
+       aes(x = PC1, y = PC2,
+           color = cluster_km,
+           shape = factor(is_VA))) +
+  geom_point(alpha = 0.75, size = 2.8) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "K-means Clusters in PCA Space",
+    x = pc1_label,
+    y = pc2_label,
+    color = "K-means Cluster",
+    shape = "Virginia (1 = VA)"
+  )
+
+
+```
+
+Overall, PCA reveals that Virginia utilities do not form a distinct high-intensity cluster. Instead, they occupy mid-range positions in the commercial-load space, consistent with a mixed customer base rather than pure commercial concentration.
 
 #### Model Comparison Summary 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 # ############################################################
-# ## 12. Model Comparison Summary (2023)
+# Model Comparison Summary (2023)
 # ############################################################
-# 
-# model_compare <- data.frame(
-#   Model = c(
-#     "Logistic (raw)",
-#     "Logistic (scaled)",
-#     "Ridge Logistic",
-#     "Classification Tree",
-#     "Random Forest",
-#     "KNN (k=5)"
-#   ),
-#   Accuracy = c(
-#     accuracy_raw,
-#     accuracy_std,
-#     accuracy_ridge,
-#     accuracy_tree,
-#     accuracy_rf,
-#     accuracy_knn
-#   )
-# )
-# 
-# model_compare
+
+model_compare <- data.frame(
+  Model = c(
+    "Logistic Regression (Raw)",
+    "Logistic Regression (Scaled)",
+    "Ridge Logistic Regression",
+    "Classification Tree",
+    "Random Forest",
+    "KNN (k = 5)"
+  ),
+  Accuracy = c(
+    round(accuracy_raw, 4),
+    round(accuracy_std, 4),
+    round(accuracy_ridge, 4),
+    round(accuracy_tree, 4),
+    round(accuracy_rf, 4),
+    round(accuracy_knn, 4)
+  ),
+  Notes = c(
+    "Coefficient explosion; separation issues",
+    "Still unstable but standardized",
+    "Most stable logistic model; good generalization",
+    "Low-variance, simple interpretable model",
+    "Highest-performing tree-based model",
+    "Sensitive to scaling; depends on local structure"
+  )
+)
+
+kable(model_compare, align = "c", caption = "Model Performance Comparison") |>
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover", "condensed"))
 
 
 ```
@@ -1634,5 +1730,7 @@ Now that we have built several models we want to utilized those models we to ans
 This study demonstrates that utility level EIA 861 data despite lacking explicit data-center identifiers can successfully reveal data-center–like electricity demand patterns using structural load metrics, machine learning classification, and weighted dominance indices.
 
 Key insights gained from this study:
+
+Future considerations 
 
 ## References 
