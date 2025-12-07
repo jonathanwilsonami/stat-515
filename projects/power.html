@@ -206,7 +206,10 @@ window.Quarto = {
   <li><a href="#derived-featurs---feature-engineering" id="toc-derived-featurs---feature-engineering" class="nav-link" data-scroll-target="#derived-featurs---feature-engineering"><span class="header-section-number">4.4</span> Derived Featurs - Feature Engineering</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><span class="header-section-number">4.5</span> Exploratory Data Analysis</a></li>
   </ul></li>
-  <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions"><span class="header-section-number">5</span> Research Questions</a></li>
+  <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions"><span class="header-section-number">5</span> Research Questions</a>
+  <ul class="collapse">
+  <li><a href="#building-a-classifier" id="toc-building-a-classifier" class="nav-link" data-scroll-target="#building-a-classifier"><span class="header-section-number">5.1</span> Building a classifier</a></li>
+  </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">7</span> References</a></li>
   </ul>
@@ -581,6 +584,10 @@ Figure&nbsp;12: Average commercial electricity sales ratio over time (2015–202
 <li><p>How does Virginia compare nationally in the proportion and concentration of high-demand utilities?</p></li>
 <li><p>Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?</p></li>
 </ol>
+<section id="building-a-classifier" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="building-a-classifier"><span class="header-section-number">5.1</span> Building a classifier</h3>
+<p>In this section we explore methods that will enable us to classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage. In particular we look at various logistic regression models that will later enable us to not only identify utilities for the year we trained on but also generalize to other years.</p>
+<p>For all models we split our data into training and test sets using a 20% hold out for testing. We set a random seed of 123 which should allow us to have consistent results. We also use our featurize method to do feature engineering yielding out high demand characteristic features mentioned in the Data section.</p>
 <p>Figure <a href="#fig-high-demand-distribution" class="quarto-xref">Figure&nbsp;13</a> shows the distribution of high demand utilities across the country for 2023. This is after we do feature engineering on our data set. As you can see there are a very small number of high demand utilities.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -629,7 +636,7 @@ Figure&nbsp;13: Distribution of high demand utilities for (2023)
 </div>
 <p>We first look at the unpenalized logistic regression model. This model attempted to estimate how well our utility characteristics predict whether a utility falls into the high demand or high intensity distribution (HighDemand = 1). Although the model achieved high classification accuracy, the coefficient estimates were extremely large, indicating numerical instability. This occurs when predictors nearly perfectly separate HighDemand from non-HighDemand utilities. In such cases, the logistic maximum likelihood estimator pushes coefficients toward infinity, producing inflated parameter estimates and artificially tiny p-values. This makes interpreting Model <a href="#eq-rawlogitmodel" class="quarto-xref">Equation&nbsp;1</a> difficult.</p>
 <p>Due to this instability, the individual coefficients cannot be interpreted in terms of effect sizes, odds ratios, or directionality. The model is useful only as a classifier but not as an explanatory model. The extreme magnitudes also reflect high multicollinearity among engineered intensity variables, differences in scale, and the presence of many dummy variables for utility type categories. These limitations motivate the use of penalized logistic regression or simpler composite scoring methods for more stable and interpretable results which we will explore later.</p>
-<p>Here we split our data into train and test using a 20% hold out for testing. See the results of this model in <a href="#tbl-confusion-rawlogitmodel" class="quarto-xref">Table&nbsp;1</a>.</p>
+<p>See the results of this model in <a href="#tbl-confusion-rawlogitmodel" class="quarto-xref">Table&nbsp;1</a>.</p>
 <p>As shown in Model <a href="#eq-rawlogitmodel" class="quarto-xref">Equation&nbsp;1</a>, the probability of a utility being classified as high-demand depends on several structural and commercial intensity features.</p>
 <p><span id="eq-rawlogitmodel"><span class="math display">\[
 \begin{aligned}
@@ -696,6 +703,199 @@ Table&nbsp;1: Confusion Matrix for Unpenalized Logistic Regression Model (Test S
 </figure>
 </div>
 </div>
+<p>The standardized logistic regression model <a href="#eq-stdlogitmodel" class="quarto-xref">Equation&nbsp;2</a> replaces the raw intensity variables with their z-scores while keeping the same outcome (HighDemand_intensity) and covariates (is_VA and Utility.Type). Standardization improves numerical conditioning and makes predictors comparable in principle, but in this case the fitted model still shows extremely large coefficient estimates (on the order of and tiny p-values for all terms. This indicates that the underlying problem has not been resolved.</p>
+<p><span class="math display">\[
+\Pr(Y_i = 1 \mid X_i)
+= \frac{1}{1 + \exp(-\eta_i)}
+\]</span></p>
+<p><span id="eq-stdlogitmodel"><span class="math display">\[
+\begin{aligned}
+\eta_i =\;
+&amp;\beta_0
++ \beta_1\,z\!\left(\text{Commercial Ratio}_i\right)
++ \beta_2\,z\!\left(\text{Sales per Customer}_i\right) \\
+&amp;+ \beta_3\,z\!\left(\text{Commercial SPC}_i\right)
++ \beta_4\,z\!\left(\text{Losses Ratio}_i\right)
++ \beta_5\,z\!\left(\log(\text{Total Customers}_i)\right) \\
+&amp;+ \beta_6\,\text{is VA}_i
++ \sum_k \gamma_k\,\text{Utility Type}_{ik}
+\end{aligned}
+\tag{2}\]</span></span></p>
+<p>As with the unstandardized model, this standardized specification achieves high classification accuracy on the test set (about 97.8% see <a href="#tbl-confusion-stdlogitmodel" class="quarto-xref">Table&nbsp;2</a>), but the individual coefficients cannot be interpreted as meaningful effect sizes or odds ratios. The model is functioning as an overfit classifier rather than a stable explanatory model. In practice, this motivates relying on penalized models, simpler composite indices, and descriptive comparisons.</p>
+<div class="cell">
+<div id="tbl-confusion-stdlogitmodel" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-confusion-stdlogitmodel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Confusion Matrix for Standardized Logistic Regression Model (Test Set)
+</figcaption>
+<div aria-describedby="tbl-confusion-stdlogitmodel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<caption>Confusion Matrix (Standardized Logistic Model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0</td>
+<td style="text-align: center;">274</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">33</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Classification.Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0.9777</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>To address the instability observed in the unpenalized logistic regression models, we fit a Ridge-penalized logistic regression using cross-validation. Ridge regression introduces an L2 penalty on the magnitude of the coefficients, shrinking them toward zero and preventing the divergence that occurred in the raw and standardized models. We trained the model using 10-fold cross-validation, which automatically selects the value of the penalty parameter <span class="math inline">\(\lambda\)</span> that minimizes cross-validated deviance.</p>
+<p>The Ridge model produces well-behaved coefficients and yields more reliable out-of-sample predictions. Unlike the previous models, Ridge does not aim to provide easily interpretable coefficients penalization introduces bias in exchange for substantial variance reduction but it provides a more stable and generalizable classifier. See <a href="#tbl-confusion-ridgelogitmodel" class="quarto-xref">Table&nbsp;3</a>.</p>
+<p>Classification performance on the test set remains very strong, with an accuracy near 97–98%, similar to the unpenalized models. However, because the coefficients are shrunk and closely correlated predictors share weight, Ridge should be interpreted as a predictive model, not an explanatory one.</p>
+<div class="cell">
+<div id="tbl-confusion-ridgelogitmodel" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-confusion-ridgelogitmodel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Confusion Matrix for Ridge Logistic Regression Model (Test Set)
+</figcaption>
+<div aria-describedby="tbl-confusion-ridgelogitmodel-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<caption>Confusion Matrix (Ridge Logistic Model)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0</td>
+<td style="text-align: center;">275</td>
+<td style="text-align: center;">17</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">22</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Classification.Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0.9459</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The <a href="#tbl-logit-model-compare" class="quarto-xref">Table&nbsp;4</a> shows a comparison of the 3 different logistic classifier models.</p>
+<div class="cell">
+<div id="tbl-logit-model-compare" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-logit-model-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Comparison of Logistic Regression Models for High-Demand Classification
+</figcaption>
+<div aria-describedby="tbl-logit-model-compare-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 3%">
+<col style="width: 8%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Model</th>
+<th style="text-align: center;">Training.Issues</th>
+<th style="text-align: center;">Interpretability</th>
+<th style="text-align: center;">AIC</th>
+<th style="text-align: center;">Test.Accuracy</th>
+<th style="text-align: center;">Key.Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Raw Logistic Regression</td>
+<td style="text-align: center;">Severe separation; coefficients explode</td>
+<td style="text-align: center;">Poor (coefficients meaningless)</td>
+<td style="text-align: center;">604.7</td>
+<td style="text-align: center;">0.9777</td>
+<td style="text-align: center;">Not reliable for inference; unstable estimates</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Standardized Logistic Regression</td>
+<td style="text-align: center;">Still unstable; separation persists</td>
+<td style="text-align: center;">Poor (scaled version of same issue)</td>
+<td style="text-align: center;">604.7</td>
+<td style="text-align: center;">0.9777</td>
+<td style="text-align: center;">Standardization alone did not fix the problem</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Ridge Logistic Regression</td>
+<td style="text-align: center;">Stable; L2 penalty prevents divergence</td>
+<td style="text-align: center;">Moderate (penalized, but stable)</td>
+<td style="text-align: center;">NA</td>
+<td style="text-align: center;">0.9459</td>
+<td style="text-align: center;">Best predictive model; generalizes well</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div id="tbl-for" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-for-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: …
+</figcaption>
+<div aria-describedby="tbl-for-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+
+</div>
+</div>
+</figure>
+</div>
+</section>
 </section>
 <section id="conclusion" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">6</span> Conclusion</h2>
