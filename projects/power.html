@@ -60,7 +60,7 @@ div.csl-indent {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-2fef5ea3f8957b3e4ecc936fc74692ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-139760d7c2b45b71cf6fb5fb69731804.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-cbd51242bb15cf1db6e2d2b8b2a9f477.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -195,7 +195,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation"><span class="header-section-number">2.1</span> Motivation</a></li>
   <li><a href="#virginias-internet-data-boom" id="toc-virginias-internet-data-boom" class="nav-link" data-scroll-target="#virginias-internet-data-boom"><span class="header-section-number">2.2</span> Virginia’s Internet &amp; Data Boom</a></li>
-  <li><a href="#virginias-power-demands-hyperscalers-demand-for-data" id="toc-virginias-power-demands-hyperscalers-demand-for-data" class="nav-link" data-scroll-target="#virginias-power-demands-hyperscalers-demand-for-data"><span class="header-section-number">2.3</span> Virginia’s Power Demands &amp; Hyperscaler’s Demand for Data</a></li>
+  <li><a href="#virginias-power-demands-hyperscalers-damnd-for-data" id="toc-virginias-power-demands-hyperscalers-damnd-for-data" class="nav-link" data-scroll-target="#virginias-power-demands-hyperscalers-damnd-for-data"><span class="header-section-number">2.3</span> Virginia’s Power Demands &amp; Hyperscaler’s Damnd for Data</a></li>
   <li><a href="#the-fragile-power-grid" id="toc-the-fragile-power-grid" class="nav-link" data-scroll-target="#the-fragile-power-grid"><span class="header-section-number">2.4</span> The Fragile Power Grid</a></li>
   <li><a href="#what-our-research-contributes" id="toc-what-our-research-contributes" class="nav-link" data-scroll-target="#what-our-research-contributes"><span class="header-section-number">2.5</span> What Our Research Contributes</a></li>
   </ul></li>
@@ -205,7 +205,7 @@ window.Quarto = {
   <li><a href="#dataset-overview" id="toc-dataset-overview" class="nav-link" data-scroll-target="#dataset-overview"><span class="header-section-number">4.1</span> Dataset Overview</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations"><span class="header-section-number">4.2</span> Limitations</a></li>
   <li><a href="#data-cleaning-processing-assumptions" id="toc-data-cleaning-processing-assumptions" class="nav-link" data-scroll-target="#data-cleaning-processing-assumptions"><span class="header-section-number">4.3</span> Data Cleaning, Processing &amp; Assumptions</a></li>
-  <li><a href="#derived-features---feature-engineering" id="toc-derived-features---feature-engineering" class="nav-link" data-scroll-target="#derived-features---feature-engineering"><span class="header-section-number">4.4</span> Derived Features - Feature Engineering</a></li>
+  <li><a href="#derived-featurs---feature-engineering" id="toc-derived-featurs---feature-engineering" class="nav-link" data-scroll-target="#derived-featurs---feature-engineering"><span class="header-section-number">4.4</span> Derived Featurs - Feature Engineering</a></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis"><span class="header-section-number">4.5</span> Exploratory Data Analysis</a></li>
   </ul></li>
   <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions"><span class="header-section-number">5</span> Research Questions</a>
@@ -259,7 +259,7 @@ window.Quarto = {
 
 <section id="abstract" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="abstract"><span class="header-section-number">1</span> Abstract</h2>
-<p>The rapid expansion of data centers in Virginia has raised concerns about rising electricity consumption and shifting load patterns across the Commonwealth. This study develops a statistical learning framework to identify <em>high-demand</em> electric utilities and to compare Virginia’s demand characteristics with national trends. Using ten years of U.S. Energy Information Administration (EIA-861) data, we construct engineered features—such as commercial sales ratios, per-customer intensity metrics, and loss ratios—and compute a composite <strong>Intensity Score</strong> to classify utilities exhibiting unusually high load profiles.</p>
+<p>The rapid expansion of data centers in Virginia has raised concerns about rising electricity consumption and shifting load patterns especially in northern counties of the state. This study leverages a statistical learning approach to identify <em>high-demand</em> electric utilities and to compare Virginia’s demand characteristics with national trends. Using ten years of U.S. Energy Information Administration (EIA-861) data, we construct engineered features such as commercial sales ratios, per-customer intensity metrics, and loss ratios—and compute a composite <strong>Intensity Score</strong> to classify utilities exhibiting unusually high load profiles.</p>
 <p>Multiple supervised models are evaluated, including logistic regression, standardized logistic regression, ridge-penalized logistic regression, classification trees, random forests, and K-nearest neighbors. Unsupervised methods (PCA and K-means) further reveal multivariate structure and clustering patterns among utilities. Findings show that while raw and standardized logistic models suffer from severe separation and unstable coefficient estimates, ridge logistic regression and tree-based models provide the most reliable predictive performance. When applied to 2023 data, the ridge model identifies Virginia as having a relatively high concentration of load-intensive utilities once weighted by retail sales and commercial activity, aligning with observed data center growth.</p>
 <p>The study demonstrates how statistically rigorous, machine-learning-based classification can quantify evolving electricity demand patterns and provide state-level comparisons relevant to infrastructure planning. Limitations include incomplete utility-level metadata, non-uniform reporting across states, and the inability to observe direct data center loads. Nevertheless, the results provide a replicable framework for evaluating future changes in grid demand as data center development continues.</p>
 </section>
@@ -267,23 +267,23 @@ window.Quarto = {
 <h2 data-number="2" class="anchored" data-anchor-id="introduction-background"><span class="header-section-number">2</span> Introduction &amp; Background</h2>
 <section id="motivation" class="level3" data-number="2.1">
 <h3 data-number="2.1" class="anchored" data-anchor-id="motivation"><span class="header-section-number">2.1</span> Motivation</h3>
-<p>Over the past few decades, technological output has risen steadily. That gradual climb transformed into exponential growth with the advent of cloud computing, and now with the acceleration of the AI era, that trajectory is poised to surge even faster. This rapid expansion is widely recognized. What’s far less understood, however, is the critical infrastructure that makes all of it possible. At the center of this digital revolution lies the often overlooked backbone of modern society: the power grid. It is the heartbeat of every computation, the lifeblood behind the flow of ones and zeros. Without this essential utility—something most of us rarely think about—the modern world as we know it would come to a halt. And no where is that more true than in the state of Virginia.</p>
+<p>Over the past few decades, technological output has risen steadily. That gradual climb transformed into exponential growth with the advent of cloud computing, and now with the acceleration of the AI era that trajectory is poised to surge even faster. This rapid expansion is widely recognized. What’s far less understood, however, is the critical infrastructure that makes all of it possible. At the center of this digital revolution lies the often overlooked backbone of modern society: the power grid. It is the heartbeat of every computation, the lifeblood behind the flow of ones and zeros. Without this essential utility the modern world as we know it would come to a halt. And no where is that more true than in the state of Virginia.</p>
 </section>
 <section id="virginias-internet-data-boom" class="level3" data-number="2.2">
 <h3 data-number="2.2" class="anchored" data-anchor-id="virginias-internet-data-boom"><span class="header-section-number">2.2</span> Virginia’s Internet &amp; Data Boom</h3>
 <p>Over the past several decades, Virginia has evolved from a strategically located government corridor into the epicenter of the modern internet. This transformation began in the early 1990s, when the Metropolitan Area Exchange–East (MAE-East)—one of the original four Network Access Points funded by the National Science Foundation—was established in Northern Virginia. Its proximity to federal agencies and research institutions such as DARPA, whose ARPANET project laid the foundations for the internet, positioned the region as a natural hub for digital networks. Over time, transatlantic subsea cable systems like MAREA-BRUSA, landing in Virginia Beach, further strengthened the state’s role in global connectivity <span class="citation" data-cites="data-center-capital"><a href="#ref-data-center-capital" role="doc-biblioref">[1]</a></span>.</p>
 <p>Today, that historical advantage has scaled into an unmatched concentration of data centers, making Virginia the digital heart of the world. An estimated 70% of global internet IP traffic is created in or routed through Loudoun County’s famed “Data Center Alley,” cementing Ashburn as the world’s central point for cloud and interconnection <span class="citation" data-cites="dawn-of-data"><a href="#ref-dawn-of-data" role="doc-biblioref">[2]</a></span>. Virginia now hosts the largest cluster of data centers anywhere on Earth—surpassing Texas, California, and Illinois—with rapid expansion fueled by skyrocketing demand for cloud computing, AI workloads, and global digital services <span class="citation" data-cites="cushman"><a href="#ref-cushman" role="doc-biblioref">[3]</a></span>. This boom is supported in part by Dominion Energy’s historically competitive electricity prices, which helped attract and retain power-intensive facilities. But it also places unprecedented strain on the state’s power grid: the very infrastructure that sustains the flow of computation. As AI and cloud demands continue to accelerate, Virginia’s electricity consumption is set to become one of the most consequential factors shaping both its economic future and the stability of its energy systems <span class="citation" data-cites="data-center-capital"><a href="#ref-data-center-capital" role="doc-biblioref">[1]</a></span>.</p>
 </section>
-<section id="virginias-power-demands-hyperscalers-demand-for-data" class="level3" data-number="2.3">
-<h3 data-number="2.3" class="anchored" data-anchor-id="virginias-power-demands-hyperscalers-demand-for-data"><span class="header-section-number">2.3</span> Virginia’s Power Demands &amp; Hyperscaler’s Demand for Data</h3>
+<section id="virginias-power-demands-hyperscalers-damnd-for-data" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="virginias-power-demands-hyperscalers-damnd-for-data"><span class="header-section-number">2.3</span> Virginia’s Power Demands &amp; Hyperscaler’s Damnd for Data</h3>
 <p>Virginia’s data center ecosystem has expanded at an unprecedented pace, driven largely by the accelerating demand for cloud computing and AI workloads. With more than 24,000 megawatts of planned data center capacity, Virginia surpasses every other market in the world—by more than a factor of three—in total expected power demand <span class="citation" data-cites="cushman"><a href="#ref-cushman" role="doc-biblioref">[3]</a></span>. This explosive growth reflects the state’s long-standing role as the heart of global internet traffic, as well as its strategic appeal to the companies building the modern digital economy. Nowhere is this more evident than in Northern Virginia, where annual data center absorption has shattered global records; the region reached 270 MW of bookings in 2018, while no other market worldwide has ever exceeded 70 MW in a single year <span class="citation" data-cites="dawn-of-data"><a href="#ref-dawn-of-data" role="doc-biblioref">[2]</a></span>.</p>
-<p>At the center of this surge are the hyperscalers<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, or in other words major cloud and platform providers such as Microsoft, Google, Meta (Facebook), Apple, Oracle, IBM, Yahoo!, LinkedIn, Alibaba, Uber, and Dropbox. These companies require immense and rapidly scalable infrastructure, with hyperscale leases often ranging from 10 to 20 megawatts or more for a single deployment. Their adoption of point-of-delivery architectures and other repeatable, modular design patterns has enabled them to scale at a pace unmatched in the industry. The resulting demand for data is fueled by the relentless expansion of e-commerce, wireless networks, social media, streaming content, SaaS platforms, artificial intelligence, machine learning, gaming, virtual reality, and the Internet of Things. Collectively, these forces make Virginia not just a data center leader, but the world’s central engine for digital power consumption <span class="citation" data-cites="data-center-capital"><a href="#ref-data-center-capital" role="doc-biblioref">[1]</a></span>.</p>
+<p>At the center of this surge are the hyperscalers<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> major cloud and platform providers such as Microsoft, Google, Meta (Facebook), Apple, Oracle, IBM, Yahoo!, LinkedIn, Alibaba, Uber, and Dropbox. These companies require immense and rapidly scalable infrastructure, with hyperscale leases often ranging from 10 to 20 megawatts or more for a single deployment. The resulting demand for data is fueled by the relentless expansion of e-commerce, wireless networks, social media, streaming content, SaaS platforms, artificial intelligence, machine learning, gaming, virtual reality, and the Internet of Things. Collectively, these forces make Virginia not just a data center leader, but the world’s central engine for digital power consumption <span class="citation" data-cites="data-center-capital"><a href="#ref-data-center-capital" role="doc-biblioref">[1]</a></span>.</p>
 </section>
 <section id="the-fragile-power-grid" class="level3" data-number="2.4">
 <h3 data-number="2.4" class="anchored" data-anchor-id="the-fragile-power-grid"><span class="header-section-number">2.4</span> The Fragile Power Grid</h3>
 <p>The power grid is essentially a giant, interconnected system that moves electricity from where it’s generated to where it’s needed. Power plants feed electricity into long-distance high-voltage transmission lines, which deliver power to substations where transformers reduce the voltage for safe distribution to homes, businesses, and—more recently—massive data centers. Because electricity cannot be stored easily at grid scale, supply and demand must remain in perfect balance at every moment. This requires constant coordination among utilities, transmission operators, and regional balancing authorities to maintain stability. When demand surges faster than supply, the grid becomes stressed, increasing the risk of brownouts or outages <span class="citation" data-cites="power-grid"><a href="#ref-power-grid" role="doc-biblioref">[4]</a></span>.</p>
 <p>This balancing act becomes especially challenging in states like Virginia, where hyperscale data centers consume tens of megawatts each—orders of magnitude more than typical commercial users. As Virginia has become home to the world’s largest concentration of data centers, the strain on its power system has expanded accordingly. Each new facility adds continuous, around-the-clock demand that the grid must support without interruption. This is why long-term planning for new generation, transmission upgrades, and regional reliability is becoming central to Virginia’s energy future: the digital infrastructure powering cloud computing, AI, and global internet traffic can only grow if the physical grid underneath it can keep up.</p>
-<p>To understand how these pressures play out across the country, it is helpful to situate Virginia within the broader structure of the United States energy landscape. The graphic below shows the U.S. Census Regions and Divisions, which groups the nation into four major regions and nine divisions commonly used for national energy, economic, and demographic analysis.</p>
+<p>To understand how these pressures play out across the country, it is helpful to situate Virginia within the broader structure of the United States energy landscape. The graphic below shows the U.S. Census Regions and Divisions, which group the nation into four major regions and nine divisions commonly used for national energy, economic, and demographic analysis.</p>
 <div id="fig-regions-divisions" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-regions-divisions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -302,7 +302,11 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="related-works" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="related-works"><span class="header-section-number">3</span> Related Works</h2>
-<p>As shown in recent studies, such as <span class="citation" data-cites="texas-power-demand"><a href="#ref-texas-power-demand" role="doc-biblioref"><strong>texas-power-demand?</strong></a></span>, data centers significantly increase electricity and utility loads.</p>
+<p>Congress</p>
+<p>Crypto</p>
+<p>Demand</p>
+<p>Cloud Next Door</p>
+<p>As shown in recent studies <span class="citation" data-cites="texas-power-demand"><a href="#ref-texas-power-demand" role="doc-biblioref"><strong>texas-power-demand?</strong></a></span>, data centers significantly increase load.</p>
 <p>TODO: Discuss 3 (already selected) other studies and approaches that have been used to understand these issues. How does our reserach differ and what new contributions do we have to add?</p>
 </section>
 <section id="data" class="level2" data-number="4">
@@ -310,7 +314,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 <section id="dataset-overview" class="level3" data-number="4.1">
 <h3 data-number="4.1" class="anchored" data-anchor-id="dataset-overview"><span class="header-section-number">4.1</span> Dataset Overview</h3>
 <p>For this analysis we used the Annual Electric Power Industry Report (Form EIA-861) which is a U.S. government survey (considered the Census for Utilities) conducted by the Energy Information Administration (EIA) that collects detailed data from electric utilities on retail sales, revenue, and other key aspects of the electric power industry. It provides information on energy sources, demand-side management, net-metering, and other operational data to help monitor the industry’s status and trends <span class="citation" data-cites="original-eia-data"><a href="#ref-original-eia-data" role="doc-biblioref">[5]</a></span>.</p>
-<p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is compiled by the EIA contains the main companies we are interested in, with at least their bulk aggregated numbers which will be discussed later. For example, doing a little research online revealed that the utility named Virginia Electric &amp; Power Co, which is found in the data, is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators, identifying utilities that exhibit data center like pattern such as:</p>
+<p>Originally we wanted to know about the impact of data centers in local communities in northern VA, had reached out to several city planners, they responded back but revealed that getting specific data on individual data centers would require coordination with individual commercial power supply companies and the individual data centers themselves which would be difficult or impossible to obtain given various NDAs that would need to be signed and potential limitations on what we could share. Alas, the annually released data that is generated compiled by the EIA contains the main companies we are interested in at least their bulk aggregated numbers which will be discussed later. For example, doing a little research on line revealed that the utility named Virginia Electric &amp; Power Co whcih is found in the data is really part of Dominion Energy which is one of the biggest power utilities in Virginia. The dataset also allows for studying behavioral indicators identifying utilities that exhibit data center like pattern such as:</p>
 <ul>
 <li>High commercial load</li>
 <li>Very high commercial electricity sales</li>
@@ -322,25 +326,25 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="limitations" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="limitations"><span class="header-section-number">4.2</span> Limitations</h3>
-<p>The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which provides a very coarse view of the data. This limitation does not allow us to view individual data centers or even the break down of the individual contributors of what make up a listed utility. There might be some missing data points as well. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our model’s predictions. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. Later on in the analysis section we will construct various methods of overcoming these limitations, however crude they might be.</p>
+<p>The dataset does have some obvious limitations. For one, we are looking at a yearly aggregation of data which provides a very course view of the data. This limitation does now allow us to view individual data centers or even the break down of the individual contributors of what make up a utility. There might be some missing data points as well. Some private commercial companies might not have released certain data in the survey which might leave gaps in the analysis and greatly impact the value of our model’s predictions. Despite these limitations, the EIA-861 data has been used in several analysis reports and can be viewed as a reliable data source for understanding macro trends seen in the United States power grid. Later on in the analysis section we will construct various methods of overcoming these limitations however crude they might be.</p>
 </section>
 <section id="data-cleaning-processing-assumptions" class="level3" data-number="4.3">
 <h3 data-number="4.3" class="anchored" data-anchor-id="data-cleaning-processing-assumptions"><span class="header-section-number">4.3</span> Data Cleaning, Processing &amp; Assumptions</h3>
-<p>We initially started our analysis on the 2017 EIA-861 curated dataset developed by the CORGIS Dataset Project <span class="citation" data-cites="data-dictionary"><a href="#ref-data-dictionary" role="doc-biblioref">[6]</a></span>. However, when comparing the numbers for 2017 to the original data source the numbers were off. This might have been due to updates to upstream data that never reached the curated dataset. After this discovery we created a python script to regenerate the same exact dataset (same fields as the CORGIS Dataset) not only for 2017 but for 10 years worth of data. So 2015 to 2024. This script basically parsed each of the zipped files from the source and extracted data from 3 different schedules:</p>
+<p>We initially started our analysis on the 2017 EIA-861 curated dataset developed by the CORGIS Dataset Project <span class="citation" data-cites="data-dictionary"><a href="#ref-data-dictionary" role="doc-biblioref">[6]</a></span>. However, when comparing the numbers for 2017 to the original data source the numbers were off. This might have been due to updates to upstream data that never reached the curated dataset. After this discovery we created a python script to regenerate the same exact dataset (same fields as the CORGIS Dataset) not only for 2017 but for 10 years worth of data. So 2015 to 2015. This script basically parsed each of the zipped files from source and extracted data from 3 different schedules:</p>
 <ol type="1">
 <li><strong>Operational Data</strong> - The data containing aggregate operational data for the source and disposition of energy and revenue information from each electric utility.</li>
-<li><strong>Utility Data</strong> - The data containing information on a utility’s North American Electric Reliability (NERC) regions of operation. The data also indicates a utility’s independent system operator (ISO) or regional transmission organization (RTO) and whether that utility is engaged in any of the following activities: generation, transmission, buying transmission, distribution, buying distribution, wholesale marketing, retail marketing, bundled service, or operating alternative-fueled vehicles.</li>
-<li><strong>Sales to Ultimate Customers</strong> - The data containing revenue, sales (in megawatthours), and customer count of electricity delivered to end-use customers by state, sector, and balancing authority. A state, service type, and balancing authority-level adjustment is made for non-respondents and for customer-sited respondents.</li>
+<li><strong>Utility Data</strong> - The data contain information on a utility’s North American Electric Reliability (NERC) regions of operation. The data also indicate a utility’s independent system operator (ISO) or regional transmission organization (RTO) and whether that utility is engaged in any of the following activities: generation, transmission, buying transmission, distribution, buying distribution, wholesale marketing, retail marketing, bundled service, or operating alternative-fueled vehicles.</li>
+<li><strong>Sales to Ultimate Customers</strong> - The data contain revenue, sales (in megawatthours), and customer count of electricity delivered to end-use customers by state, sector, and balancing authority. A state, service type, and balancing authority-level adjustment is made for non-respondents and for customer-sited respondents.</li>
 </ol>
 <p>When it comes to data cleaning we had to handle the following and make some assumptions:</p>
 <ul>
-<li>In EIA-861 spreadsheets a dot (.) could represent data that was suppressed (as mentioned before with private companies), not available, or did not meet a certain threshold value. For these values we decided to make them zero but might use some form of data imputation to fill these in.</li>
+<li>In EIA-861 spreadsheets a dot (.) could represent data that was suppressed (as mentioned before with private companies), not available, or did not meet a certain threshold value. For these values we decided to make zero but might use soem form of data imputation to fill these in.</li>
 <li>We found only a handful of empty values in the state field. We dropped these rows as knowing where the utility is located was critical to the analysis.</li>
 </ul>
 </section>
-<section id="derived-features---feature-engineering" class="level3" data-number="4.4">
-<h3 data-number="4.4" class="anchored" data-anchor-id="derived-features---feature-engineering"><span class="header-section-number">4.4</span> Derived Features - Feature Engineering</h3>
-<p>We define the following engineered variables used throughout the analysis. Much of these variables are based on potentially biased opinions of what we might expect data-center-like conditions to look like.</p>
+<section id="derived-featurs---feature-engineering" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="derived-featurs---feature-engineering"><span class="header-section-number">4.4</span> Derived Featurs - Feature Engineering</h3>
+<p>We define the following engineered variables used throughout the analysis. Much of these variables are based on potentially biased opinions of what we might expect a data center like conditons to look like.</p>
 <section id="commercial-ratio" class="level4" data-number="4.4.1">
 <h4 data-number="4.4.1" class="anchored" data-anchor-id="commercial-ratio"><span class="header-section-number">4.4.1</span> Commercial Ratio</h4>
 <p>Measures how much of a utility’s total load comes from the commercial sector. High ratios suggest large commercial customers such as data centers. <span class="math display">\[
@@ -367,7 +371,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="losses-ratio" class="level4" data-number="4.4.4">
 <h4 data-number="4.4.4" class="anchored" data-anchor-id="losses-ratio"><span class="header-section-number">4.4.4</span> Losses Ratio</h4>
-<p>Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center loads can shift loss<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> patterns on the grid.<span class="citation" data-cites="power-loss"><a href="#ref-power-loss" role="doc-biblioref">[7]</a></span> <span class="math display">\[
+<p>Represents distribution and transmission losses relative to total usage. Extremely high-volume industrial or data center load can shift loss<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> patterns on the grid.<span class="citation" data-cites="power-loss"><a href="#ref-power-loss" role="doc-biblioref">[7]</a></span> <span class="math display">\[
 \text{Losses\_Ratio}
 \;=\;
 \frac{\text{Losses}}{\text{Total Uses}}
@@ -375,7 +379,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="log-transformed-size-features" class="level4" data-number="4.4.5">
 <h4 data-number="4.4.5" class="anchored" data-anchor-id="log-transformed-size-features"><span class="header-section-number">4.4.5</span> Log-Transformed Size Features</h4>
-<p>Log transformations stabilize the variance and capture the utility scale without being dominated by extreme outliers. During our EDA we discovered some issues with the data. Total customers and total sales vary by several orders of magnitude across U.S. utilities. Some are tiny rural co-ops; others (like Dominion) serve millions. The log transformation helps to mitigate these skewness issues and improves stablity in our modeling. In this study, logging these variables prevents large utilities from overwhelming the models and provides more interpretable patterns across the full national dataset. <span class="math display">\[
+<p>Log transforms stabilize variance and capture utility scale without being dominated by extreme outliers. During our EDA we discovered some issues with the data. Total customers and total sales vary by several orders of magnitude across U.S. utilities. Some are tiny rural co-ops; others (like Dominion) serve millions. The log transformation helps to mitigate these skewness issues and improves stablity in our modeling. In this study, logging these variables prevents large utilities from overwhelming the models and provides more interpretable patterns across the full national dataset. <span class="math display">\[
 \log(\text{Total\_Customers}),
 \qquad
 \log(\text{Total\_Sales})
@@ -384,7 +388,7 @@ Figure&nbsp;1: U.S. Census Regions and Divisions[^refnote].
 </section>
 <section id="composite-intensity-score" class="level4" data-number="4.4.6">
 <h4 data-number="4.4.6" class="anchored" data-anchor-id="composite-intensity-score"><span class="header-section-number">4.4.6</span> Composite Intensity Score</h4>
-<p>Combines three load-intensity metrics (Commercial Ratio, SalesPerCustomer, Commercial SPC) into a single standardized indicator of “data-center-like” consumption profiles.</p>
+<p>Combines three load-intensity metrics (Commercial Ratio, SPC, SalesPerCustomer) into a single standardized indicator of “data-center–like” consumption profiles.</p>
 <p>Each variable above is standardized to a z-score. The composite <em>Intensity Score</em> is then defined as:</p>
 <p><span class="math display">\[
 \text{IntensityScore}
@@ -399,7 +403,7 @@ z(\text{Commercial\_SPC})
 </section>
 <section id="high-demand-label" class="level4" data-number="4.4.7">
 <h4 data-number="4.4.7" class="anchored" data-anchor-id="high-demand-label"><span class="header-section-number">4.4.7</span> High-Demand Label</h4>
-<p>Identifies the top decile of utilities exhibiting exceptionally intense commercial electricity use those most, likely associated with data center load characteristics.</p>
+<p>Identifies the top decile of utilities exhibiting exceptionally intense commercial electricity use those most likely associated with data center load characteristics.</p>
 <p>Utilities falling in the <strong>top 10%</strong> of the Intensity Score distribution are classified as high-demand:</p>
 <p><span class="math display">\[
 \text{HighDemand} = 1
@@ -431,7 +435,7 @@ Figure&nbsp;2: Number of utilities per state in 2023, with Virginia highlighted.
 </div>
 </div>
 <p>We also examine the mix of utility business types (investor-owned, municipal, cooperative, etc.).<br>
-Figure <a href="#fig-utility-types" class="quarto-xref">Figure&nbsp;3</a> summarizes the <strong>count of utilities by type</strong> in 2023. For this particular study we are interested mostly in Investor Owned, Cooperative, and Retail Power Marketers but we will consider all utilities.</p>
+Figure <a href="#fig-utility-types" class="quarto-xref">Figure&nbsp;3</a> summarizes the <strong>count of utilities by type</strong> in 2023. For this particular study we are interested mostly in Investor Owned, Cooperative and Retail Power Marketers but we will consider all utilities.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-utility-types" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -549,7 +553,7 @@ Figure&nbsp;10: Commercial sector structure versus commercial sales per customer
 </div>
 </div>
 </div>
-<p>Figure <a href="#fig-va-vs-us-salespercustomer" class="quarto-xref">Figure&nbsp;11</a> shows how Virginia’s average electricity intensity per customer differs from the national trend from 2015–2024.</p>
+<p>Figure <a href="#fig-va-vs-us-salespercustomer" class="quarto-xref">Figure&nbsp;11</a> shows how Virginia’s average electricity intensity per customer compares to the national trend from 2015–2024.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-va-vs-us-salespercustomer" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -564,7 +568,7 @@ Figure&nbsp;11: Average electricity sales per customer over time (2015–2024), 
 </div>
 </div>
 </div>
-<p>Figure <a href="#fig-va-vs-us-commercialratio" class="quarto-xref">Figure&nbsp;12</a> illustrates how Virginia’s commercial load share differs from the national trend from 2015–2024.</p>
+<p>Figure <a href="#fig-va-vs-us-commercialratio" class="quarto-xref">Figure&nbsp;12</a> illustrates how Virginia’s commercial load share differs from the rest of the U.S. over time.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-va-vs-us-commercialratio" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -591,7 +595,7 @@ Figure&nbsp;12: Average commercial electricity sales ratio over time (2015–202
 </ol>
 <section id="building-classifiers" class="level3" data-number="5.1">
 <h3 data-number="5.1" class="anchored" data-anchor-id="building-classifiers"><span class="header-section-number">5.1</span> Building Classifiers</h3>
-<p>In this section we explore methods that will enable us to classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage. In particular, we look at various models including logistic regression, KNN, trees and random forests that will later enable us to not only identify utilities for the year we trained on but also generalize to other years. And lastly we look at some clustering methods using PCA and K-means.</p>
+<p>In this section we explore methods that will enable us to classify which utilities exhibit “data-center–like” load characteristics based on commercial intensity and per-customer electricity usage. In particular we look at various models including logistic regression, KNN, trees and random forests that will later enable us to not only identify utilities for the year we trained on but also generalize to other years. And lastly we look at some clustering methods using PCA and K-means.</p>
 <p>For all models we split our data into training and test sets using a 20% hold out for testing. We set a random seed of 123 which should allow us to have consistent results. We also use our featurize method to do feature engineering yielding out high demand characteristic features mentioned in the Data section.</p>
 <p>Figure <a href="#fig-high-demand-distribution" class="quarto-xref">Figure&nbsp;13</a> shows the distribution of high demand utilities across the country for 2023. This is after we do feature engineering on our data set. As you can see there are a very small number of high demand utilities.</p>
 <div class="cell">
@@ -608,47 +612,33 @@ Figure&nbsp;13: Distribution of high demand utilities for (2023)
 </div>
 </div>
 </div>
-<p>Figure <a href="#fig-dist-of-predictors-original-scale" class="quarto-xref">Figure&nbsp;14</a> illustrates how each of our feature engineered predictor variables of Commercial_Ratio, Commercial_SPC, Losses_Ratio, and SalesPerCustomer are highly skewed without any data transformations.</p>
+<p>Variables explod and are highly skewed.</p>
+<p>Explain</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-dist-of-predictors-original-scale" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-dist-of-predictors-original-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="power_files/figure-html/fig-dist-of-predictors-original-scale-1.png" class="img-fluid figure-img" width="864">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dist-of-predictors-original-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;14: Distributions of Predictors (original scale)
-</figcaption>
+<div>
+<figure class="figure">
+<p><img src="power_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Figure <a href="#fig-dist-of-predictors-log10-scale" class="quarto-xref">Figure&nbsp;15</a> now shows that with a log10 transformation, our feature engineered predictor variables all exhibit much more clearer and interpretable distributions.</p>
+<p>Explain</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-dist-of-predictors-log10-scale" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-dist-of-predictors-log10-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="power_files/figure-html/fig-dist-of-predictors-log10-scale-1.png" class="img-fluid figure-img" width="864">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dist-of-predictors-log10-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;15: Distributions of Predictors (log10 scale)
-</figcaption>
+<div>
+<figure class="figure">
+<p><img src="power_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Figure <a href="#fig-boxplots-by-highdemand" class="quarto-xref">Figure&nbsp;16</a> displays boxplots of our 5 predictors, separated by demand class. Note that while observing these boxplots, we can see that the high demand class is often correlated with much higher average Commercial_Ratio values, as well as lower average Losses_Ratio and log_Total_Customers values.</p>
+<p>Explain</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-boxplots-by-highdemand" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-boxplots-by-highdemand-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="power_files/figure-html/fig-boxplots-by-highdemand-1.png" class="img-fluid figure-img" width="864">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-boxplots-by-highdemand-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;16: Boxplots of Predictors by High-Demand Class (2023)
-</figcaption>
+<div>
+<figure class="figure">
+<p><img src="power_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -724,7 +714,7 @@ Table&nbsp;1: Confusion Matrix for Unpenalized Logistic Regression Model (Test S
 </figure>
 </div>
 </div>
-<p>The standardized logistic regression model <a href="#eq-stdlogitmodel" class="quarto-xref">Equation&nbsp;2</a> replaces the raw intensity variables with their z-scores while keeping the same outcome (HighDemand_intensity) and covariates (is_VA and Utility.Type). Standardization improves numerical conditioning and makes predictors comparable in principle, but in this case the fitted model still shows extremely large coefficient estimates and tiny p-values for all terms. This indicates that the underlying problem has not been resolved.</p>
+<p>The standardized logistic regression model <a href="#eq-stdlogitmodel" class="quarto-xref">Equation&nbsp;2</a> replaces the raw intensity variables with their z-scores while keeping the same outcome (HighDemand_intensity) and covariates (is_VA and Utility.Type). Standardization improves numerical conditioning and makes predictors comparable in principle, but in this case the fitted model still shows extremely large coefficient estimates (on the order of and tiny p-values for all terms. This indicates that the underlying problem has not been resolved.</p>
 <p><span class="math display">\[
 \Pr(Y_i = 1 \mid X_i)
 = \frac{1}{1 + \exp(-\eta_i)}
@@ -793,8 +783,8 @@ Table&nbsp;2: Confusion Matrix for Standardized Logistic Regression Model (Test 
 </div>
 </div>
 <p>To address the instability observed in the unpenalized logistic regression models, we fit a Ridge-penalized logistic regression using cross-validation. Ridge regression introduces an L2 penalty on the magnitude of the coefficients, shrinking them toward zero and preventing the divergence that occurred in the raw and standardized models. We trained the model using 10-fold cross-validation, which automatically selects the value of the penalty parameter <span class="math inline">\(\lambda\)</span> that minimizes cross-validated deviance.</p>
-<p>The Ridge model produces well-behaved coefficients and yields more reliable out-of-sample predictions. Unlike the previous models, Ridge does not aim to provide easily interpretable coefficients, and penalization introduces bias in exchange for substantial variance reduction but it provides a more stable and generalizable classifier. See <a href="#tbl-confusion-ridgelogitmodel" class="quarto-xref">Table&nbsp;3</a>.</p>
-<p>Classification performance on the test set remains very strong, with an accuracy near 94–95%, similar to the unpenalized models. However, because the coefficients are shrunk and closely correlated predictors share weight, Ridge should be interpreted as a predictive model, not an explanatory one.</p>
+<p>The Ridge model produces well-behaved coefficients and yields more reliable out-of-sample predictions. Unlike the previous models, Ridge does not aim to provide easily interpretable coefficients penalization introduces bias in exchange for substantial variance reduction but it provides a more stable and generalizable classifier. See <a href="#tbl-confusion-ridgelogitmodel" class="quarto-xref">Table&nbsp;3</a>.</p>
+<p>Classification performance on the test set remains very strong, with an accuracy near 97–98%, similar to the unpenalized models. However, because the coefficients are shrunk and closely correlated predictors share weight, Ridge should be interpreted as a predictive model, not an explanatory one.</p>
 <div class="cell">
 <div id="tbl-confusion-ridgelogitmodel" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -993,8 +983,7 @@ Table&nbsp;6: Confusion Matrix for Random Forest Model (Test Set)
 </section>
 <section id="knn" class="level4" data-number="5.1.4">
 <h4 data-number="5.1.4" class="anchored" data-anchor-id="knn"><span class="header-section-number">5.1.4</span> KNN</h4>
-<p>K-Nearest Neighbors (KNN) analysis begins by selecting predictors and standardizing them using the mean and standard deviation calculated from the training data. This ensures that all features contribute equally to the distance calculations used by KNN. The standardized training data and corresponding class labels (HighDemand_intensity) are then used to classify each observation in the standardized test set by identifying the k=5 closest training points in feature space, and assigning the majority class among those neighbors. Finally, predictions are compared with actual test labels to generate a confusion matrix and accuracy measure, as shown in <a href="#tbl-knn" class="quarto-xref">Table&nbsp;7</a>.</p>
-<p>The results show that the model correctly classified nearly all observations, incorrectly classifying only 10 out of 314 cases and achieving an accuracy of about 96.8%. The confusion matrix also indicates no false positives, suggesting the classifier is conservative and highly accurate for the High Demand class.</p>
+<p>Take this out or write a very brief explanation on it.</p>
 <div id="tbl-knn" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-knn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1081,9 +1070,16 @@ Table&nbsp;10: PCA and K-means Clustering
 </section>
 <section id="model-comparison-summary" class="level4" data-number="5.1.6">
 <h4 data-number="5.1.6" class="anchored" data-anchor-id="model-comparison-summary"><span class="header-section-number">5.1.6</span> Model Comparison Summary</h4>
+<p>Both ridge logistic and random forest models reliably identify utilities with unusually intense commercial electricity usage. See <a href="#tbl-model-summary" class="quarto-xref">Table&nbsp;11</a>.</p>
 <div class="cell">
+<div id="tbl-model-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-model-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11: Model Summary
+</figcaption>
+<div aria-describedby="tbl-model-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="table table-striped table-hover table-condensed caption-top table-sm small" data-quarto-postprocess="true">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small" data-quarto-postprocess="true">
 <caption>Model Performance Comparison</caption>
 <thead>
 <tr class="header">
@@ -1127,22 +1123,114 @@ Table&nbsp;10: PCA and K-means Clustering
 </table>
 </div>
 </div>
+</figure>
+</div>
+</div>
 </section>
 </section>
 <section id="predictive-modeling-of-high-load-utility-distribution-and-state-level-dominance" class="level3" data-number="5.2">
 <h3 data-number="5.2" class="anchored" data-anchor-id="predictive-modeling-of-high-load-utility-distribution-and-state-level-dominance"><span class="header-section-number">5.2</span> Predictive Modeling of High-Load Utility Distribution and State-Level Dominance</h3>
-<p>Now that we have built several models, we want to utilize those models to answer our remaining research questions above:</p>
+<p>Now that we have built several models we want to utilize those models to answer our remaining research questions:</p>
 <ol type="1">
 <li>How does Virginia compare nationally in the proportion and concentration of high-demand utilities?</li>
 <li>Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?</li>
 </ol>
+<section id="methodology" class="level4" data-number="5.2.1">
+<h4 data-number="5.2.1" class="anchored" data-anchor-id="methodology"><span class="header-section-number">5.2.1</span> Methodology</h4>
+<p>To answer these questions, we first considered our trained ridge-penalized logistic regression model trained on 2023 utility-level data to classify each utility as either high-demand or normal-demand based on our engineered intensity features. We then applied this fitted model, along with a random forest classifier, to out-of-sample years (2018 and 2023) by re-featurizing the EIA-861 data for each year and carefully aligning factor levels and matrix columns with the original training set. This produced a combined dataset (classified_all) containing predicted high-demand labels for every utility, year, and state. From this, we constructed state-level summaries:</p>
+<ol type="i">
+<li><p>the proportion of utilities classified as high-demand (to measure concentration), and</p></li>
+<li><p>a composite Data Center Load Index (DCLI) <a href="#eq-dcli" class="quarto-xref">Equation&nbsp;3</a> that averages the share of total retail sales, customers, and commercial sales served by high-demand utilities (to measure dominance). The resulting state-level proportions and DCLI values were then visualized to compare Virginia’s position to that of other states.</p></li>
+</ol>
+<p><span id="eq-dcli"><span class="math display">\[
+\text{DCLI}_s
+=
+\frac{
+\left(
+\frac{\text{HighSales}_s}{\text{TotalSales}_s}
+\right)
++
+\left(
+\frac{\text{HighCustomers}_s}{\text{TotalCustomers}_s}
+\right)
++
+\left(
+\frac{\text{HighCommercialSales}_s}{\text{TotalCommercialSales}_s}
+\right)
+}{3}
+\tag{3}\]</span></span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(\mathcal{U}_s\)</span> = set of <strong>all utilities</strong> in state <span class="math inline">\(s\)</span><br>
+</li>
+<li><span class="math inline">\(\mathcal{H}_s \subset \mathcal{U}_s\)</span> = subset of <strong>high-demand utilities</strong> in state <span class="math inline">\(s\)</span><br>
+</li>
+<li><em>Sales</em> = total annual retail electricity sales<br>
+</li>
+<li><em>Customers</em> = total annual number of customers<br>
+</li>
+<li><em>CommSales</em> = total annual <strong>commercial-sector</strong> electricity sales</li>
+</ul>
+</section>
+<section id="results" class="level4" data-number="5.2.2">
+<h4 data-number="5.2.2" class="anchored" data-anchor-id="results"><span class="header-section-number">5.2.2</span> Results</h4>
+<p>As can be seen in <a href="#fig-results-proportion" class="quarto-xref">Figure&nbsp;14</a>, across all states, we find that Virginia does not emerge as the single most extreme state in terms of the number of utilities classified as high-demand. Instead, it ranks roughly tenth, placing it in the top ten nationally. This means that Virginia’s utility mix is unmistakably more “high-intensity” than that of the typical U.S. state, but several states exhibit even higher concentrations of load-intensive utilities. These findings indicate that while Virginia is a key center of high-demand electricity usage, it is not unique in having utilities that show strong commercial and per-customer intensity profiles.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-results-proportion" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-results-proportion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-results-proportion-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-results-proportion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14: Proportion of high-demand utilities (Virginia vs national) - Ridge Model
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>However, simple utility counts do not reflect overall dominance, because not all utilities are equal in size or influence. To address this, we constructed the Data Center Load Index (DCLI) a composite metric averaging the retail-sales-weighted, customer-weighted, and commercial-sales-weighted share of total load served by high-demand utilities. This index captures not just how many high-demand utilities a state has, but how important they are to the state’s power demand. As can be seen in <a href="#fig-results-dcli" class="quarto-xref">Figure&nbsp;15</a> under the DCLI, Virginia again appears in the upper tier of states, but is outpaced by a handful of states where one or two utilities dominate nearly the entire statewide load. Importantly, several of these top-ranked states are not traditional data center hubs, suggesting that our intensity-based classification is detecting a broader category of industrial and commercial high-load behavior not only hyperscale data centers.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-results-dcli" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-results-dcli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="power_files/figure-html/fig-results-dcli-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-results-dcli-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15: High-demand utility concentration and weighted dominance across states, highlighting Virginia.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="discussion-limitations" class="level4" data-number="5.2.3">
+<h4 data-number="5.2.3" class="anchored" data-anchor-id="discussion-limitations"><span class="header-section-number">5.2.3</span> Discussion &amp; Limitations</h4>
+<p>The DCLI reveals why Virginia ranks highly even though it has relatively few high-demand utilities. Virginia’s electricity system is anchored by a small number of extremely large utilities, most notably Dominion Energy and NOVEC. If one of these utilities is classified as high-demand, it automatically commands a very large share of total statewide sales and customers. In other words:</p>
+<p><strong>Virginia is not dominated by many high-demand utilities—it is dominated by a few enormous ones.</strong></p>
+<p>This explains Virginia’s strong DCLI ranking: high-demand load is concentrated inside a small number of massive utilities, rather than spread across many smaller ones as occurs in other states. By contrast, states like New York exhibit a high count of high-demand utilities, but these tend to be relatively small; their DCLI drops sharply once weighted by load. Other states appear at the top of the rankings due to industrial intensity where load patterns resemble the characteristics of our “high-demand” classification even though they are not data center hubs.</p>
+<p>These findings highlight both the strength and the limits of using utility-level EIA-861 data as a proxy for identifying data-center-like demand. Because the dataset does not identify data centers explicitly, the “high-demand” class inevitably captures a mixture of true hyperscale activity and unrelated high-load commercial or industrial customers. Rather than contradicting Virginia’s well-documented role as the world’s largest data center market, the results show that when we zoom out to a national, utility-level lens, data-center-like load is part of a broader pattern of concentrated high-intensity commercial usage across the United States.</p>
+<p>Bringing everything together, the proportional rankings and DCLI analysis provide a consistent story: Virginia stands out as one of the nation’s most high-demand states not because it has many high-demand utilities, but because the few that it does have carry enormous weight. When considering both concentration and dominance, Virginia emerges clearly as a high-intensity electricity state whose load structure reflects the presence of major hyperscale data center activity layered onto large, diversified utility territories.</p>
+</section>
 </section>
 </section>
 <section id="conclusion" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">6</span> Conclusion</h2>
-<p>This study demonstrates that utility level EIA 861 data, despite lacking explicit data-center identifiers, can successfully reveal data-center–like electricity demand patterns using structural load metrics, machine learning classification, and weighted dominance indices.</p>
-<p>Key insights gained from this study:</p>
-<p>Future considerations</p>
+<p>This study demonstrates that utility-level EIA-861 data, despite lacking explicit data-center identifiers, can still reveal meaningful data-center–like electricity demand patterns when combined with structural load metrics, machine-learning classifiers, and weighted dominance indices such as the DCLI. Our results show that Virginia consistently ranks within the upper tier of states in both the proportion and dominance of high-demand utilities, though it is not the single most extreme case nationally. Instead, Virginia’s position is driven by a small number of very large utilities whose load profiles heavily influence statewide metrics—highlighting that intensity and dominance do not always correspond to the number of high-demand utilities alone.</p>
+<p>Key insights gained from this study include:</p>
+<ul>
+<li><p>High-demand utility behavior is not unique to traditional data-center states; several states exhibit strong commercial or industrial load intensity unrelated to hyperscale development.</p></li>
+<li><p>Virginia’s system stands out not because it has many high-demand utilities, but because its few high-intensity utilities represent a disproportionately large share of statewide load.</p></li>
+<li><p>Weighted metrics such as the DCLI provide a more accurate picture of systemic dominance than simple counts of high-demand utilities.</p></li>
+</ul>
+<p>Future considerations:</p>
+<ul>
+<li><p>More granular data such as substation-level load, hourly consumption, or direct data-center reporting would improve classification accuracy and help isolate genuine data-center demand from other high-load sectors.</p></li>
+<li><p>Incorporating temporal dynamics through time-series models could reveal how high-demand behavior evolves as data-center growth accelerates.</p></li>
+<li><p>Additional feature engineering or alternative classification approaches may help reduce noise in states where industrial load patterns resemble data-center behavior.</p></li>
+</ul>
+<p>Overall, this framework provides a scalable foundation for tracking evolving electricity demand pressures and assessing how data-center–like load patterns shape the resilience and planning needs of state-level power systems.</p>
 </section>
 <section id="references" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="references"><span class="header-section-number">7</span> References</h2>
