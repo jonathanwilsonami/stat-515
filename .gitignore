@@ -40,3 +40,4 @@ renv/library/
 
 
 utils/code_store.R
+renv.lock
