@@ -14,7 +14,7 @@ authors:
 ---
 
 ## Abstract
-The rapid expansion of data centers in Virginia has raised concerns about rising electricity consumption and shifting load patterns across the Commonwealth. This study develops a statistical learning framework to identify *high-demand* electric utilities and to compare Virginia’s demand characteristics with national trends. Using ten years of U.S. Energy Information Administration (EIA-861) data, we construct engineered features—such as commercial sales ratios, per-customer intensity metrics, and loss ratios—and compute a composite **Intensity Score** to classify utilities exhibiting unusually high load profiles.
+The rapid expansion of data centers in Virginia has raised concerns about rising electricity consumption and shifting load patterns especially in northern counties of the state. This study leverages a statistical learning approach to identify *high-demand* electric utilities and to compare Virginia’s demand characteristics with national trends. Using ten years of U.S. Energy Information Administration (EIA-861) data, we construct engineered features such as commercial sales ratios, per-customer intensity metrics, and loss ratios—and compute a composite **Intensity Score** to classify utilities exhibiting unusually high load profiles.
 
 Multiple supervised models are evaluated, including logistic regression, standardized logistic regression, ridge-penalized logistic regression, classification trees, random forests, and K-nearest neighbors. Unsupervised methods (PCA and K-means) further reveal multivariate structure and clustering patterns among utilities. Findings show that while raw and standardized logistic models suffer from severe separation and unstable coefficient estimates, ridge logistic regression and tree-based models provide the most reliable predictive performance. When applied to 2023 data, the ridge model identifies Virginia as having a relatively high concentration of load-intensive utilities once weighted by retail sales and commercial activity, aligning with observed data center growth.
 
@@ -23,7 +23,7 @@ The study demonstrates how statistically rigorous, machine-learning-based classi
 ## Introduction & Background
 
 ### Motivation
-Over the past few decades, technological output has risen steadily. That gradual climb transformed into exponential growth with the advent of cloud computing, and now with the acceleration of the AI era that trajectory is poised to surge even faster. This rapid expansion is widely recognized. What’s far less understood, however, is the critical infrastructure that makes all of it possible. At the center of this digital revolution lies the often overlooked backbone of modern society: the power grid. It is the heartbeat of every computation, the lifeblood behind the flow of ones and zeros. Without this essential utility—something most of us rarely think about—the modern world as we know it would come to a halt. And no where is that more true than in the state of Virginia. 
+Over the past few decades, technological output has risen steadily. That gradual climb transformed into exponential growth with the advent of cloud computing, and now with the acceleration of the AI era that trajectory is poised to surge even faster. This rapid expansion is widely recognized. What’s far less understood, however, is the critical infrastructure that makes all of it possible. At the center of this digital revolution lies the often overlooked backbone of modern society: the power grid. It is the heartbeat of every computation, the lifeblood behind the flow of ones and zeros. Without this essential utility the modern world as we know it would come to a halt. And no where is that more true than in the state of Virginia. 
 
 ### Virginia's Internet & Data Boom
 Over the past several decades, Virginia has evolved from a strategically located government corridor into the epicenter of the modern internet. This transformation began in the early 1990s, when the Metropolitan Area Exchange–East (MAE-East)—one of the original four Network Access Points funded by the National Science Foundation—was established in Northern Virginia. Its proximity to federal agencies and research institutions such as DARPA, whose ARPANET project laid the foundations for the internet, positioned the region as a natural hub for digital networks. Over time, transatlantic subsea cable systems like MAREA-BRUSA, landing in Virginia Beach, further strengthened the state's role in global connectivity [@data-center-capital].
@@ -33,7 +33,7 @@ Today, that historical advantage has scaled into an unmatched concentration of d
 ### Virginia's Power Demands & Hyperscaler's Damnd for Data
 Virginia’s data center ecosystem has expanded at an unprecedented pace, driven largely by the accelerating demand for cloud computing and AI workloads. With more than 24,000 megawatts of planned data center capacity, Virginia surpasses every other market in the world—by more than a factor of three—in total expected power demand [@cushman]. This explosive growth reflects the state’s long-standing role as the heart of global internet traffic, as well as its strategic appeal to the companies building the modern digital economy. Nowhere is this more evident than in Northern Virginia, where annual data center absorption has shattered global records; the region reached 270 MW of bookings in 2018, while no other market worldwide has ever exceeded 70 MW in a single year [@dawn-of-data].
 
-At the center of this surge are the hyperscalers^[A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.] major cloud and platform providers such as Microsoft, Google, Meta (Facebook), Apple, Oracle, IBM, Yahoo!, LinkedIn, Alibaba, Uber, and Dropbox. These companies require immense and rapidly scalable infrastructure, with hyperscale leases often ranging from 10 to 20 megawatts or more for a single deployment. Their adoption of point-of-delivery architectures and other repeatable, modular design patterns has enabled them to scale at a pace unmatched in the industry. The resulting demand for data is fueled by the relentless expansion of e-commerce, wireless networks, social media, streaming content, SaaS platforms, artificial intelligence, machine learning, gaming, virtual reality, and the Internet of Things. Collectively, these forces make Virginia not just a data center leader, but the world’s central engine for digital power consumption [@data-center-capital].
+At the center of this surge are the hyperscalers^[A hyperscaler is a company that operates massive-scale data centers to provide large-scale cloud computing services, like computing, storage, and networking, that can be rapidly scaled to meet fluctuating demand.] major cloud and platform providers such as Microsoft, Google, Meta (Facebook), Apple, Oracle, IBM, Yahoo!, LinkedIn, Alibaba, Uber, and Dropbox. These companies require immense and rapidly scalable infrastructure, with hyperscale leases often ranging from 10 to 20 megawatts or more for a single deployment. The resulting demand for data is fueled by the relentless expansion of e-commerce, wireless networks, social media, streaming content, SaaS platforms, artificial intelligence, machine learning, gaming, virtual reality, and the Internet of Things. Collectively, these forces make Virginia not just a data center leader, but the world’s central engine for digital power consumption [@data-center-capital].
 
 ### The Fragile Power Grid
 
@@ -50,6 +50,17 @@ To understand how these pressures play out across the country, it is helpful to 
 Taken together, Virginia’s outsized role in global internet infrastructure, the explosive growth of hyperscale data centers, and the increasing fragility of the power grid form the backdrop for the analysis that follows. As demand for AI, cloud computing, and digital services accelerates, understanding how this demand translates into regional electricity usage becomes critical—not only for Virginia but for the nation. This study seeks to examine how Virginia’s utilities compare to those across the United States, identify whether data-center-driven growth produces distinctive load patterns, and explore the emerging pressures placed on the grid as a result. By combining national utility data with Virginia-specific trends, our goal is to measure where Virginia stands today, how its electricity profile is changing, and what these shifts may imply for energy planning, reliability, and the future of the digital economy.
 
 ## Related Works 
+
+Congress
+
+
+Crypto
+
+
+Demand
+
+
+Cloud Next Door
 
 As shown in recent studies [@texas-power-demand], data centers significantly increase load.
 
@@ -964,6 +975,8 @@ formula_all <- HighDemand_intensity ~ Commercial_Ratio + SalesPerCustomer +
 x_train <- model.matrix(formula_all, data = train)[, -1]
 y_train <- train$HighDemand_intensity
 
+ridge_x_cols <- colnames(x_train)
+
 x_test  <- model.matrix(formula_all, data = test)[, -1]
 y_test  <- test$HighDemand_intensity
 
@@ -1276,14 +1289,45 @@ In the PCA scatter plot @tbl-pca, high‐demand utilities tend to occupy distinc
 #| warning: false
 #| error: false
 
+library(ggrepel)
 
 df_pca <- cbind(df_year, as.data.frame(pca_res$x))
+
+va_utils <- c(
+  "Northern Virginia Elec Coop",
+  "Virginia Electric & Power Co"
+)
+
+annot_df <- df_pca %>%
+  filter(Utility.Name %in% va_utils)
 
 ggplot(df_pca,
        aes(x = PC1, y = PC2,
            color = factor(HighDemand_intensity),
            shape = factor(is_VA))) +
   geom_point(alpha = 0.75, size = 2.8) +
+  
+  geom_point(
+    data = annot_df,
+    aes(x = PC1, y = PC2),
+    color = "red",
+    shape = 17,
+    size = 4,
+    inherit.aes = FALSE
+  ) +
+  
+  geom_label_repel(
+    data = annot_df,
+    aes(label = Utility.Name),
+    box.padding   = 0.5,
+    point.padding = 0.3,
+    segment.color = "red",
+    size = 4,
+    fill = "white",
+    label.size = 0.2,
+    max.overlaps = Inf
+  ) +
+  
   theme_minimal(base_size = 14) +
   labs(
     title = "Utility Structural Patterns in PCA Space",
@@ -1311,7 +1355,7 @@ K-means clustering (see @tbl-kemans) applied to the first three PCs further reve
 
 
 X_cluster <- df_pca %>%
-  select(PC1, PC2, PC3) %>%
+  dplyr::select(PC1, PC2, PC3) %>%
   as.matrix()
 
 set.seed(123)
@@ -1320,14 +1364,34 @@ km_res <- kmeans(X_cluster, centers = k, nstart = 25)
 
 df_pca$cluster_km <- factor(km_res$cluster)
 
-#table(df_pca$cluster_km, df_pca$HighDemand_intensity)
-#table(df_pca$cluster_km, df_pca$is_VA)
-
 ggplot(df_pca,
        aes(x = PC1, y = PC2,
            color = cluster_km,
            shape = factor(is_VA))) +
   geom_point(alpha = 0.75, size = 2.8) +
+
+  geom_point(
+    data = annot_df,
+    aes(x = PC1, y = PC2),
+    inherit.aes = FALSE,
+    color = "red",
+    shape = 17,
+    size = 4
+  ) +
+
+  geom_label_repel(
+    data = annot_df,
+    aes(x = PC1, y = PC2, label = Utility.Name),
+    inherit.aes  = FALSE,
+    box.padding   = 0.5,
+    point.padding = 0.3,
+    segment.color = "red",
+    size          = 4,
+    fill          = "white",
+    label.size    = 0.2,
+    max.overlaps  = Inf
+  ) +
+
   theme_minimal(base_size = 14) +
   labs(
     title = "K-means Clusters in PCA Space",
@@ -1344,7 +1408,18 @@ Overall, PCA reveals that Virginia utilities do not form a distinct high-intensi
 
 #### Model Comparison Summary 
 
+Both ridge logistic and random forest models reliably identify utilities with unusually intense commercial electricity usage. See @tbl-model-summary. 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: tbl-model-summary
+#| tbl-cap: "Model Summary"
+#| fig-width: 9
+#| fig-height: 7
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+
 # ############################################################
 # Model Comparison Summary (2023)
 # ############################################################
@@ -1385,352 +1460,317 @@ kable(model_compare, align = "c", caption = "Model Performance Comparison") |>
 
 ### Predictive Modeling of High-Load Utility Distribution and State-Level Dominance  
 
-Now that we have built several models we want to utilized those models we to answer our remaining research questions above:
+Now that we have built several models we want to utilize those models to answer our remaining research questions:
 
 1. How does Virginia compare nationally in the proportion and concentration of high-demand utilities?
 2. Which states show strong dominance of high-load utilities when weighted by retail sales, customer base, and commercial sales volume?
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-# ############################################################
-# ## 13. Apply Trained Ridge + RF Models to ANY YEAR
-# ############################################################
-# 
-# featurize_year <- function(df_year) {
-#   featurize_utilities(df_year)
-# }
-# 
-# classify_year_with_trained_models <- function(target_year) {
-#   
-#   df_year_new <- power_combined %>%
-#     filter(Year == target_year) %>%
-#     featurize_year()
-#   
-#   if (nrow(df_year_new) == 0) {
-#     stop(paste("No valid rows for year", target_year))
-#   }
-#   
-#   # Align Utility.Type with training levels
-#   df_year_new$Utility.Type <- factor(df_year_new$Utility.Type,
-#                                      levels = levels(train$Utility.Type))
-#   
-#   # Build design matrix for ridge to match x_train
-#   rhs_formula <- as.formula(
-#     "~ Commercial_Ratio + SalesPerCustomer +
-#        Commercial_SPC + Losses_Ratio + log_Total_Customers +
-#        is_VA + Utility.Type"
-#   )
-#   
-#   x_year <- model.matrix(rhs_formula, data = df_year_new)[, -1, drop = FALSE]
-#   
-#   train_cols <- colnames(x_train)
-#   year_cols  <- colnames(x_year)
-#   
-#   # Add missing columns
-#   missing_cols <- setdiff(train_cols, year_cols)
-#   if (length(missing_cols) > 0) {
-#     for (mc in missing_cols) {
-#       x_year <- cbind(x_year, 0)
-#       colnames(x_year)[ncol(x_year)] <- mc
-#     }
-#   }
-#   
-#   # Drop extra columns
-#   extra_cols <- setdiff(colnames(x_year), train_cols)
-#   if (length(extra_cols) > 0) {
-#     x_year <- x_year[, !(colnames(x_year) %in% extra_cols), drop = FALSE]
-#   }
-#   
-#   # Reorder
-#   x_year <- x_year[, train_cols, drop = FALSE]
-#   
-#   # Ridge predictions
-#   df_year_new$pred_ridge_prob  <- as.numeric(
-#     predict(ridge_cv, newx = x_year, s = "lambda.min", type = "response")
-#   )
-#   df_year_new$pred_ridge_class <- ifelse(df_year_new$pred_ridge_prob >= 0.5, 1L, 0L)
-#   
-#   # Random forest predictions
-#   rf_pred <- predict(rf_model, newdata = df_year_new)
-#   df_year_new$pred_rf_class <- as.integer(as.character(rf_pred))
-#   
-#   df_year_new
-# }
-# 
-# ############################################################
-# ## 14. Example: Classify 2023 for State Comparisons
-# ############################################################
-# 
-# results_2023 <- classify_year_with_trained_models(2023)
-# 
-# # State-level summary (count-based)
-# state_summary_2023 <- results_2023 %>%
-#   group_by(Utility.State) %>%
-#   summarise(
-#     n_util          = n(),
-#     n_high_ridge    = sum(pred_ridge_class == 1, na.rm = TRUE),
-#     prop_high_ridge = n_high_ridge / n_util,
-#     n_high_rf       = sum(pred_rf_class == 1, na.rm = TRUE),
-#     prop_high_rf    = n_high_rf / n_util
-#   ) %>%
-#   filter(n_util >= 5)
-# 
-# state_summary_2023 %>%
-#   arrange(desc(prop_high_ridge)) %>%
-#   head(10)
-# 
-# ############################################################
-# ## 15. Plots for Report: State Comparisons (Count-Based)
-# ############################################################
-# 
-# # Plot 1: Bar chart of proportion high-demand by state (ridge)
-# ggplot(state_summary_2023,
-#        aes(x = reorder(Utility.State, prop_high_ridge),
-#            y = prop_high_ridge,
-#            fill = Utility.State == "VA")) +
-#   geom_col() +
-#   coord_flip() +
-#   scale_fill_manual(values = c("grey70", "steelblue"),
-#                     guide = "none") +
-#   theme_minimal() +
-#   labs(
-#     title   = "Share of Utilities Classified as High-Demand (Ridge Model, 2023)",
-#     x       = "State",
-#     y       = "Proportion High-Demand Utilities",
-#     caption = "High-demand inferred from 2023 structural commercial-load model"
-#   )
-# 
-# # Plot 2: Virginia vs other states in load space (ridge predictions)
-# results_2023 <- results_2023 %>%
-#   mutate(
-#     Region = if_else(Utility.State == "VA", "Virginia", "Other States")
-#   )
-# 
-# ggplot(results_2023,
-#        aes(x = SalesPerCustomer,
-#            y = Commercial_SPC,
-#            color = factor(pred_ridge_class))) +
-#   geom_point(alpha = 0.6) +
-#   scale_x_log10() +
-#   scale_y_log10() +
-#   facet_wrap(~ Region) +
-#   theme_minimal() +
-#   labs(
-#     title  = "Utility Load Structure: Virginia vs Other States (2023)",
-#     x      = "Sales per Customer (log scale)",
-#     y      = "Commercial Sales per Commercial Customer (log scale)",
-#     color  = "Predicted High-Demand\n(Ridge Model)"
-#   )
-# 
-# # Plot 3: Heatmap of high-demand share by state (RF)
-# ggplot(state_summary_2023,
-#        aes(x = Utility.State, y = 1, fill = prop_high_rf)) +
-#   geom_tile() +
-#   coord_flip() +
-#   scale_fill_gradient(low = "white", high = "darkred") +
-#   theme_minimal() +
-#   labs(
-#     title = "Proportion of High-Demand Utilities by State (RF Model, 2023)",
-#     x     = "State",
-#     y     = NULL,
-#     fill  = "Prop High-Demand"
-#   ) +
-#   theme(
-#     axis.text.y  = element_text(size = 6),
-#     axis.text.x  = element_blank(),
-#     axis.ticks.x = element_blank()
-#   )
-# 
-# ############################################################
-# ## 16. Load-Weighted, Customer-Weighted, Commercial-Weighted Indices
-# ##     + Composite Data Center Load Index (DCLI)
-# ############################################################
-# 
-# # Helper to normalize to [0,1]
-# normalize_01 <- function(x) {
-#   rng <- range(x, na.rm = TRUE)
-#   if (diff(rng) == 0) {
-#     return(rep(0.5, length(x)))
-#   } else {
-#     (x - rng[1]) / (rng[2] - rng[1])
-#   }
-# }
-# 
-# state_indices_2023 <- results_2023 %>%
-#   group_by(Utility.State) %>%
-#   summarise(
-#     n_util             = n(),
-#     total_retail_sales = sum(Retail.Total.Sales, na.rm = TRUE),
-#     total_customers    = sum(Retail.Total.Customers, na.rm = TRUE),
-#     total_comm_sales   = sum(Retail.Commercial.Sales, na.rm = TRUE),
-# 
-#     high_sales_ridge = sum(ifelse(pred_ridge_class == 1,
-#                                   Retail.Total.Sales, 0), na.rm = TRUE),
-#     high_cust_ridge  = sum(ifelse(pred_ridge_class == 1,
-#                                   Retail.Total.Customers, 0), na.rm = TRUE),
-#     high_comm_sales_ridge = sum(ifelse(pred_ridge_class == 1,
-#                                        Retail.Commercial.Sales, 0), na.rm = TRUE),
-# 
-#     high_sales_rf = sum(ifelse(pred_rf_class == 1,
-#                                Retail.Total.Sales, 0), na.rm = TRUE),
-#     high_comm_sales_rf = sum(ifelse(pred_rf_class == 1,
-#                                     Retail.Commercial.Sales, 0), na.rm = TRUE)
-#   ) %>%
-#   filter(total_retail_sales > 0,
-#          total_customers > 0) %>%
-#   mutate(
-#     # Load-weighted index (what you already had)
-#     prop_sales_high_ridge = high_sales_ridge / total_retail_sales,
-#     prop_sales_high_rf    = high_sales_rf   / total_retail_sales,
-# 
-#     # NEW: customer-weighted index
-#     prop_customers_high_ridge = high_cust_ridge / total_customers,
-# 
-#     # NEW: commercial-sales-weighted index
-#     prop_comm_high_ridge = if_else(
-#       total_comm_sales > 0,
-#       high_comm_sales_ridge / total_comm_sales,
-#       NA_real_
-#     ),
-# 
-#     # Normalized versions on [0,1] for composite index
-#     idx_load_n = normalize_01(prop_sales_high_ridge),
-#     idx_cust_n = normalize_01(prop_customers_high_ridge),
-#     idx_comm_n = normalize_01(prop_comm_high_ridge),
-# 
-#     # Composite Data Center Load Index (DCLI)
-#     DCLI = rowMeans(
-#       cbind(idx_load_n, idx_cust_n, idx_comm_n),
-#       na.rm = TRUE
-#     )
-#   )
-# 
-# # Inspect top 10 states by DCLI
-# state_indices_2023 %>%
-#   arrange(desc(DCLI)) %>%
-#   head(10)
-# 
-# ############################################################
-# ## 17. Calibrate Dominance Thresholds from DCLI
-# ############################################################
-# 
-# dcli_quants <- quantile(state_indices_2023$DCLI,
-#                         probs = c(0.50, 0.75, 0.90),
-#                         na.rm = TRUE)
-# 
-# dcli_quants
-# 
-# state_indices_2023 <- state_indices_2023 %>%
-#   mutate(
-#     dominance_class = case_when(
-#       DCLI >= dcli_quants[3] ~ "Extreme",
-#       DCLI >= dcli_quants[2] ~ "High",
-#       DCLI >= dcli_quants[1] ~ "Moderate",
-#       TRUE                   ~ "Low"
-#     ),
-#     dominance_class = factor(
-#       dominance_class,
-#       levels = c("Low", "Moderate", "High", "Extreme")
-#     )
-#   )
-# 
-# # See where VA lands
-# state_indices_2023 %>%
-#   filter(Utility.State == "VA")
-# 
-# ############################################################
-# ## 18. Plots: Load-Weighted Index and DCLI
-# ############################################################
-# 
-# # Plot 4: Load-weighted high-demand index (ridge), VA highlighted
-# ggplot(state_indices_2023,
-#        aes(x = reorder(Utility.State, prop_sales_high_ridge),
-#            y = prop_sales_high_ridge,
-#            fill = Utility.State == "VA")) +
-#   geom_col() +
-#   coord_flip() +
-#   scale_fill_manual(values = c("grey70", "darkorange"),
-#                     guide = "none") +
-#   theme_minimal() +
-#   labs(
-#     title = "Load-Weighted High-Demand Index by State (Ridge Model, 2023)",
-#     x     = "State",
-#     y     = "Share of Retail Sales from High-Demand Utilities",
-#     caption = "Weights each utility by total retail sales; highlights states dominated by a few massive utilities."
-#   )
-# 
-# # Plot 5: Compare count-based vs load-weighted for selected states
-# focus_states <- c("VA", "NY", "NJ", "CA", "MD", "TX", "CO")
-# 
-# state_compare_2023 <- state_summary_2023 %>%
-#   inner_join(state_indices_2023,
-#              by = c("Utility.State", "n_util")) %>%
-#   filter(Utility.State %in% focus_states) %>%
-#   select(Utility.State,
-#          prop_high_ridge,
-#          prop_sales_high_ridge) %>%
-#   pivot_longer(
-#     cols = c(prop_high_ridge, prop_sales_high_ridge),
-#     names_to = "Metric",
-#     values_to = "Value"
-#   )
-# 
-# ggplot(state_compare_2023,
-#        aes(x = Utility.State, y = Value,
-#            fill = Metric)) +
-#   geom_col(position = "dodge") +
-#   theme_minimal() +
-#   labs(
-#     title = "Count-Based vs Load-Weighted High-Demand Share (Ridge, 2023)",
-#     x     = "State",
-#     y     = "Proportion",
-#     fill  = "Metric"
-#   )
-# 
-# # Plot 6: DCLI by state with dominance classes, VA highlighted
-# ggplot(state_indices_2023,
-#        aes(x = reorder(Utility.State, DCLI),
-#            y = DCLI,
-#            fill = dominance_class)) +
-#   geom_col() +
-#   coord_flip() +
-#   theme_minimal() +
-#   scale_fill_brewer(palette = "RdYlGn", direction = -1) +
-#   labs(
-#     title = "Composite Data Center Load Index (DCLI) by State (2023)",
-#     x     = "State",
-#     y     = "DCLI (0–1, higher = more DC-like load concentration)",
-#     fill  = "Dominance Class"
-#   )
-# 
-# # Optional: zoom in on top 10 DCLI states
-# top10_dcli <- state_indices_2023 %>%
-#   arrange(desc(DCLI)) %>%
-#   slice(1:10)
-# 
-# ggplot(top10_dcli,
-#        aes(x = reorder(Utility.State, DCLI),
-#            y = DCLI,
-#            fill = dominance_class)) +
-#   geom_col() +
-#   coord_flip() +
-#   theme_minimal() +
-#   scale_fill_brewer(palette = "RdYlGn", direction = -1) +
-#   labs(
-#     title = "Top 10 States by Composite Data Center Load Index (DCLI)",
-#     x     = "State",
-#     y     = "DCLI"
-#   )
+#### Methodology 
 
+To answer these questions, we first considered our trained ridge-penalized logistic regression model trained on 2023 utility-level data to classify each utility as either high-demand or normal-demand based on our engineered intensity features. We then applied this fitted model, along with a random forest classifier, to out-of-sample years (2018 and 2023) by re-featurizing the EIA-861 data for each year and carefully aligning factor levels and matrix columns with the original training set. This produced a combined dataset (classified_all) containing predicted high-demand labels for every utility, year, and state. From this, we constructed state-level summaries: 
+
+(i) the proportion of utilities classified as high-demand (to measure concentration), and 
+
+(ii) a composite Data Center Load Index (DCLI) @eq-dcli that averages the share of total retail sales, customers, and commercial sales served by high-demand utilities (to measure dominance). The resulting state-level proportions and DCLI values were then visualized to compare Virginia’s position to that of other states.
+
+$$
+\text{DCLI}_s
+=
+\frac{
+\left( 
+\frac{\text{HighSales}_s}{\text{TotalSales}_s}
+\right)
++
+\left(
+\frac{\text{HighCustomers}_s}{\text{TotalCustomers}_s}
+\right)
++
+\left(
+\frac{\text{HighCommercialSales}_s}{\text{TotalCommercialSales}_s}
+\right)
+}{3}
+$$ {#eq-dcli}
+
+Where:
+
+- $\mathcal{U}_s$ = set of **all utilities** in state $s$  
+- $\mathcal{H}_s \subset \mathcal{U}_s$ = subset of **high-demand utilities** in state $s$  
+- *Sales* = total annual retail electricity sales  
+- *Customers* = total annual number of customers  
+- *CommSales* = total annual **commercial-sector** electricity sales 
+
+#### Results 
+
+As can be seen in @fig-results-proportion, across all states, we find that Virginia does not emerge as the single most extreme state in terms of the number of utilities classified as high-demand. Instead, it ranks roughly tenth, placing it in the top ten nationally. This means that Virginia’s utility mix is unmistakably more “high-intensity” than that of the typical U.S. state, but several states exhibit even higher concentrations of load-intensive utilities. These findings indicate that while Virginia is a key center of high-demand electricity usage, it is not unique in having utilities that show strong commercial and per-customer intensity profiles.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: fig-results-proportion
+#| fig-cap: "Proportion of high-demand utilities (Virginia vs national) - Ridge Model"
+#| fig-width: 9
+#| fig-height: 7
+
+classify_year_with_models <- function(
+  year,
+  data_all = power_combined,
+  featurizer = featurize_utilities,
+  ridge_obj = ridge_cv,
+  rf_obj = rf_model,
+  formula = formula_all,
+  train_data = train,
+  x_cols = ridge_x_cols
+) {
+  df_year_fe <- data_all %>%
+    dplyr::filter(Year == year) %>%
+    featurizer()
+
+  df_year_fe <- df_year_fe %>%
+    dplyr::mutate(
+      Utility.Type = factor(
+        Utility.Type,
+        levels = levels(train_data$Utility.Type)
+      )
+    )
+
+  if (is.factor(train_data$is_VA)) {
+    df_year_fe <- df_year_fe %>%
+      dplyr::mutate(is_VA = factor(is_VA, levels = levels(train_data$is_VA)))
+  } else if (is.logical(train_data$is_VA)) {
+    df_year_fe <- df_year_fe %>%
+      dplyr::mutate(is_VA = as.logical(is_VA))
+  } else if (is.numeric(train_data$is_VA)) {
+    df_year_fe <- df_year_fe %>%
+      dplyr::mutate(is_VA = as.numeric(is_VA))
+  }
+
+  terms_x <- delete.response(stats::terms(formula))
+  X_year <- model.matrix(terms_x, data = df_year_fe)
+  X_year <- X_year[, colnames(X_year) != "(Intercept)", drop = FALSE]
+
+  if (!is.null(x_cols)) {
+    X_tmp <- matrix(0, nrow = nrow(X_year), ncol = length(x_cols))
+    colnames(X_tmp) <- x_cols
+
+    common <- intersect(colnames(X_year), x_cols)
+    if (length(common) > 0) {
+      X_tmp[, common] <- X_year[, common, drop = FALSE]
+    }
+
+    X_year <- X_tmp
+  }
+
+  ridge_prob <- predict(
+    ridge_obj,
+    newx = X_year,
+    s = "lambda.min",
+    type = "response"
+  )
+  ridge_class <- ifelse(ridge_prob >= 0.5, 1L, 0L)
+
+  rf_vars <- c(
+    "Commercial_Ratio", "SalesPerCustomer", "Commercial_SPC",
+    "Losses_Ratio", "log_Total_Customers", "is_VA", "Utility.Type"
+  )
+
+  df_for_rf <- df_year_fe %>%
+    dplyr::select(dplyr::all_of(rf_vars))
+
+  rf_class <- predict(rf_obj, newdata = df_for_rf, type = "response")
+
+  if (is.factor(rf_class)) {
+    rf_class_int <- as.integer(as.character(rf_class))
+  } else {
+    rf_class_int <- as.integer(rf_class)
+  }
+
+  df_year_fe %>%
+    dplyr::mutate(
+      pred_high_ridge = ridge_class,
+      pred_high_rf    = rf_class_int
+    )
+}
+
+############################################################
+## Create classified_all
+############################################################
+
+years_to_compare <- c(2018, 2023)
+
+classified_list <- lapply(
+  years_to_compare,
+  classify_year_with_models,
+  train_data = train,
+  x_cols = ridge_x_cols
+)
+
+names(classified_list) <- years_to_compare
+
+classified_all <- dplyr::bind_rows(
+  lapply(names(classified_list), function(yr) {
+    classified_list[[yr]] %>%
+      dplyr::mutate(Year = as.integer(yr))
+  })
+)
+
+############################################################
+## Proportion of high-demand utilities (Virginia vs national) - Ridge Model
+############################################################
+
+state_prop_high <- classified_all %>%
+  dplyr::group_by(Year, Utility.State) %>%
+  dplyr::summarise(
+    n_util = dplyr::n(),
+    n_high_ridge = sum(pred_high_ridge == 1L, na.rm = TRUE),
+    prop_high_ridge = n_high_ridge / n_util,
+    .groups = "drop"
+  )
+
+plot_prop_va <- ggplot(
+  state_prop_high,
+  aes(
+    x = reorder(Utility.State, prop_high_ridge),
+    y = prop_high_ridge,
+    fill = Utility.State == "VA"
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~ Year, scales = "free_y") +
+  scale_fill_manual(
+    values = c("grey80", "steelblue"),
+    labels = c("Other States", "Virginia"),
+    name = ""
+  ) +
+  labs(
+    title = "Proportion of Predicted High-Demand Utilities by State (Ridge Model)",
+    x = "State",
+    y = "Proportion of utilities classified as high-demand"
+  ) +
+  theme_minimal(base_size = 12)
+
+print(plot_prop_va)
+
+``` 
+
+However, simple utility counts do not reflect overall dominance, because not all utilities are equal in size or influence. To address this, we constructed the Data Center Load Index (DCLI) a composite metric averaging the retail-sales-weighted, customer-weighted, and commercial-sales-weighted share of total load served by high-demand utilities. This index captures not just how many high-demand utilities a state has, but how important they are to the state’s power demand. As can be seen in @fig-results-dcli under the DCLI, Virginia again appears in the upper tier of states, but is outpaced by a handful of states where one or two utilities dominate nearly the entire statewide load. Importantly, several of these top-ranked states are not traditional data center hubs, suggesting that our intensity-based classification is detecting a broader category of industrial and commercial high-load behavior not only hyperscale data centers.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+#| label: fig-results-dcli
+#| fig-cap: "High-demand utility concentration and weighted dominance across states, highlighting Virginia."
+#| fig-width: 9
+#| fig-height: 7
+
+
+############################################################
+## Weighted DCLI dominance (retail sales, customers, commercial sales)
+############################################################
+
+state_weighted <- classified_all %>%
+  dplyr::group_by(Year, Utility.State) %>%
+  dplyr::summarise(
+    total_retail_sales = sum(Retail.Total.Sales, na.rm = TRUE),
+    total_customers = sum(Retail.Total.Customers, na.rm = TRUE),
+    total_comm_sales = sum(Retail.Commercial.Sales, na.rm = TRUE),
+
+    high_sales_ridge = sum(dplyr::if_else(pred_high_ridge == 1L,
+                                              Retail.Total.Sales, 0),
+                               na.rm = TRUE),
+    high_customers_ridge = sum(dplyr::if_else(pred_high_ridge == 1L,
+                                              Retail.Total.Customers, 0),
+                               na.rm = TRUE),
+    high_comm_ridge = sum(dplyr::if_else(pred_high_ridge == 1L,
+                                              Retail.Commercial.Sales, 0),
+                               na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  dplyr::mutate(
+    prop_sales_high_ridge = dplyr::if_else(
+      total_retail_sales > 0,
+      high_sales_ridge / total_retail_sales,
+      NA_real_
+    ),
+    prop_customers_high_ridge = dplyr::if_else(
+      total_customers > 0,
+      high_customers_ridge / total_customers,
+      NA_real_
+    ),
+    prop_comm_high_ridge      = dplyr::if_else(
+      total_comm_sales > 0,
+      high_comm_ridge / total_comm_sales,
+      NA_real_
+    ),
+    DCLI_ridge = (
+      prop_sales_high_ridge +
+      prop_customers_high_ridge +
+      prop_comm_high_ridge
+    ) / 3
+  )
+
+top_states_dcli <- state_weighted %>%
+  dplyr::group_by(Year) %>%
+  dplyr::arrange(dplyr::desc(DCLI_ridge)) %>%
+  dplyr::slice_head(n = 15) %>%
+  dplyr::ungroup()
+
+plot_dcli_va <- ggplot(
+  top_states_dcli,
+  aes(
+    x = reorder(Utility.State, DCLI_ridge),
+    y = DCLI_ridge,
+    fill = Utility.State == "VA"
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~ Year, scales = "free_y") +
+  scale_fill_manual(
+    values = c("grey80", "firebrick"),
+    labels = c("Other States", "Virginia"),
+    name   = ""
+  ) +
+  labs(
+    title = "Data Center Load Index (DCLI) by State (Top 15, Ridge Model)",
+    x     = "State",
+    y     = "Composite high-demand load share (DCLI)"
+  ) +
+  theme_minimal(base_size = 12)
+
+print(plot_dcli_va)
 
 
 ```
 
+#### Discussion & Limitations 
+
+The DCLI reveals why Virginia ranks highly even though it has relatively few high-demand utilities. Virginia’s electricity system is anchored by a small number of extremely large utilities, most notably Dominion Energy and NOVEC. If one of these utilities is classified as high-demand, it automatically commands a very large share of total statewide sales and customers. In other words:
+
+**Virginia is not dominated by many high-demand utilities—it is dominated by a few enormous ones.**
+
+This explains Virginia’s strong DCLI ranking: high-demand load is concentrated inside a small number of massive utilities, rather than spread across many smaller ones as occurs in other states. By contrast, states like New York exhibit a high count of high-demand utilities, but these tend to be relatively small; their DCLI drops sharply once weighted by load. Other states appear at the top of the rankings due to industrial intensity where load patterns resemble the characteristics of our “high-demand” classification even though they are not data center hubs.
+
+These findings highlight both the strength and the limits of using utility-level EIA-861 data as a proxy for identifying data-center-like demand. Because the dataset does not identify data centers explicitly, the “high-demand” class inevitably captures a mixture of true hyperscale activity and unrelated high-load commercial or industrial customers. Rather than contradicting Virginia’s well-documented role as the world’s largest data center market, the results show that when we zoom out to a national, utility-level lens, data-center-like load is part of a broader pattern of concentrated high-intensity commercial usage across the United States.
+
+Bringing everything together, the proportional rankings and DCLI analysis provide a consistent story: Virginia stands out as one of the nation’s most high-demand states not because it has many high-demand utilities, but because the few that it does have carry enormous weight. When considering both concentration and dominance, Virginia emerges clearly as a high-intensity electricity state whose load structure reflects the presence of major hyperscale data center activity layered onto large, diversified utility territories.
+
 ## Conclusion
 
-This study demonstrates that utility level EIA 861 data despite lacking explicit data-center identifiers can successfully reveal data-center–like electricity demand patterns using structural load metrics, machine learning classification, and weighted dominance indices.
+This study demonstrates that utility-level EIA-861 data, despite lacking explicit data-center identifiers, can still reveal meaningful data-center–like electricity demand patterns when combined with structural load metrics, machine-learning classifiers, and weighted dominance indices such as the DCLI. Our results show that Virginia consistently ranks within the upper tier of states in both the proportion and dominance of high-demand utilities, though it is not the single most extreme case nationally. Instead, Virginia’s position is driven by a small number of very large utilities whose load profiles heavily influence statewide metrics—highlighting that intensity and dominance do not always correspond to the number of high-demand utilities alone.
 
-Key insights gained from this study:
+Key insights gained from this study include:
 
-Future considerations 
+- High-demand utility behavior is not unique to traditional data-center states; several states exhibit strong commercial or industrial load intensity unrelated to hyperscale development.
+
+- Virginia’s system stands out not because it has many high-demand utilities, but because its few high-intensity utilities represent a disproportionately large share of statewide load.
+
+- Weighted metrics such as the DCLI provide a more accurate picture of systemic dominance than simple counts of high-demand utilities.
+
+Future considerations:
+
+- More granular data such as substation-level load, hourly consumption, or direct data-center reporting would improve classification accuracy and help isolate genuine data-center demand from other high-load sectors.
+
+- Incorporating temporal dynamics through time-series models could reveal how high-demand behavior evolves as data-center growth accelerates.
+
+- Additional feature engineering or alternative classification approaches may help reduce noise in states where industrial load patterns resemble data-center behavior.
+
+Overall, this framework provides a scalable foundation for tracking evolving electricity demand pressures and assessing how data-center–like load patterns shape the resilience and planning needs of state-level power systems.
 
 ## References 
