@@ -26,6 +26,8 @@ website:
             href: projects/crime-and-poverty-CODE.qmd
           - text: Final Project
             href: projects/power.qmd
+          - text: Final Project - CODE
+            href: projects/powerCODE.qmd
   page-footer:
     center:
       - text: "© 2025 Jonathan Wilson"
